@@ -16,6 +16,7 @@
     "$",
     "jQuery",
     "jasmine",
+    "beforeAll",
     "beforeEach",
     "describe",
     "expect",
@@ -34,5 +35,6 @@
   "quotmark": true,
   "trailing": true,
   "undef": true,
-  "unused": true
+  "unused": true,
+  "esnext": true
 }
