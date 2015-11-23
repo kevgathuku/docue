@@ -1,14 +1,23 @@
 describe('Roles Spec', function() {
   'use strict';
 
-  let Role = require('../server/models/roles');
+  let helper = require('./helper');
+  let roleController = require('../server/controllers/roles');
 
-  it('should create a role with a unique title', function() {
+  beforeEach(function(done) {
+    // Empty the DB then fill in some dummy data
+    helper.clearDb(function() {
+      helper.seedRoles(done);
+    });
+  });
+
+  it('should create a role with a unique title', function(done) {
     // Try to create a duplicate role
-    Role.create({
-      title: 'Admin'
-    }, function(err, role) {
-      expect(err).not.toBe(null);
-    })
+    roleController.create('Admin', function(err, role) {
+      expect(role).toBeNull();
+      expect(err.name).toBe('ValidationError');
+      expect(err.message).toBe('Role already exists');
+      done();
+    });
   });
 });
