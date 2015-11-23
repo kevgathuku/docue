@@ -1,14 +1,13 @@
 (function() {
   'use strict';
 
-  let mongoose = require('mongoose');
-  mongoose.connect('mongodb://localhost/dms');
+  let mongoose = require('../config/db');
 
   let RoleSchema = mongoose.Schema({
-    'title': {
+    title: {
       type: String,
-      required: true,
-      unique: true
+      unique: true,
+      required: true
     }
   });
 
