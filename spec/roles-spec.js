@@ -7,9 +7,7 @@ describe('Roles Spec', function() {
   beforeEach(function(done) {
     // Empty the DB then fill in some dummy data
     helper.clearDb(function() {
-      helper.seedRoles(function() {
-        done();
-      });
+      helper.seedRoles(done);
     });
   });
 
@@ -23,29 +21,26 @@ describe('Roles Spec', function() {
     });
   });
 
-
-  it('should return all roles when getAllRoles is called', function(done) {
-    roleController.all(function(err, roles) {
-      console.log('Error', err);
-      expect(err).toBeNull();
-      // The 3 seeded Roles should be returned
-      expect(roles.length).toBe(3);
-      done();
+  describe('getAllRoles function', function() {
+    it('should return all roles when getAllRoles is called', function(done) {
+      roleController.all(function(err, roles) {
+        // The 3 seeded Roles should be returned
+        expect(roles.length).toBe(3);
+        done();
+      });
     });
-  });
 
-  // it('getAllRoles should return the correct roles', function(done) {
-  //   roleController.all(function(err, roles) {
-  //     // Make an array of the role titles
-  //     let allRoles = roles.map(function(role) {
-  //       return role.title;
-  //     });
-  //     // Assert that they contain the correct content
-  //     expect(allRoles).toContain('Admin');
-  //     expect(allRoles).toContain('SuperAdmin');
-  //     expect(allRoles).toContain('Sensei');
-  //     done();
-  //   });
-  // });
+    it('getAllRoles should return the correct roles', function() {
+      roleController.all(function(err, roles) {
+        // Make an array of the role titles
+        let allRoles = roles.map(role => role.title);
+        // Assert that they contain the correct content
+        expect(allRoles).toContain('Admin');
+        expect(allRoles).toContain('SuperAdmin');
+        expect(allRoles).toContain('Sensei');
+      });
+    });
+
+  });
 
 });
