@@ -28,5 +28,11 @@
       });
     },
 
+    all: function(callback) {
+      Role.find(function(err, roles) {
+        callback(err, roles);
+      });
+    },
+
   };
 })();
