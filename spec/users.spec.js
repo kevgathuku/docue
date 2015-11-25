@@ -23,7 +23,8 @@ describe('User Spec', function() {
             firstname: 'John',
             lastname: 'Snow',
             email: 'snow@winterfell.org',
-            password: 'knfenfenfen'
+            password: 'knfenfenfen',
+            role: 'admin'
           }
         })
         .then(response => {
@@ -58,7 +59,7 @@ describe('User Spec', function() {
             'User already exists');
         })
         .catch(error => {
-          expect(error).toBeNull();
+          expect(error).not.toBeNull();
         });
       done();
     });
@@ -75,11 +76,11 @@ describe('User Spec', function() {
         })
         .then(response => {
           expect(response.statusCode).toBe(400);
-          expect(JSON.parse(response.body).message).toBe(
+          expect(JSON.parse(response.body).error).toBe(
             'The user\'s role should be defined');
         })
         .catch(error => {
-          expect(error).toBeNull();
+          expect(error).not.toBeNull();
         });
       done();
     });

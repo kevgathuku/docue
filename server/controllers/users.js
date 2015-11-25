@@ -14,8 +14,11 @@
           // If the user already exists
           // Call the callback with an error object and a null user
           res.status(400).json({
-            name: 'ValidationError',
-            message: 'User already exists'
+            error: 'User already exists'
+          });
+        } else if (!req.body.role) {
+          res.status(400).json({
+            error: 'The user\'s role should be defined'
           });
         } else {
           // If the user does not exist, create one
@@ -26,7 +29,8 @@
               last: req.body.lastname
             },
             email: req.body.email,
-            password: req.body.password
+            password: req.body.password,
+            role: req.body.role
           }, function(error, newUser) {
             // Call the callback with a null error and the newly created user
             res.json(newUser);
