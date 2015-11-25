@@ -15,11 +15,9 @@
 
     seedRoles: function(next) {
       let roles = [{
-        title: 'Admin'
+        title: 'viewer'
       }, {
-        title: 'SuperAdmin'
-      }, {
-        title: 'Sensei'
+        title: 'owner'
       }];
 
       Roles.create(roles, function() {
