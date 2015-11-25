@@ -1,23 +1,33 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+(() => {
+  'use strict';
 
-require('dotenv').load();
+  let express = require('express'),
+    bodyParser = require('body-parser'),
+    app = express();
 
-var app = express();
-// configure app to use bodyParser()
-// this will let us get the data from a POST
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-app.use(bodyParser.json());
+  // Load the env variables
+  require('dotenv').load();
 
-var port = process.env.PORT || 3000; // set our port
+  // configure app to use bodyParser()
+  // this will let us get the data from a POST
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+  app.use(bodyParser.json());
 
-// default route
-app.get('/', function(req, res) {
-  res.send('Welcome to Express!');
-});
+  var port = process.env.PORT || 3000; // set our port
 
-// START THE SERVER
-app.listen(port);
-console.log('Magic happens on port ' + port);
+  // default route
+  app.get('/', function(req, res) {
+    res.send('Welcome to Express!');
+  });
+
+  app.use(require('./server/routes'));
+
+  // START THE SERVER
+  app.listen(port);
+  console.log('Magic happens on port ' + port);
+
+  // Export the app object
+  exports.app = app;
+})();

@@ -3,16 +3,15 @@ describe('User Spec', function() {
 
   const got = require('got');
   const helper = require('./helper');
-  const userController = require('../server/controllers/users');
   const baseUrl = 'http://localhost:3000/api/';
 
   beforeEach(function(done) {
     // Empty the DB then fill in some dummy data
     this.usersRoute = baseUrl + 'users';
     helper.clearDb(function() {
-      helper.seedRoles(helper.seedUsers(function() {
-        done();
-      }));
+      helper.seedRoles(function() {
+        helper.seedUsers(done);
+      });
     });
   });
 
