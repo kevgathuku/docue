@@ -1,6 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
+require('dotenv').load();
+
 var app = express();
 // configure app to use bodyParser()
 // this will let us get the data from a POST
