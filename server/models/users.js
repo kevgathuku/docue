@@ -27,7 +27,11 @@
       lowercase: true,
       required: true,
       trim: true
-    }
+    },
+    role: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role'
+    },
   });
 
   module.exports = mongoose.model('User', UserSchema);
