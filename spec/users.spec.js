@@ -43,8 +43,8 @@ describe('User Spec', function() {
         });
     });
 
-    it('should not create a duplicate user', function(done) {
-      // Try to create a duplicate user
+    it('should enforce a unique username field', function(done) {
+      // Try to provide a duplicate username field
       request(app)
         .post('/api/users')
         .send({
@@ -52,6 +52,28 @@ describe('User Spec', function() {
           firstname: 'John',
           lastname: 'Snow',
           email: 'snow@winterfell.org',
+          password: 'knfenfenfen',
+          role: 'viewer'
+        })
+        .set('Accept', 'application/json')
+        .end(function(err, res) {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(400);
+          expect(res.body.error).toBe(
+            'The User already exists');
+          done();
+        });
+    });
+
+    it('should enforce a unique email field', function(done) {
+      // Try to provide a duplicate email field
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'jsnow67',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'jsnow@winterfell.org',
           password: 'knfenfenfen',
           role: 'viewer'
         })

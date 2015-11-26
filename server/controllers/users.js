@@ -20,9 +20,11 @@
         req.body.role = Roles.schema.paths.title.default();
       }
       // Check if the user already exists
-      Users.findOne({
+      Users.findOne().or([{
         username: req.body.username
-      }, function(err, user) {
+      }, {
+        email: req.body.email
+      }]).exec(function(err, user) {
         if (err) {
           return next(err);
         }
