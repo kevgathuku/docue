@@ -6,39 +6,57 @@
   let Roles = require('../models/roles');
 
   module.exports = {
-    create: function(req, res) {
-      // Find if the user exists
+    create: function(req, res, next) {
+      if (!req.body.username || !req.body.firstname ||
+        !req.body.lastname || !req.body.email || !req.body.password) {
+        let err = new Error(
+          'Please provide the username, firstname, ' +
+          'lastname, email, and password values'
+        );
+        err.status = 400;
+        return next(err);
+      } else if (!req.body.role) {
+        // Set the role field to the default value if not provided
+        req.body.role = Roles.schema.paths.title.default();
+      }
+      // Check if the user already exists
       Users.findOne({
         username: req.body.username
       }, function(err, user) {
+        if (err) {
+          return next(err);
+        }
         if (user) {
-          // If the user already exists
-          // Call the callback with an error object and a null user
-          res.status(400).json({
-            error: 'User already exists'
-          });
-        } else if (!req.body.role) {
-          res.status(400).json({
-            error: 'The user\'s role should be defined'
-          });
+          // The user already exists
+          let error = new Error('The User already exists');
+          error.status = 400;
+          return next(error);
         } else {
           Roles.findOne({
             title: req.body.role
-          }, function(role) {
-            // Create the user
-            Users.create({
-              username: req.body.username,
-              name: {
-                first: req.body.firstname,
-                last: req.body.lastname
-              },
-              email: req.body.email,
-              password: req.body.password,
-              role: role._id
-            }, function(error, newUser) {
-              // Return the newly created user
-              res.json(newUser);
-            });
+          }, function(err, role) {
+            if (err) {
+              return next(err);
+            } else {
+              // Create the user with the role specified
+              Users.create({
+                username: req.body.username,
+                name: {
+                  first: req.body.firstname,
+                  last: req.body.lastname
+                },
+                email: req.body.email,
+                password: req.body.password,
+                role: role._id
+              }, function(error, newUser) {
+                if (error) {
+                  return next(error);
+                } else {
+                  // Return the newly created user
+                  res.status(201).json(newUser);
+                }
+              });
+            }
           });
         }
       });

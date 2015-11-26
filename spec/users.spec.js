@@ -1,9 +1,10 @@
 describe('User Spec', function() {
   'use strict';
 
-  const got = require('got');
   const helper = require('./helper');
   const baseUrl = 'http://localhost:3000/api/';
+  const request = require('supertest');
+  const app = require('../index');
 
   beforeEach(function(done) {
     // Empty the DB then fill in some dummy data
@@ -17,94 +18,92 @@ describe('User Spec', function() {
 
   describe('User Creation', function() {
     it('should create a user successfully', function(done) {
-      got.post(this.usersRoute, {
-          form: {
-            username: 'johnSnow',
-            firstname: 'John',
-            lastname: 'Snow',
-            email: 'snow@winterfell.org',
-            password: 'knfenfenfen',
-            role: 'admin'
-          }
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'johnSnow',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'snow@winterfell.org',
+          password: 'knfenfenfen',
+          role: 'viewer'
         })
-        .then(response => {
-          expect(response.statusCode).toBe(201);
-          expect(JSON.parse(response.body).username).toBe(
-            'johnSnow');
-          expect(JSON.parse(response.body).name.first).toBe(
+        .set('Accept', 'application/json')
+        .expect(201)
+        .end(function(err, res) {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(201);
+          expect(res.body.username).toBe('johnSnow');
+          expect(res.body.name.first).toBe(
             'John');
-          expect(JSON.parse(response.body).name.last).toBe(
+          expect(res.body.name.last).toBe(
             'Snow');
-        })
-        .catch(error => {
-          expect(error).toBeNull();
+          expect(res.body.id).not.toBeNull();
+          done();
         });
-      done();
     });
 
     it('should not create a duplicate user', function(done) {
       // Try to create a duplicate user
-      got.post(this.usersRoute, {
-          form: {
-            username: 'jsnow',
-            firstname: 'John',
-            lastname: 'Snow',
-            email: 'jsnow@winterfell.org',
-            password: 'knfenfenfen'
-          }
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'jsnow',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'snow@winterfell.org',
+          password: 'knfenfenfen',
+          role: 'viewer'
         })
-        .then(response => {
-          expect(response.statusCode).toBe(400);
-          expect(JSON.parse(response.body).error).toBe(
-            'User already exists');
-        })
-        .catch(error => {
-          expect(error).not.toBeNull();
+        .set('Accept', 'application/json')
+        .end(function(err, res) {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(400);
+          expect(res.body.error).toBe(
+            'The User already exists');
+          done();
         });
-      done();
     });
 
-    it('should require user\'s role to be defined', function(done) {
-      got.post(this.usersRoute, {
-          form: {
-            username: 'johnSnow',
+    it('should populate the user\'s role if it is not defined',
+      function(done) {
+        request(app)
+          .post('/api/users')
+          .send({
+            username: 'newUser',
             firstname: 'John',
             lastname: 'Snow',
             email: 'snow@winterfell.org',
-            password: 'knfenfenfen'
-          }
-        })
-        .then(response => {
-          expect(response.statusCode).toBe(400);
-          expect(JSON.parse(response.body).error).toBe(
-            'The user\'s role should be defined');
-        })
-        .catch(error => {
-          expect(error).not.toBeNull();
-        });
-      done();
-    });
+            password: 'knfenfenfen',
+          })
+          .end(function(err, res) {
+            expect(err).toBeNull();
+            expect(res.statusCode).toBe(201);
+            expect(res.body.role).not.toBeNull();
+            // The role should be a string data type
+            expect(res.body.role).toEqual(jasmine.any(String));
+            done();
+          });
+      });
 
   });
 
   describe('getAllUsers function', function() {
 
     it('should return all users when called', function(done) {
-      got(this.usersRoute)
-        .then(response => {
-          // Should return the 2 seeded users
-          expect(JSON.parse(response.body).length).toBe(2);
-          expect(JSON.parse(response.body[0]).username).toBe(
-            'jsnow');
-          expect(JSON.parse(response.body[1]).username).toBe(
-            'nstark');
-          console.log(response.body);
-        })
-        .catch(error => {
-          expect(error).toBeNull();
+      // The 2 seeded Roles should be returned
+      request(app)
+        .get('/api/users')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end(function(err, res) {
+          expect(err).toBeNull();
+          expect(res.body.length).toBe(2);
+          expect(res.body[0].username).toBe('jsnow');
+          expect(res.body[1].username).toBe('nstark');
+          done();
         });
-      done();
     });
-
   });
+
 });

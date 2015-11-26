@@ -8,7 +8,11 @@
     clearDb: function(next) {
       Roles.remove({}, function(err) {
         if (!err) {
-          next();
+          Users.remove({}, function(error) {
+            if (!error) {
+              next();
+            }
+          });
         }
       });
     },
