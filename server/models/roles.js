@@ -9,7 +9,7 @@
       unique: true,
       required: true,
       default: 'viewer',
-      enum: ['viewer', 'owner']
+      enum: ['viewer', 'collaborator', 'owner']
     }
   });
 

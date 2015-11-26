@@ -29,5 +29,5 @@
   console.log('Magic happens on port ' + port);
 
   // Export the app object
-  exports.app = app;
+  module.exports = app;
 })();
