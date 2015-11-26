@@ -4,33 +4,44 @@
   let Role = require('../models/roles');
 
   module.exports = {
-    create: function(title, callback) {
+    create: function(req, res) {
+      let validRoles = Role.schema.paths.title.enumValues;
+      if (!req.body.title) {
+        res.status(400).json({
+          error: 'The role title is required'
+        });
+      } else if (validRoles.indexOf(req.body.title) === -1) {
+        // Handle an invalid role title
+        res.status(400).json({
+          error: req.body.title +
+            ' is not a valid role title'
+        });
+      }
       // Find if the role exists
       Role.findOne({
-        title: title
+        title: req.body.title
       }, function(err, role) {
         if (role) {
-          // If the role already exists
-          // Call the callback with an error object and a null role
-          callback({
-            name: 'ValidationError',
-            message: 'Role already exists'
-          }, null);
+          // If the role already exists send a validation error
+          res.status(400).json({
+            error: 'Role already exists'
+          });
         } else {
           // If the role does not exist, create it
           Role.create({
-            title: title
+            title: req.body.title
           }, function(error, newRole) {
-            // Call the callback with a null error and the newly created role
-            callback(null, newRole);
+            if (!error) {
+              res.status(201).json(newRole);
+            }
           });
         }
       });
     },
 
-    all: function(callback) {
+    all: function(req, res) {
       Role.find(function(err, roles) {
-        callback(err, roles);
+        res.json(roles);
       });
     },
 

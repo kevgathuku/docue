@@ -1,21 +1,50 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+(() => {
+  'use strict';
 
-var app = express();
-// configure app to use bodyParser()
-// this will let us get the data from a POST
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-app.use(bodyParser.json());
+  let express = require('express'),
+    bodyParser = require('body-parser'),
+    app = express();
 
-var port = process.env.PORT || 3000; // set our port
+  // Load the env variables
+  require('dotenv').load();
 
-// default route
-app.get('/', function(req, res) {
-  res.send('Welcome to Express!');
-});
+  // configure app to use bodyParser()
+  // this will let us get the data from a POST
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+  app.use(bodyParser.json());
 
-// START THE SERVER
-app.listen(port);
-console.log('Magic happens on port ' + port);
+  var port = process.env.PORT || 3000; // set our port
+
+  // default route
+  app.get('/', function(req, res) {
+    res.send('Welcome to Express!');
+  });
+
+  app.use(require('./server/routes'));
+
+  app.use(function(err, req, res, next) {
+    if (res.headersSent) {
+      return next(err);
+    }
+    res.status(err.status || 500).json({
+      error: err.message
+    });
+  });
+
+  // catch 404 errors
+  app.use(function(req, res) {
+    var err = new Error('Not Found');
+    res.status(404).json({
+      error: err.message
+    });
+  });
+
+  // START THE SERVER
+  app.listen(port);
+  console.log('Magic happens on port ' + port);
+
+  // Export the app object
+  module.exports = app;
+})();
