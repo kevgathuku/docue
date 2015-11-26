@@ -24,6 +24,23 @@
 
   app.use(require('./server/routes'));
 
+  app.use(function(err, req, res, next) {
+    if (res.headersSent) {
+      return next(err);
+    }
+    res.status(err.status || 500).json({
+      error: err.message
+    });
+  });
+
+  // catch 404 errors
+  app.use(function(req, res) {
+    var err = new Error('Not Found');
+    res.status(404).json({
+      error: err.message
+    });
+  });
+
   // START THE SERVER
   app.listen(port);
   console.log('Magic happens on port ' + port);
