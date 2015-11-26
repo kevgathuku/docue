@@ -4,33 +4,32 @@
   let Role = require('../models/roles');
 
   module.exports = {
-    create: function(title, callback) {
+    create: function(req, res) {
       // Find if the role exists
       Role.findOne({
-        title: title
+        title: req.body.title
       }, function(err, role) {
         if (role) {
           // If the role already exists
           // Call the callback with an error object and a null role
-          callback({
+          res.status(500).json({
             name: 'ValidationError',
             message: 'Role already exists'
-          }, null);
+          });
         } else {
           // If the role does not exist, create it
           Role.create({
-            title: title
+            title: req.body.title
           }, function(error, newRole) {
-            // Call the callback with a null error and the newly created role
-            callback(null, newRole);
+            res.json(newRole);
           });
         }
       });
     },
 
-    all: function(callback) {
+    all: function(req, res) {
       Role.find(function(err, roles) {
-        callback(err, roles);
+        res.json(roles);
       });
     },
 
