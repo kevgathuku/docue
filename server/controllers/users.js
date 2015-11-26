@@ -3,6 +3,7 @@
 
 
   let Users = require('../models/users');
+  let Roles = require('../models/roles');
 
   module.exports = {
     create: function(req, res) {
@@ -21,19 +22,23 @@
             error: 'The user\'s role should be defined'
           });
         } else {
-          // If the user does not exist, create one
-          Users.create({
-            username: req.body.username,
-            name: {
-              first: req.body.firstname,
-              last: req.body.lastname
-            },
-            email: req.body.email,
-            password: req.body.password,
-            role: req.body.role
-          }, function(error, newUser) {
-            // Call the callback with a null error and the newly created user
-            res.json(newUser);
+          Roles.findOne({
+            title: req.body.role
+          }, function(role) {
+            // Create the user
+            Users.create({
+              username: req.body.username,
+              name: {
+                first: req.body.firstname,
+                last: req.body.lastname
+              },
+              email: req.body.email,
+              password: req.body.password,
+              role: role._id
+            }, function(error, newUser) {
+              // Return the newly created user
+              res.json(newUser);
+            });
           });
         }
       });
