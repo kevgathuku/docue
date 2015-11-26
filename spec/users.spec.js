@@ -2,13 +2,11 @@ describe('User Spec', function() {
   'use strict';
 
   const helper = require('./helper');
-  const baseUrl = 'http://localhost:3000/api/';
   const request = require('supertest');
   const app = require('../index');
 
   beforeEach(function(done) {
     // Empty the DB then fill in some dummy data
-    this.usersRoute = baseUrl + 'users';
     helper.clearDb(function() {
       helper.seedRoles(function() {
         helper.seedUsers(done);

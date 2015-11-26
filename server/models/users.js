@@ -1,4 +1,4 @@
-(function() {
+(() => {
   'use strict';
 
   let mongoose = require('../config/db');
@@ -27,6 +27,11 @@
       lowercase: true,
       required: true,
       unique: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      required: true,
       trim: true
     },
     role: {

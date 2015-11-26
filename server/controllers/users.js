@@ -1,7 +1,6 @@
 (() => {
   'use strict';
 
-
   let Users = require('../models/users');
   let Roles = require('../models/roles');
 

@@ -1,4 +1,4 @@
-(function() {
+(() => {
   'use strict';
 
   let Roles = require('../server/models/roles');
