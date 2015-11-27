@@ -13,7 +13,9 @@
   app.set('superSecret', process.env.SECRET);
 
   // use morgan to log requests to the console
-  app.use(morgan('dev'));
+  if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+  }
 
   // configure app to use bodyParser()
   // this will let us get the data from a POST
