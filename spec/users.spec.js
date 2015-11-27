@@ -4,13 +4,12 @@ describe('User Spec', function() {
   const helper = require('./helper');
   const request = require('supertest');
   const app = require('../index');
+  let token = null;
 
   beforeEach(function(done) {
-    // Empty the DB then fill in some dummy data
-    helper.clearDb(function() {
-      helper.seedRoles(function() {
-        helper.seedUsers(done);
-      });
+    helper.beforeEach(token, function(generatedToken) {
+      token = generatedToken;
+      done();
     });
   });
 

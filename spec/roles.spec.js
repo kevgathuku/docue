@@ -7,22 +7,9 @@ describe('Roles Spec', function() {
   let token = null;
 
   beforeEach(function(done) {
-    // Empty the DB then fill in some dummy data
-    helper.clearDb(function() {
-      helper.seedRoles(function() {
-        helper.seedUsers(function(users) {
-          request(app)
-            .post('/api/users/login')
-            .send({
-              username: users[0].username,
-              password: users[0].password
-            })
-            .end(function(err, res) {
-              token = res.body.token;
-              done();
-            });
-        });
-      });
+    helper.beforeEach(token, function(generatedToken) {
+      token = generatedToken;
+      done();
     });
   });
 
