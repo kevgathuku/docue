@@ -3,10 +3,18 @@
 
   let express = require('express'),
     bodyParser = require('body-parser'),
+    jwt = require('jsonwebtoken'),
+    morgan = require('morgan'),
     app = express();
 
   // Load the env variables
   require('dotenv').load();
+
+  // Set JWT secret on the app object
+  app.set('superSecret', process.env.SECRET);
+
+  // use morgan to log requests to the console
+  app.use(morgan('dev'));
 
   // configure app to use bodyParser()
   // this will let us get the data from a POST
