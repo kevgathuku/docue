@@ -64,6 +64,21 @@
       });
     },
 
+    get: function(req, res) {
+      // Don't send back the password field
+      Users.findOne({
+        '_id': req.params.id
+      }, '_id name username email role', function(err, user) {
+        if (err) {
+          return res.status(500).json({
+            error: err.message
+          });
+        } else {
+          res.json(user);
+        }
+      });
+    },
+
     all: function(req, res) {
       Users.find(function(err, users) {
         if (err) {
