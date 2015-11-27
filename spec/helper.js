@@ -48,8 +48,8 @@
         'password': 'winterIsComing'
       }];
 
-      Users.create(users, function() {
-        next();
+      Users.create(users, function(err, createdUsers) {
+        next(createdUsers);
       });
     },
 
