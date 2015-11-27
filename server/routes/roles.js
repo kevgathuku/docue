@@ -1,14 +1,14 @@
 (() => {
   'use strict';
 
-  var Roles = require('../controllers/roles');
-
-  var express = require('express'),
+  let express = require('express'),
+    Roles = require('../controllers/roles'),
+    Users = require('../controllers/users'),
     router = express.Router();
 
   router.route('/roles')
-    .post(Roles.create)
-    .get(Roles.all);
+    .post(Users.authenticate, Roles.create)
+    .get(Users.authenticate, Roles.all);
 
   module.exports = router;
 })();

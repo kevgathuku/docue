@@ -1,8 +1,9 @@
 (() => {
   'use strict';
 
-  let Users = require('../models/users');
-  let Roles = require('../models/roles');
+  let jwt = require('jsonwebtoken'),
+    Users = require('../models/users'),
+    Roles = require('../models/roles');
 
   module.exports = {
     create: function(req, res, next) {
@@ -75,6 +76,61 @@
       });
     },
 
+    login: function(req, res, next) {
+      Users.findOne({
+        username: req.body.username
+      }, function(err, user) {
+        if (err) {
+          return next(err);
+        } else if (!user) {
+          res.status(401).json({
+            error: 'User not found.'
+          });
+        } else if (user.password != req.body.password) {
+          res.status(401).json({
+            error: 'Authentication failed. Wrong password.'
+          });
+        } else {
+          // User is found and password is correct
+          // Sign the user object with the app secret
+          let token = jwt.sign(user, req.app.get('superSecret'), {
+            expiresIn: 86400 // expires in 24 hours
+          });
+          res.json({
+            user: user,
+            token: token
+          });
+        }
+      });
+    },
+
+    // route middleware to verify a token
+    authenticate: function(req, res, next) {
+      // check header or post parameters for token
+      let token = req.body.token || req.headers['x-access-token'];
+
+      // decode token
+      if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, req.app.get('superSecret'), function(err,
+          decoded) {
+          if (err) {
+            return res.status(401).json({
+              error: 'Failed to authenticate token.'
+            });
+          } else {
+            // if everything is good, save to request for use in other routes
+            req.decoded = decoded;
+            next();
+          }
+        });
+      } else {
+        // if there is no token return an error
+        return res.status(403).send({
+          error: 'No token provided.'
+        });
+      }
+    },
 
   };
 })();
