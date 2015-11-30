@@ -19,7 +19,7 @@ describe('Roles Spec', function() {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'collaborator',
+          title: 'admin',
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
@@ -27,7 +27,7 @@ describe('Roles Spec', function() {
         .end(function(err, res) {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.title).toBe('collaborator');
+          expect(res.body.title).toBe('admin');
           expect(res.body.id).not.toBeNull();
           done();
         });
@@ -55,7 +55,7 @@ describe('Roles Spec', function() {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'viewer',
+          title: 'user',
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
@@ -109,8 +109,8 @@ describe('Roles Spec', function() {
         .end(function(err, res) {
           let allRoles = res.body.map(role => role.title);
           expect(err).toBeNull();
-          expect(allRoles[0]).toBe('viewer');
-          expect(allRoles[1]).toBe('owner');
+          expect(allRoles[0]).toBe('user');
+          expect(allRoles[1]).toBe('staff');
           done();
         });
     });

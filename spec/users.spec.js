@@ -1,10 +1,11 @@
 describe('User Spec', function() {
   'use strict';
 
-  const helper = require('./helper');
-  const request = require('supertest');
-  const app = require('../index');
+  let helper = require('./helper');
+  let request = require('supertest');
+  let app = require('../index');
   let token = null;
+  let Roles = require('../server/models/roles');
 
   beforeEach(function(done) {
     helper.beforeEach(token, function(generatedToken) {
@@ -23,7 +24,7 @@ describe('User Spec', function() {
           lastname: 'Snow',
           email: 'snow@winterfell.org',
           password: 'knfenfenfen',
-          role: 'viewer'
+          role: Roles.schema.paths.title.default()
         })
         .set('Accept', 'application/json')
         .expect(201)
@@ -50,7 +51,7 @@ describe('User Spec', function() {
           lastname: 'Snow',
           email: 'snow@winterfell.org',
           password: 'knfenfenfen',
-          role: 'viewer'
+          role: Roles.schema.paths.title.default()
         })
         .set('Accept', 'application/json')
         .end(function(err, res) {
@@ -72,7 +73,7 @@ describe('User Spec', function() {
           lastname: 'Snow',
           email: 'jsnow@winterfell.org',
           password: 'knfenfenfen',
-          role: 'viewer'
+          role: Roles.schema.paths.title.default()
         })
         .set('Accept', 'application/json')
         .end(function(err, res) {

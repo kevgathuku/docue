@@ -20,9 +20,9 @@
 
   let seedRoles = function(next) {
     let roles = [{
-      title: 'viewer'
+      title: 'user'
     }, {
-      title: 'owner'
+      title: 'staff'
     }];
 
     Roles.create(roles, function() {
