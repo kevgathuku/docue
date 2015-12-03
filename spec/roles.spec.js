@@ -1,9 +1,9 @@
 describe('Roles Spec', function() {
   'use strict';
 
-  const request = require('supertest');
-  const helper = require('./helper');
-  const app = require('../index');
+  let request = require('supertest');
+  let helper = require('./helper');
+  let app = require('../index');
   let token = null;
 
   beforeEach(function(done) {

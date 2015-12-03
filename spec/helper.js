@@ -1,17 +1,22 @@
 (() => {
   'use strict';
 
+  let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
   let Users = require('../server/models/users');
-  const request = require('supertest');
-  const app = require('../index');
+  let request = require('supertest');
+  let app = require('../index');
 
   let clearDb = function(next) {
-    Roles.remove({}, function(err) {
+    Documents.remove({}, function(err) {
       if (!err) {
-        Users.remove({}, function(error) {
-          if (!error) {
-            next();
+        Roles.remove({}, function(err) {
+          if (!err) {
+            Users.remove({}, function(error) {
+              if (!error) {
+                next();
+              }
+            });
           }
         });
       }
