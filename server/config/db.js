@@ -4,7 +4,7 @@
   let mongoose = require('mongoose');
   mongoose.connect('mongodb://localhost/dms');
 
-  var db = mongoose.connection;
+  let db = mongoose.connection;
 
   db.on('error', console.error.bind(console, 'Connection Error : '));
   db.once('open', function() {

@@ -3,14 +3,13 @@ describe('Roles Spec', function() {
 
   const request = require('supertest');
   const helper = require('./helper');
-  const baseUrl = 'http://localhost:3000/api/';
   const app = require('../index');
+  let token = null;
 
   beforeEach(function(done) {
-    this.usersRoute = baseUrl + 'roles';
-    // Empty the DB then fill in some dummy data
-    helper.clearDb(function() {
-      helper.seedRoles(done);
+    helper.beforeEach(token, function(generatedToken) {
+      token = generatedToken;
+      done();
     });
   });
 
@@ -20,14 +19,15 @@ describe('Roles Spec', function() {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'collaborator',
+          title: 'admin',
         })
         .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .expect(201)
         .end(function(err, res) {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.title).toBe('collaborator');
+          expect(res.body.title).toBe('admin');
           expect(res.body.id).not.toBeNull();
           done();
         });
@@ -40,6 +40,7 @@ describe('Roles Spec', function() {
           title: '',
         })
         .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .end(function(err, res) {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(400);
@@ -54,9 +55,10 @@ describe('Roles Spec', function() {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'viewer',
+          title: 'user',
         })
         .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .end(function(err, res) {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(400);
@@ -74,6 +76,7 @@ describe('Roles Spec', function() {
           title: invalidTitle,
         })
         .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .end(function(err, res) {
           expect(res.statusCode).toBe(400);
           expect(res.body.error).toBe(
@@ -89,25 +92,28 @@ describe('Roles Spec', function() {
       // The 2 seeded Roles should be returned
       request(app)
         .get('/api/roles')
-        .expect('Content-Type', /json/)
-        .expect(200)
+        .set('x-access-token', token)
+        .set('Accept', 'application/json')
         .end(function(err, res) {
+          expect(res.statusCode).toBe(200);
           expect(err).toBeNull();
           expect(res.body.length).toBe(2);
           done();
         });
     });
 
-    //   it('getAllRoles should return the correct roles', function(done) {
-    //     roleController.all(function(err, roles) {
-    //       // Make an array of the role titles
-    //       let allRoles = roles.map(role => role.title);
-    //       // Assert that they contain the correct content
-    //       expect(allRoles[0]).toBe('viewer');
-    //       expect(allRoles[1]).toBe('owner');
-    //       done();
-    //     });
-    //   });
+    it('getAllRoles should return the correct roles', function(done) {
+      request(app)
+        .get('/api/roles')
+        .set('x-access-token', token)
+        .end(function(err, res) {
+          let allRoles = res.body.map(role => role.title);
+          expect(err).toBeNull();
+          expect(allRoles[0]).toBe('user');
+          expect(allRoles[1]).toBe('staff');
+          done();
+        });
+    });
 
   });
 

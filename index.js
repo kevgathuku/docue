@@ -3,10 +3,19 @@
 
   let express = require('express'),
     bodyParser = require('body-parser'),
+    morgan = require('morgan'),
     app = express();
 
   // Load the env variables
   require('dotenv').load();
+
+  // Set JWT secret on the app object
+  app.set('superSecret', process.env.SECRET);
+
+  // use morgan to log requests to the console
+  if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+  }
 
   // configure app to use bodyParser()
   // this will let us get the data from a POST
@@ -15,7 +24,7 @@
   }));
   app.use(bodyParser.json());
 
-  var port = process.env.PORT || 3000; // set our port
+  let port = process.env.PORT || 3000; // set our port
 
   // default route
   app.get('/', function(req, res) {
@@ -35,7 +44,7 @@
 
   // catch 404 errors
   app.use(function(req, res) {
-    var err = new Error('Not Found');
+    let err = new Error('Not Found');
     res.status(404).json({
       error: err.message
     });
