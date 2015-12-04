@@ -4,6 +4,9 @@
   let jwt = require('jsonwebtoken');
   let Documents = require('../models/documents');
 
+  let notFoundError = new Error('Not Found');
+  notFoundError.status = 404;
+
   module.exports = {
     create: (req, res) => {
       // check header or post parameters for token
@@ -52,7 +55,7 @@
           new: true
         }, (err, document) => {
           if (!document) {
-            return next(err);
+            return next(notFoundError);
           }
           res.send(document);
         });
@@ -63,10 +66,23 @@
         if (err) {
           return next(err);
         } else if (!document) {
-          return next(err);
+          return next(notFoundError);
         } else {
           res.send(document);
         }
+      });
+    },
+
+    delete: (req, res, next) => {
+      Documents.findOneAndRemove({
+        _id: req.params.id
+      }, function(err, doc) {
+        if (err) {
+          return next(err);
+        } else if (!doc) {
+          return next(notFoundError);
+        }
+        res.sendStatus(204);
       });
     },
 

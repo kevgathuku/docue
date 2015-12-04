@@ -12,7 +12,8 @@
 
   router.route('/documents/:id')
     .get(Users.authenticate, Documents.get)
-    .put(Users.authenticate, Documents.update);
+    .put(Users.authenticate, Documents.update)
+    .delete(Users.authenticate, Documents.delete);
 
   module.exports = router;
 })();
