@@ -8,21 +8,32 @@
   let request = require('supertest');
   let app = require('../index');
 
-  // TODO: Refactor to use async module
   let clearDb = (next) => {
-    Documents.remove({}, (err) => {
-      if (!err) {
-        Roles.remove({}, (err) => {
-          if (!err) {
-            Users.remove({}, (error) => {
-              if (!error) {
-                next();
-              }
-            });
-          }
-        });
-      }
-    });
+    async.series([
+        callback => {
+          // Remove all Documents
+          Documents.remove({}, (err, result) => {
+            callback(err, result);
+          });
+        },
+        callback => {
+          // Remove all Roles
+          Roles.remove({}, (err, result) => {
+            callback(err, result);
+          });
+        },
+        callback => {
+          // Remove all Users
+          Users.remove({}, (err, result) => {
+            callback(err, result);
+          });
+        },
+      ],
+      // Callback called after all functions are done
+      () => {
+        // Call next after all collections are emptied
+        next();
+      });
   };
 
   let seedRoles = (next) => {
