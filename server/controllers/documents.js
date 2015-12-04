@@ -87,7 +87,10 @@
     },
 
     all: (req, res) => {
+      // Set a default limit of 10 if one is not set
+      let limit = req.query.limit || 10;
       Documents.find({})
+        .limit(limit)
         .sort('-dateCreated')
         .exec((err, docs) => {
           res.json(docs);

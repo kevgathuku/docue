@@ -53,6 +53,20 @@ describe('Documents Spec', () => {
         });
     });
 
+    it('should return documents limited by a specified number', (done) => {
+      let limit = 2;
+      request(app)
+        .get('/api/documents?limit=' + limit)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          expect(err).toBeNull();
+          // Should return only the specified number of documents
+          expect(res.body.length).toBe(limit);
+          done();
+        });
+    });
+
     it('should return documents in latest first order', (done) => {
       request(app)
         .get('/api/documents')
