@@ -13,6 +13,7 @@ Users are categorized by roles. Each user must have a role defined for them.
 - Clone the repo locally and navigate to the newly created folder
 
     `$ git clone https://github.com/kevgathuku/document-management-system`
+
     `$ cd document-management-system`
 
  - Install the app dependencies
