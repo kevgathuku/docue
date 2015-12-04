@@ -38,9 +38,11 @@
     },
 
     all: function(req, res) {
-      Documents.find(function(err, roles) {
-        res.json(roles);
-      });
+      Documents.find({})
+        .sort('-dateCreated')
+        .exec(function(err, docs) {
+          res.json(docs);
+        });
     },
 
   };

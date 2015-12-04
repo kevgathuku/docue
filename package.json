@@ -7,6 +7,7 @@
     "test": "jasmine"
   },
   "dependencies": {
+    "async": "^1.5.0",
     "body-parser": "~1.13.2",
     "debug": "~2.2.0",
     "dotenv": "^1.2.0",
