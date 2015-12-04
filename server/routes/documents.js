@@ -10,5 +10,9 @@
     .post(Users.authenticate, Documents.create)
     .get(Users.authenticate, Documents.all);
 
+  router.route('/documents/:id')
+    .get(Users.authenticate, Documents.get)
+    .put(Users.authenticate, Documents.update);
+
   module.exports = router;
 })();

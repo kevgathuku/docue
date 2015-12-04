@@ -37,6 +37,39 @@
       });
     },
 
+    update: (req, res, next) => {
+      // Delete all fields from req.body other than title & content
+      Object.keys(req.body).forEach(value => {
+        if ((value !== 'title') && (value !== 'content')) {
+          delete req.body[value];
+        }
+      });
+      Documents.findByIdAndUpdate(req.params.id, {
+          $set: req.body
+        },
+        // Return the newly edited doc rather than the original
+        {
+          new: true
+        }, (err, document) => {
+          if (!document) {
+            return next(err);
+          }
+          res.send(document);
+        });
+    },
+
+    get: (req, res, next) => {
+      Documents.findById(req.params.id, (err, document) => {
+        if (err) {
+          return next(err);
+        } else if (!document) {
+          return next(err);
+        } else {
+          res.send(document);
+        }
+      });
+    },
+
     all: (req, res) => {
       Documents.find({})
         .sort('-dateCreated')
