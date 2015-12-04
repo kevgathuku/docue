@@ -1,4 +1,4 @@
-describe('Roles Spec', function() {
+describe('Roles Spec', () => {
   'use strict';
 
   let request = require('supertest');
@@ -6,15 +6,15 @@ describe('Roles Spec', function() {
   let app = require('../index');
   let token = null;
 
-  beforeEach(function(done) {
-    helper.beforeEach(token, function(generatedToken) {
+  beforeEach((done) => {
+    helper.beforeEach(token, (generatedToken) => {
       token = generatedToken;
       done();
     });
   });
 
-  describe('Role Creation', function() {
-    it('should create a role successfully', function(done) {
+  describe('Role Creation', () => {
+    it('should create a role successfully', (done) => {
       // Try to create an allowed but non-existent role
       request(app)
         .post('/api/roles')
@@ -24,7 +24,7 @@ describe('Roles Spec', function() {
         .set('Accept', 'application/json')
         .set('x-access-token', token)
         .expect(201)
-        .end(function(err, res) {
+        .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
           expect(res.body.title).toBe('admin');
@@ -33,7 +33,7 @@ describe('Roles Spec', function() {
         });
     });
 
-    it('should not create a role without a title', function(done) {
+    it('should not create a role without a title', (done) => {
       request(app)
         .post('/api/roles')
         .send({
@@ -41,7 +41,7 @@ describe('Roles Spec', function() {
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .end(function(err, res) {
+        .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(400);
           expect(res.body.error).toBe(
@@ -50,7 +50,7 @@ describe('Roles Spec', function() {
         });
     });
 
-    it('should not create a duplicate role', function(done) {
+    it('should not create a duplicate role', (done) => {
       // Try to create a duplicate role
       request(app)
         .post('/api/roles')
@@ -59,7 +59,7 @@ describe('Roles Spec', function() {
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .end(function(err, res) {
+        .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(400);
           expect(res.body.title).toBeUndefined();
@@ -68,7 +68,7 @@ describe('Roles Spec', function() {
         });
     });
 
-    it('should not create an invalid role', function(done) {
+    it('should not create an invalid role', (done) => {
       let invalidTitle = 'invalid title';
       request(app)
         .post('/api/roles')
@@ -77,7 +77,7 @@ describe('Roles Spec', function() {
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .end(function(err, res) {
+        .end((err, res) => {
           expect(res.statusCode).toBe(400);
           expect(res.body.error).toBe(
             invalidTitle + ' is not a valid role title');
@@ -87,14 +87,14 @@ describe('Roles Spec', function() {
 
   });
 
-  describe('Get All Roles', function() {
-    it('should return all roles', function(done) {
+  describe('Get All Roles', () => {
+    it('should return all roles', (done) => {
       // The 2 seeded Roles should be returned
       request(app)
         .get('/api/roles')
         .set('x-access-token', token)
         .set('Accept', 'application/json')
-        .end(function(err, res) {
+        .end((err, res) => {
           expect(res.statusCode).toBe(200);
           expect(err).toBeNull();
           expect(res.body.length).toBe(2);
@@ -102,11 +102,11 @@ describe('Roles Spec', function() {
         });
     });
 
-    it('getAllRoles should return the correct roles', function(done) {
+    it('getAllRoles should return the correct roles', (done) => {
       request(app)
         .get('/api/roles')
         .set('x-access-token', token)
-        .end(function(err, res) {
+        .end((err, res) => {
           let allRoles = res.body.map(role => role.title);
           expect(err).toBeNull();
           expect(allRoles[0]).toBe('viewer');

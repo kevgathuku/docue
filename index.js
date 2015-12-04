@@ -27,13 +27,13 @@
   let port = process.env.PORT || 3000; // set our port
 
   // default route
-  app.get('/', function(req, res) {
+  app.get('/', (req, res) => {
     res.send('Welcome to Express!');
   });
 
   app.use(require('./server/routes'));
 
-  app.use(function(err, req, res, next) {
+  app.use((err, req, res, next) => {
     if (res.headersSent) {
       return next(err);
     }
@@ -43,7 +43,7 @@
   });
 
   // catch 404 errors
-  app.use(function(req, res) {
+  app.use((req, res) => {
     let err = new Error('Not Found');
     res.status(404).json({
       error: err.message

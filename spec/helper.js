@@ -9,12 +9,12 @@
   let app = require('../index');
 
   // TODO: Refactor to use async module
-  let clearDb = next => {
-    Documents.remove({}, err => {
+  let clearDb = (next) => {
+    Documents.remove({}, (err) => {
       if (!err) {
-        Roles.remove({}, err => {
+        Roles.remove({}, (err) => {
           if (!err) {
-            Users.remove({}, error => {
+            Users.remove({}, (error) => {
               if (!error) {
                 next();
               }
@@ -25,7 +25,7 @@
     });
   };
 
-  let seedRoles = next => {
+  let seedRoles = (next) => {
     let roles = [{
       title: 'viewer'
     }, {
@@ -37,7 +37,7 @@
     });
   };
 
-  let seedUsers = next => {
+  let seedUsers = (next) => {
     let users = [{
       username: 'jsnow',
       name: {
@@ -78,37 +78,37 @@
 
     async.series([
         // Hardcode the dates in order to test the order the docs are returned
-        function(callback) {
+        callback => {
           Documents.create(documents[0], (err, doc) => {
             // Create the first doc with today's date
             callback(err, doc);
           });
         },
-        function(callback) {
+        callback => {
           Documents.create(documents[1], (err, doc) => {
             // Add one day to the second doc's timestamp
             let date = new Date(doc.dateCreated);
             date.setDate(date.getDate() + 1);
             doc.dateCreated = date;
-            doc.save(function() {
+            doc.save(() => {
               callback(err, doc);
             });
           });
         },
-        function(callback) {
+        callback => {
           Documents.create(documents[2], (err, doc) => {
             // Add 2 days to the third doc's timestamp
             let date = new Date(doc.dateCreated);
             date.setDate(date.getDate() + 2);
             doc.dateCreated = date;
-            doc.save(function() {
+            doc.save(() => {
               callback(err, doc);
             });
           });
         },
       ],
       // Callback called after all functions are done
-      function() {
+      () => {
         // Call next after all documents are created
         next();
       });
@@ -120,7 +120,7 @@
     // Empty the DB then fill in some dummy data
     clearDb(() => {
       seedRoles(() => {
-        seedUsers(users => {
+        seedUsers((users) => {
           // Pass in the first user to seedDocuments
           // Will be the owner of the seeded documents
           seedDocuments(users[0], () => {

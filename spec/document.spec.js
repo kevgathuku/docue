@@ -6,7 +6,7 @@ describe('Documents Spec', () => {
   let app = require('../index');
   let token = null;
 
-  beforeEach(done => {
+  beforeEach((done) => {
     helper.beforeEach(token, generatedToken => {
       token = generatedToken;
       done();
@@ -14,7 +14,7 @@ describe('Documents Spec', () => {
   });
 
   describe('Document Creation', () => {
-    it('should create a document successfully', done => {
+    it('should create a document successfully', (done) => {
       request(app)
         .post('/api/documents')
         .send({
@@ -40,7 +40,7 @@ describe('Documents Spec', () => {
   });
 
   describe('Document Fetching', () => {
-    it('should return all documents', done => {
+    it('should return all documents', (done) => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
@@ -53,7 +53,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should return documents in latest first order', done => {
+    it('should return documents in latest first order', (done) => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
