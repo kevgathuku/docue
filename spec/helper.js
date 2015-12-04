@@ -27,7 +27,7 @@
 
   let seedRoles = next => {
     let roles = [{
-      title: 'user'
+      title: 'viewer'
     }, {
       title: 'staff'
     }];

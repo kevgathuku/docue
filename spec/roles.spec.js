@@ -55,7 +55,7 @@ describe('Roles Spec', function() {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'user',
+          title: 'viewer',
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
@@ -109,7 +109,7 @@ describe('Roles Spec', function() {
         .end(function(err, res) {
           let allRoles = res.body.map(role => role.title);
           expect(err).toBeNull();
-          expect(allRoles[0]).toBe('user');
+          expect(allRoles[0]).toBe('viewer');
           expect(allRoles[1]).toBe('staff');
           done();
         });
