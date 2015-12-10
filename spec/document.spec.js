@@ -39,8 +39,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should not create new document if user is unauthenticated', (
-      done) => {
+    it('should not create document if user is unauthenticated', (done) => {
       // Send a request without a token
       request(app)
         .post('/api/documents')
@@ -54,6 +53,25 @@ describe('Documents Spec', () => {
           expect(err).not.toBeNull();
           expect(res.statusCode).toBe(403);
           expect(res.body.error).toBe('No token provided.');
+          done();
+        });
+    });
+
+    it('should not create new document if title is missing', (done) => {
+      // Send a request with an empty title
+      request(app)
+        .post('/api/documents')
+        .send({
+          title: '',
+          content: 'JS Curriculum'
+        })
+        .set('x-access-token', token)
+        .expect(201)
+        .end((err, res) => {
+          expect(err).not.toBeNull();
+          expect(res.statusCode).toBe(400);
+          expect(res.body.error).toBe(
+            'The document title is required');
           done();
         });
     });
