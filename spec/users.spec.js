@@ -108,7 +108,7 @@ describe('User Spec', () => {
 
   });
 
-  describe('User Documents', (done) => {
+  describe('User Documents', () => {
     it('should get a user\'s documents', (done) => {
       Documents.find({})
         .limit(1)

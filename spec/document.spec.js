@@ -162,7 +162,7 @@ describe('Documents Spec', () => {
     });
   });
 
-  describe('Get Documents by Role', (done) => {
+  describe('Get Documents by Role', () => {
 
   });
 });
