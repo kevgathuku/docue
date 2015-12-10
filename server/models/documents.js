@@ -15,7 +15,11 @@
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
-    }
+    },
+    roles: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role'
+    }]
   }, {
     timestamps: {
       createdAt: 'dateCreated',

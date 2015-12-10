@@ -3,6 +3,7 @@
 
   let jwt = require('jsonwebtoken');
   let Documents = require('../models/documents');
+  let Roles = require('../models/roles');
 
   let notFoundError = new Error('Not Found');
   notFoundError.status = 404;
@@ -23,19 +24,43 @@
           });
         } else {
           // Decode the user info from the token
-          let decoded = jwt.decode(token, {
+          let decodedUser = jwt.decode(token, {
             complete: true
           });
-          // If the document does not exist, create it
-          Documents.create({
-            title: req.body.title,
-            content: req.body.content,
-            ownerId: decoded.payload._id
-          }, (error, newDocument) => {
-            if (!error) {
-              res.status(201).json(newDocument);
-            }
+          // Get the passed in roles as an array
+          // If no roles have been provided, assign the default role
+          var decodedRoles;
+          if (req.body.roles) {
+            decodedRoles = req.body.roles.trim().replace(/\s/g, '').split(
+              ',');
+          } else {
+            decodedRoles = [
+              Roles.schema.paths.title.default()
+            ];
+          }
+          // Convert the roles into an array of the form:
+          // [{title: 'Role1'}, {title: 'Role2'}]
+          // in preparation for passing them to the 'or' query
+          let mappedRoles = decodedRoles.map((role) => {
+            return {
+              title: role
+            };
           });
+          Roles.find().or(mappedRoles)
+            .exec((err, roles) => {
+              // If the document does not exist, create it
+              Documents.create({
+                title: req.body.title,
+                content: req.body.content,
+                ownerId: decodedUser.payload._id,
+                roles: roles
+              }, (error, newDocument) => {
+                if (!error) {
+                  res.status(201).json(newDocument);
+                }
+              });
+            });
+
         }
       });
     },
@@ -62,15 +87,17 @@
     },
 
     get: (req, res, next) => {
-      Documents.findById(req.params.id, (err, document) => {
-        if (err) {
-          return next(err);
-        } else if (!document) {
-          return next(notFoundError);
-        } else {
-          res.send(document);
-        }
-      });
+      Documents.findById(req.params.id)
+        .populate('roles')
+        .exec((err, document) => {
+          if (err) {
+            return next(err);
+          } else if (!document) {
+            return next(notFoundError);
+          } else {
+            res.send(document);
+          }
+        });
     },
 
     delete: (req, res, next) => {
@@ -95,7 +122,7 @@
         .exec((err, docs) => {
           res.json(docs);
         });
-    },
+    }
 
   };
 })();

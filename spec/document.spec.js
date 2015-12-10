@@ -4,6 +4,7 @@ describe('Documents Spec', () => {
   let request = require('supertest');
   let helper = require('./helper');
   let app = require('../index');
+  let Roles = require('../server/models/roles');
   let token = null;
 
   beforeEach((done) => {
@@ -37,6 +38,49 @@ describe('Documents Spec', () => {
           done();
         });
     });
+
+    it('should assign a default role if one is not defined', (done) => {
+      request(app)
+        .post('/api/documents')
+        .send({
+          title: 'Doc 1',
+          content: 'JS Curriculum'
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .expect(201)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(201);
+          expect(res.body.roles.length).toBe(1);
+          expect(res.body.roles[0].title).toBe(
+            Roles.schema.paths.title.default());
+          done();
+        });
+    });
+
+    it('should assign defined roles correctly', (done) => {
+      request(app)
+        .post('/api/documents')
+        .send({
+          title: 'Doc 1',
+          content: 'JS Curriculum',
+          roles: 'staff, viewer'
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .expect(201)
+        .end((err, res) => {
+          let roleTitles = res.body.roles.map(titleObj =>
+            titleObj.title);
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(201);
+          expect(res.body.roles.length).toBe(2);
+          expect(roleTitles).toContain('staff');
+          expect(roleTitles).toContain('viewer');
+          done();
+        });
+    });
   });
 
   describe('Document Fetching', () => {
@@ -53,7 +97,8 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should return documents limited by a specified number', (done) => {
+    it('should return documents limited by a specified number', (
+      done) => {
       let limit = 2;
       request(app)
         .get('/api/documents?limit=' + limit)
@@ -78,5 +123,9 @@ describe('Documents Spec', () => {
           done();
         });
     });
+  });
+
+  describe('Get Documents by Role', (done) => {
+
   });
 });
