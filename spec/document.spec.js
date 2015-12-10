@@ -39,6 +39,25 @@ describe('Documents Spec', () => {
         });
     });
 
+    it('should not create new document if user is unauthenticated', (
+      done) => {
+      // Send a request without a token
+      request(app)
+        .post('/api/documents')
+        .send({
+          title: 'Doc 1',
+          content: 'JS Curriculum'
+        })
+        .set('Accept', 'application/json')
+        .expect(201)
+        .end((err, res) => {
+          expect(err).not.toBeNull();
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('No token provided.');
+          done();
+        });
+    });
+
     it('should assign a default role if one is not defined', (done) => {
       request(app)
         .post('/api/documents')
