@@ -13,6 +13,9 @@
   router.route('/users/:id')
     .get(Users.authenticate, Users.get);
 
+  router.route('/users/:id/documents')
+    .get(Users.authenticate, Users.getDocs);
+
   router.route('/users/login')
     .post(Users.login);
 

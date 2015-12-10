@@ -2,6 +2,7 @@
   'use strict';
 
   let jwt = require('jsonwebtoken'),
+    Documents = require('../models/documents'),
     Users = require('../models/users'),
     Roles = require('../models/roles');
 
@@ -77,6 +78,22 @@
           res.json(user);
         }
       });
+    },
+
+    // Get all documents created by this user
+    getDocs: (req, res) => {
+      Documents.find()
+        .where({
+          ownerId: req.params.id
+        }).exec((err, docs) => {
+          if (err) {
+            return res.status(500).json({
+              error: err.message
+            });
+          } else {
+            res.json(docs);
+          }
+        });
     },
 
     all: (req, res) => {
