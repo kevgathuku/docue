@@ -39,8 +39,7 @@
             var decodedRoles;
             if (req.body.roles) {
               decodedRoles = req.body.roles.trim().replace(/\s/g, '')
-                .split(
-                  ',');
+                .split(',');
             } else {
               decodedRoles = [
                 Roles.schema.paths.title.default()
@@ -123,13 +122,36 @@
 
     all: (req, res) => {
       // Set a default limit of 10 if one is not set
-      let limit = req.query.limit || 10;
+      let limit = parseInt(req.query.limit) || 10;
       Documents.find({})
         .limit(limit)
         .sort('-dateCreated')
         .exec((err, docs) => {
+          if (err) {
+            return next(err);
+          }
           res.json(docs);
         });
+    },
+
+    allByRole: (req, res) => {
+      let limit = parseInt(req.query.limit) || 10;
+      Roles.findOne({
+        title: req.params.role
+      }).exec((err, role) => {
+        Documents.find({
+            'roles': role
+          })
+          .populate('roles')
+          .limit(limit)
+          .sort('-dateCreated')
+          .exec((err, docs) => {
+            if (err) {
+              return next(err);
+            }
+            res.json(docs);
+          });
+      });
     }
 
   };

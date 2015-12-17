@@ -6,6 +6,7 @@ describe('Documents Spec', () => {
   let app = require('../index');
   let Roles = require('../server/models/roles');
   let token = null;
+  let defaultRole = Roles.schema.paths.title.default();
 
   beforeEach((done) => {
     helper.beforeEach(token, generatedToken => {
@@ -90,8 +91,8 @@ describe('Documents Spec', () => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
           expect(res.body.roles.length).toBe(1);
-          expect(res.body.roles[0].title).toBe(
-            Roles.schema.paths.title.default());
+          // It should assign the default role
+          expect(res.body.roles[0].title).toBe(defaultRole);
           done();
         });
     });
@@ -163,6 +164,36 @@ describe('Documents Spec', () => {
   });
 
   describe('Get Documents by Role', () => {
+    // Create a new document with the staff role
+    let testRole = 'staff';
+    beforeEach((done) => {
+      request(app)
+        .post('/api/documents')
+        .send({
+          title: 'Doc Test',
+          content: 'JS Curriculum',
+          roles: testRole
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.body.roles[0]).not.toBeNull();
+          done();
+        });
+    });
 
+    it('should return documents accessible by the given role', (done) => {
+      // Get the documents accessible by the test role
+      request(app)
+        .get('/api/documents/roles/' + testRole)
+        .set('x-access-token', token)
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(res.body.length).toBe(1);
+          expect(res.body[0].roles[0].title).toBe(testRole);
+          done();
+        });
+    });
   });
 });
