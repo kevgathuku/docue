@@ -68,6 +68,21 @@ describe('Roles Spec', () => {
         });
     });
 
+    it('should not create a role if the user is unauthenticated', (done) => {
+      // Try to send a request without a token
+      request(app)
+        .post('/api/roles')
+        .send({
+          title: 'viewer',
+        })
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('No token provided.');
+          done();
+        });
+    });
+
     it('should not create an invalid role', (done) => {
       let invalidTitle = 'invalid title';
       request(app)
