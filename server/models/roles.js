@@ -8,8 +8,8 @@
       type: String,
       unique: true,
       required: true,
-      default: 'user',
-      enum: ['admin', 'staff', 'user']
+      default: 'viewer',
+      enum: ['admin', 'staff', 'viewer']
     }
   });
 

@@ -2,11 +2,12 @@
   'use strict';
 
   let jwt = require('jsonwebtoken'),
+    Documents = require('../models/documents'),
     Users = require('../models/users'),
     Roles = require('../models/roles');
 
   module.exports = {
-    create: function(req, res, next) {
+    create: (req, res, next) => {
       if (!req.body.username || !req.body.firstname ||
         !req.body.lastname || !req.body.email || !req.body.password) {
         let err = new Error(
@@ -24,7 +25,7 @@
         username: req.body.username
       }, {
         email: req.body.email
-      }]).exec(function(err, user) {
+      }]).exec((err, user) => {
         if (err) {
           return next(err);
         }
@@ -36,7 +37,7 @@
         } else {
           Roles.findOne({
             title: req.body.role
-          }, function(err, role) {
+          }, (err, role) => {
             if (err) {
               return next(err);
             } else {
@@ -50,7 +51,7 @@
                 email: req.body.email,
                 password: req.body.password,
                 role: role._id
-              }, function(error, newUser) {
+              }, (error, newUser) => {
                 if (error) {
                   return next(error);
                 } else {
@@ -64,11 +65,11 @@
       });
     },
 
-    get: function(req, res) {
+    get: (req, res) => {
       // Don't send back the password field
       Users.findOne({
         '_id': req.params.id
-      }, '_id name username email role', function(err, user) {
+      }, '_id name username email role', (err, user) => {
         if (err) {
           return res.status(500).json({
             error: err.message
@@ -79,8 +80,30 @@
       });
     },
 
-    all: function(req, res) {
-      Users.find(function(err, users) {
+    // Get all documents created by this user
+    getDocs: (req, res) => {
+      Documents.find()
+        .where({
+          ownerId: req.params.id
+        }).exec((err, docs) => {
+          if (err) {
+            return res.status(500).json({
+              error: err.message
+            });
+          } else {
+            res.json(docs);
+          }
+        });
+    },
+
+    all: (req, res) => {
+      // This action is available to admin roles only
+      if (req.decoded.role.title !== 'admin' ) {
+        return res.status(401).json({
+          error: 'Unauthorized Access'
+        });
+      }
+      Users.find((err, users) => {
         if (err) {
           return res.status(500).json({
             error: err.message
@@ -91,10 +114,12 @@
       });
     },
 
-    login: function(req, res, next) {
+    login: (req, res, next) => {
       Users.findOne({
         username: req.body.username
-      }, function(err, user) {
+      })
+      .populate('role')
+      .exec((err, user) => {
         if (err) {
           return next(err);
         } else if (!user) {
@@ -120,15 +145,14 @@
     },
 
     // route middleware to verify a token
-    authenticate: function(req, res, next) {
+    authenticate: (req, res, next) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
-        // verifies secret and checks exp
-        jwt.verify(token, req.app.get('superSecret'), function(err,
-          decoded) {
+        // verifies secret and checks expiry time
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
           if (err) {
             return res.status(401).json({
               error: 'Failed to authenticate token.'
