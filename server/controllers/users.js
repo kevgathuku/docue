@@ -97,6 +97,12 @@
     },
 
     all: (req, res) => {
+      // This action is available to admin roles only
+      if (req.decoded.role.title !== 'admin' ) {
+        return res.status(401).json({
+          error: 'Unauthorized Access'
+        });
+      }
       Users.find((err, users) => {
         if (err) {
           return res.status(500).json({
@@ -111,7 +117,9 @@
     login: (req, res, next) => {
       Users.findOne({
         username: req.body.username
-      }, (err, user) => {
+      })
+      .populate('role')
+      .exec((err, user) => {
         if (err) {
           return next(err);
         } else if (!user) {
@@ -143,9 +151,8 @@
 
       // decode token
       if (token) {
-        // verifies secret and checks exp
-        jwt.verify(token, req.app.get('superSecret'), (err,
-          decoded) => {
+        // verifies secret and checks expiry time
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
           if (err) {
             return res.status(401).json({
               error: 'Failed to authenticate token.'

@@ -109,8 +109,7 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .expect(201)
         .end((err, res) => {
-          let roleTitles = res.body.roles.map(titleObj =>
-            titleObj.title);
+          let roleTitles = res.body.roles.map(titleObj => titleObj.title);
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
           expect(res.body.roles.length).toBe(2);

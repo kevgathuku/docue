@@ -8,7 +8,7 @@
 
   router.route('/users')
     .post(Users.create)
-    .get(Users.all);
+    .get(Users.authenticate, Users.all);
 
   router.route('/users/:id')
     .get(Users.authenticate, Users.get);

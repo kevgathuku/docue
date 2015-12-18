@@ -8,34 +8,6 @@
   let request = require('supertest');
   let app = require('../index');
 
-  let clearDb = (next) => {
-    async.series([
-        callback => {
-          // Remove all Documents
-          Documents.remove({}, (err, result) => {
-            callback(err, result);
-          });
-        },
-        callback => {
-          // Remove all Roles
-          Roles.remove({}, (err, result) => {
-            callback(err, result);
-          });
-        },
-        callback => {
-          // Remove all Users
-          Users.remove({}, (err, result) => {
-            callback(err, result);
-          });
-        },
-      ],
-      // Callback called after all functions are done
-      () => {
-        // Call next after all collections are emptied
-        next();
-      });
-  };
-
   let seedRoles = (next) => {
     let roles = [{
       title: 'viewer'
@@ -43,32 +15,34 @@
       title: 'staff'
     }];
 
-    Roles.create(roles, () => {
-      next();
+    Roles.create(roles, (err, roles) => {
+      next(err, roles);
     });
   };
 
-  let seedUsers = (next) => {
+  let seedUsers = (role, next) => {
     let users = [{
       username: 'jsnow',
       name: {
         first: 'John',
         last: 'Snow'
       },
-      'email': 'jsnow@winterfell.org',
-      'password': 'youKnowNothing'
+      email: 'jsnow@winterfell.org',
+      password: 'youKnowNothing',
+      role: role
     }, {
       username: 'nstark',
       name: {
         first: 'Ned',
         last: 'Stark'
       },
-      'email': 'nstark@winterfell.org',
-      'password': 'winterIsComing'
+      email: 'nstark@winterfell.org',
+      password: 'winterIsComing',
+      role: role
     }];
 
     Users.create(users, (err, createdUsers) => {
-      next(createdUsers);
+      next(err, createdUsers);
     });
   };
 
@@ -125,30 +99,78 @@
       });
   };
 
+  // Utility function for emptying the database
+  let clearDb = (next) => {
+    async.series([
+        callback => {
+          // Remove all Documents
+          Documents.remove({}, (err, result) => {
+            callback(err, result);
+          });
+        },
+        callback => {
+          // Remove all Roles
+          Roles.remove({}, (err, result) => {
+            callback(err, result);
+          });
+        },
+        callback => {
+          // Remove all Users
+          Users.remove({}, (err, result) => {
+            callback(err, result);
+          });
+        },
+      ],
+      // Callback called after all functions are done
+      (err, results) => {
+        // Call next after all collections are emptied
+        next(err, results);
+      });
+  };
+
   // Receives a null token and a callback function
   // Calls the callback function with the generated token
   let beforeEach = (token, done) => {
-    // Empty the DB then fill in some dummy data
-    clearDb(() => {
-      seedRoles(() => {
-        seedUsers((users) => {
-          // Pass in the first user to seedDocuments
-          // Will be the owner of the seeded documents
-          seedDocuments(users[0], () => {
-            // Get a login token
-            request(app)
-              .post('/api/users/login')
-              .send({
-                username: users[0].username,
-                password: users[0].password
-              })
-              .end((err, res) => {
-                token = res.body.token;
-                done(token);
-              });
-          });
+    // Empty the DB then fill in the Seed data
+    async.waterfall([
+      // Run the clearDb function and call the callback
+      function(callback) {
+        clearDb((err, results) => {
+          callback(err, results);
         });
-      });
+      },
+      // Seed the roles and call the callback with the seeded roles
+      function(results, callback) {
+        // results is the return value of the clearDb function
+        // The call back is called with (err, roles) arguments
+        seedRoles((err, roles) => {
+          callback(err, roles);
+        });
+      },
+      // Seed the users and call the callback with the seeded users
+      function(roles, callback) {
+        seedUsers(roles[0], (err, users) => {
+          callback(err, users);
+        });
+      },
+      // Seed the documents and call the callback with the seeded docs
+      function(users, callback) {
+        seedDocuments(users[0], () => {
+          // Get a login token
+          request(app)
+            .post('/api/users/login')
+            .send({
+              username: users[0].username,
+              password: users[0].password
+            })
+            .end((err, res) => {
+              // Call the callback with the generated token
+              callback(err, res.body.token);
+            });
+        });
+      }
+    ], function(err, generatedToken) {
+      done(generatedToken);
     });
   };
 
