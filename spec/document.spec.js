@@ -77,6 +77,23 @@ describe('Documents Spec', () => {
         });
     });
 
+    it('should not create a duplicate document', (done) => {
+      request(app)
+        .post('/api/documents')
+        .send({
+          title: 'Doc1',
+          content: 'Duplicate document test'
+        })
+        .set('x-access-token', token)
+        .expect(201)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(400);
+          expect(res.body.title).toBeUndefined();
+          expect(res.body.error).toBe('Document already exists');
+          done();
+        });
+    });
+
     it('should assign a default role if one is not defined', (done) => {
       request(app)
         .post('/api/documents')

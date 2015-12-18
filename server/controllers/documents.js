@@ -155,6 +155,7 @@
     },
 
     allByDate: (req, res, next) => {
+      let limit = parseInt(req.query.limit) || 10;
       // Ensure the date format is in the format expected
       let dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
       // If the regex does not match, throw an error
@@ -171,6 +172,7 @@
       Documents.find()
       // Date is greater than the date provided and less than one day ahead
         .where('dateCreated').gte(date).lt(nextDate)
+        .limit(limit)
         .exec((err, docs) => {
           if (err) {
             console.log(err);
