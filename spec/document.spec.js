@@ -196,4 +196,33 @@ describe('Documents Spec', () => {
         });
     });
   });
+
+  describe('Get Documents by Date', () => {
+    let today = new Date();
+    // Build the date format to be sent from the current date
+    let testDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    it('should return documents created on the date provided', (done) => {
+      request(app)
+        .get('/api/documents/created/' + testDate)
+        .set('x-access-token', token)
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(res.body.length).toBe(1);
+          expect(res.body[0].title).toBe('Doc1');
+          done();
+        });
+    });
+
+    it('should return an error if the format is not valid', (done) => {
+      request(app)
+        .get('/api/documents/created/' + '20er-343-343e3d')
+        .set('x-access-token', token)
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(res.statusCode).toBe(400);
+          expect(res.body.error).toBe('Date must be in the format YYYY-MM-DD');
+          done();
+        });
+    });
+  });
 });

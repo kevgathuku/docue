@@ -134,7 +134,7 @@
         });
     },
 
-    allByRole: (req, res) => {
+    allByRole: (req, res, next) => {
       let limit = parseInt(req.query.limit) || 10;
       Roles.findOne({
         title: req.params.role
@@ -152,6 +152,32 @@
             res.json(docs);
           });
       });
+    },
+
+    allByDate: (req, res, next) => {
+      // Ensure the date format is in the format expected
+      let dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
+      // If the regex does not match, throw an error
+      if (!(dateRegex.test(req.params.date))) {
+        let dateError = new Error('Date must be in the format YYYY-MM-DD');
+        dateError.status = 400;
+        return next(dateError);
+      }
+      // Get the date provided as a Date object
+      let date = new Date(req.params.date);
+      let tmp = new Date(req.params.date);
+      // Save the next day in a nextDate variable
+      let nextDate = new Date(tmp.setDate(tmp.getDate() + 1));
+      Documents.find()
+      // Date is greater than the date provided and less than one day ahead
+        .where('dateCreated').gte(date).lt(nextDate)
+        .exec((err, docs) => {
+          if (err) {
+            console.log(err);
+            return next(err);
+          }
+          res.json(docs);
+        });
     }
 
   };
