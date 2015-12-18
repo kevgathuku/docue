@@ -169,7 +169,7 @@
           error: 'No token provided.'
         });
       }
-    },
+    }
 
   };
 })();

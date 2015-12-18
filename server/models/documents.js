@@ -7,10 +7,10 @@
     title: {
       type: String,
       unique: true,
-      required: true,
+      required: true
     },
     content: {
-      type: String,
+      type: String
     },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,

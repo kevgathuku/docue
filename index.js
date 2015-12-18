@@ -1,3 +1,4 @@
+/*eslint no-console: 0*/
 (() => {
   'use strict';
 
@@ -52,7 +53,7 @@
 
   // START THE SERVER
   app.listen(port);
-  console.log('Magic happens on port ' + port);
+  console.log('Listening on port ' + port);
 
   // Export the app object
   module.exports = app;

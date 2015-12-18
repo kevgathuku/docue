@@ -90,7 +90,7 @@
               callback(err, doc);
             });
           });
-        },
+        }
       ],
       // Callback called after all functions are done
       () => {
@@ -119,7 +119,7 @@
           Users.remove({}, (err, result) => {
             callback(err, result);
           });
-        },
+        }
       ],
       // Callback called after all functions are done
       (err, results) => {

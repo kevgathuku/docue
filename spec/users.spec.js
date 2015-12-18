@@ -95,7 +95,7 @@ describe('User Spec', () => {
           firstname: 'John',
           lastname: 'Snow',
           email: 'snow@winterfell.org',
-          password: 'knfenfenfen',
+          password: 'knfenfenfen'
         })
         .end((err, res) => {
           expect(err).toBeNull();

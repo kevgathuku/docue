@@ -43,7 +43,7 @@
       Role.find((err, roles) => {
         res.json(roles);
       });
-    },
+    }
 
   };
 })();

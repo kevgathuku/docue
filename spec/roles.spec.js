@@ -19,7 +19,7 @@ describe('Roles Spec', () => {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'admin',
+          title: 'admin'
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
@@ -37,7 +37,7 @@ describe('Roles Spec', () => {
       request(app)
         .post('/api/roles')
         .send({
-          title: '',
+          title: ''
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
@@ -55,7 +55,7 @@ describe('Roles Spec', () => {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'viewer',
+          title: 'viewer'
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
@@ -73,7 +73,7 @@ describe('Roles Spec', () => {
       request(app)
         .post('/api/roles')
         .send({
-          title: 'viewer',
+          title: 'viewer'
         })
         .set('Accept', 'application/json')
         .end((err, res) => {
@@ -88,7 +88,7 @@ describe('Roles Spec', () => {
       request(app)
         .post('/api/roles')
         .send({
-          title: invalidTitle,
+          title: invalidTitle
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)

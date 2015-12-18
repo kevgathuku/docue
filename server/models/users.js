@@ -20,7 +20,7 @@
         type: String,
         required: true,
         trim: true
-      },
+      }
     },
     email: {
       type: String,
@@ -37,7 +37,7 @@
     role: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Role'
-    },
+    }
   });
 
   module.exports = mongoose.model('User', UserSchema);

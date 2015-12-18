@@ -120,7 +120,7 @@
       });
     },
 
-    all: (req, res) => {
+    all: (req, res, next) => {
       // Set a default limit of 10 if one is not set
       let limit = parseInt(req.query.limit) || 10;
       Documents.find({})
@@ -175,7 +175,6 @@
         .limit(limit)
         .exec((err, docs) => {
           if (err) {
-            console.log(err);
             return next(err);
           }
           res.json(docs);
