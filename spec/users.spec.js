@@ -5,6 +5,7 @@ describe('User Spec', () => {
   let helper = require('./helper');
   let request = require('supertest');
   let app = require('../index');
+  let extractUserFromToken = require('../server/controllers/utils');
   let token = null;
   let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
@@ -103,6 +104,88 @@ describe('User Spec', () => {
           expect(res.body.role).not.toBeNull();
           // The role should be a string data type
           expect(res.body.role).toEqual(jasmine.any(String));
+          done();
+        });
+    });
+
+  });
+
+  describe('User Get', () => {
+    let user = null;
+
+    beforeEach((done) => {
+      // Decode the user object from the token
+      user = extractUserFromToken(token);
+      done();
+    });
+
+    it('should update a user successfully', (done) => {
+      request(app)
+        .get('/api/users/' + user._id)
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(200);
+          expect(res.body.username).toBe(user.username);
+          expect(res.body.name.first).toBe(user.name.first);
+          expect(res.body.name.last).toBe(user.name.last);
+          expect(res.body.email).toBe(user.email);
+          done();
+        });
+    });
+  });
+
+  describe('User update', () => {
+    let userId = null;
+
+    beforeEach((done) => {
+      // Decode the user object from the token
+      userId = extractUserFromToken(token)._id;
+      done();
+    });
+
+    it('should update a user successfully', (done) => {
+      request(app)
+        .put('/api/users/' + userId)
+        .send({
+          username: 'theImp',
+          firstname: 'Half',
+          lastname: 'Man',
+          email: 'masterofcoin@westeros.org'
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(200);
+          expect(res.body.username).toBe('theImp');
+          expect(res.body.name.first).toBe('Half');
+          expect(res.body.name.last).toBe('Man');
+          expect(res.body.email).toBe('masterofcoin@westeros.org');
+          done();
+        });
+    });
+
+  });
+
+  describe('User delete', () => {
+    let userId = null;
+
+    beforeEach((done) => {
+      // Decode the user object from the token
+      userId = extractUserFromToken(token)._id;
+      done();
+    });
+
+    it('should delete a user successfully', (done) => {
+      request(app)
+        .delete('/api/users/' + userId)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(204);
+          //expect(res.body).toBeNull();
           done();
         });
     });
@@ -208,4 +291,59 @@ describe('User Spec', () => {
     });
   });
 
+  describe('User Actions', () => {
+    let user = null;
+
+    beforeEach((done) => {
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'jeremy',
+          firstname: 'not',
+          lastname: 'ceo',
+          email: 'jerenotceo@andela.com',
+          password: 'knfenfenfen'
+        })
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(err).toBeNull();
+          // Save the new user in a variable
+          user = res.body;
+          // Expect the loggedIn flag to be false by default
+          expect(res.body.loggedIn).toBe(false);
+          done();
+        });
+    });
+
+    it('should login user successfully', (done) => {
+      request(app)
+        .post('/api/users/login')
+        .send({
+          username: user.username,
+          password: user.password
+        })
+        .end((err, res) => {
+          // The loggedIn flag should be set to true
+          expect(res.body.user.loggedIn).toBe(true);
+          done();
+        });
+    });
+
+    it('should logout user successfully', (done) => {
+      request(app)
+        .post('/api/users/logout')
+        .send({
+          username: user.username,
+          password: user.password
+        })
+        .set('x-access-token', token)
+        .end((err, res) => {
+        expect(res.statusCode).toBe(200);
+        expect(res.body.message).toBe('Successfully logged out');
+          // The user's loggedIn flag should be set to false in the DB
+          expect(user.loggedIn).toBe(false);
+          done();
+        });
+    });
+  });
 });
