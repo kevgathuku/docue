@@ -291,4 +291,59 @@ describe('User Spec', () => {
     });
   });
 
+  describe('User Actions', () => {
+    let user = null;
+
+    beforeEach((done) => {
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'jeremy',
+          firstname: 'not',
+          lastname: 'ceo',
+          email: 'jerenotceo@andela.com',
+          password: 'knfenfenfen'
+        })
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(err).toBeNull();
+          // Save the new user in a variable
+          user = res.body;
+          // Expect the loggedIn flag to be false by default
+          expect(res.body.loggedIn).toBe(false);
+          done();
+        });
+    });
+
+    it('should login user successfully', (done) => {
+      request(app)
+        .post('/api/users/login')
+        .send({
+          username: user.username,
+          password: user.password
+        })
+        .end((err, res) => {
+          // The loggedIn flag should be set to true
+          expect(res.body.user.loggedIn).toBe(true);
+          done();
+        });
+    });
+
+    it('should logout user successfully', (done) => {
+      request(app)
+        .post('/api/users/logout')
+        .send({
+          username: user.username,
+          password: user.password
+        })
+        .set('x-access-token', token)
+        .end((err, res) => {
+        expect(res.statusCode).toBe(200);
+        expect(res.body.message).toBe('Successfully logged out');
+          // The user's loggedIn flag should be set to false in the DB
+          expect(user.loggedIn).toBe(false);
+          done();
+        });
+    });
+  });
 });
