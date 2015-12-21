@@ -12,7 +12,8 @@
 
   router.route('/users/:id')
     .get(Users.authenticate, Users.get)
-    .put(Users.authenticate, Users.update);
+    .put(Users.authenticate, Users.update)
+    .delete(Users.authenticate, Users.delete);
 
   router.route('/users/:id/documents')
     .get(Users.authenticate, Users.getDocs);

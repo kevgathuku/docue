@@ -146,6 +146,32 @@ describe('User Spec', () => {
 
   });
 
+  describe('User delete', () => {
+    let userId = null;
+
+    beforeEach((done) => {
+      // Decode the user object from the token
+      let decodedUser = jwt.decode(token, {
+        complete: true
+      });
+      userId = decodedUser.payload._id;
+      done();
+    });
+
+    it('should delete a user successfully', (done) => {
+      request(app)
+        .delete('/api/users/' + userId)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(204);
+          //expect(res.body).toBeNull();
+          done();
+        });
+    });
+
+  });
+
   describe('User Documents', () => {
     it('should get a user\'s documents', (done) => {
       Documents.find({})

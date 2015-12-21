@@ -108,6 +108,26 @@
         });
     },
 
+    delete: (req, res, next) => {
+      // A user can only delete their own profile
+      // An admin can also delete a user
+      if (req.decoded._id !== req.params.id || req.decoded.role.title === 'admin') {
+        return res.status(401).json({
+          error: 'Unauthorized Access'
+        });
+      }
+      Users.findOneAndRemove({
+        _id: req.params.id
+      }, function(err, user) {
+        if (err) {
+          return next(err);
+        } else if (!user) {
+          return next(err);
+        }
+        res.sendStatus(204);
+      });
+    },
+
     // Get all documents created by this user
     getDocs: (req, res) => {
       Documents.find()
