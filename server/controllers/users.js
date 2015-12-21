@@ -2,7 +2,7 @@
   'use strict';
 
   let jwt = require('jsonwebtoken'),
-    extractToken = require('./utils'),
+    extractUserFromToken = require('./utils'),
     Documents = require('../models/documents'),
     Users = require('../models/users'),
     Roles = require('../models/roles');
@@ -202,7 +202,8 @@
 
     logout: (req, res, next) => {
       // Set the loggedIn flag for the user to false
-      let user = extractToken(req);
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
       Users.findByIdAndUpdate(user._id, {
           loggedIn: false
         })
@@ -229,7 +230,7 @@
       // decode token
       if (token) {
         // Check if the user is logged in
-        let user = extractToken(req);
+        let user = extractUserFromToken(token);
         if (!user.loggedIn) {
           return res.status(401).json({
             error: 'Unauthorized Access. Please login first'

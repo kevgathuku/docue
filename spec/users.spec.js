@@ -5,10 +5,10 @@ describe('User Spec', () => {
   let helper = require('./helper');
   let request = require('supertest');
   let app = require('../index');
+  let extractUserFromToken = require('../server/controllers/utils');
   let token = null;
   let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
-  let jwt = require('jsonwebtoken');
 
   beforeEach((done) => {
     helper.beforeEach(token, (generatedToken) => {
@@ -115,10 +115,7 @@ describe('User Spec', () => {
 
     beforeEach((done) => {
       // Decode the user object from the token
-      let decodedUser = jwt.decode(token, {
-        complete: true
-      });
-      user = decodedUser.payload;
+      user = extractUserFromToken(token);
       done();
     });
 
@@ -144,10 +141,7 @@ describe('User Spec', () => {
 
     beforeEach((done) => {
       // Decode the user object from the token
-      let decodedUser = jwt.decode(token, {
-        complete: true
-      });
-      userId = decodedUser.payload._id;
+      userId = extractUserFromToken(token)._id;
       done();
     });
 
@@ -180,10 +174,7 @@ describe('User Spec', () => {
 
     beforeEach((done) => {
       // Decode the user object from the token
-      let decodedUser = jwt.decode(token, {
-        complete: true
-      });
-      userId = decodedUser.payload._id;
+      userId = extractUserFromToken(token)._id;
       done();
     });
 
