@@ -5,9 +5,6 @@
   let Documents = require('../models/documents');
   let Roles = require('../models/roles');
 
-  let notFoundError = new Error('Not Found');
-  notFoundError.status = 404;
-
   module.exports = {
     create: (req, res, next) => {
       // check header or post parameters for token
@@ -87,7 +84,7 @@
           new: true
         }, (err, document) => {
           if (!document) {
-            return next(notFoundError);
+            return next(err);
           }
           res.send(document);
         });
@@ -100,7 +97,7 @@
           if (err) {
             return next(err);
           } else if (!document) {
-            return next(notFoundError);
+            return next(err);
           } else {
             res.send(document);
           }
@@ -114,7 +111,7 @@
         if (err) {
           return next(err);
         } else if (!doc) {
-          return next(notFoundError);
+          return next(err);
         }
         res.sendStatus(204);
       });
