@@ -18,8 +18,8 @@
   router.route('/users/:id/documents')
     .get(Users.authenticate, Users.getDocs);
 
-  router.route('/users/login')
-    .post(Users.login);
+  router.post('/users/login', Users.login);
+  router.post('/users/logout', Users.logout);
 
   module.exports = router;
 })();

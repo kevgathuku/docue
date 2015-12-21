@@ -2,6 +2,7 @@
   'use strict';
 
   let jwt = require('jsonwebtoken'),
+    extractToken = require('./utils'),
     Documents = require('../models/documents'),
     Users = require('../models/users'),
     Roles = require('../models/roles');
@@ -65,19 +66,17 @@
       });
     },
 
-    get: (req, res) => {
+    get: (req, res, next) => {
       // Don't send back the password field
-      Users.findOne({
-        '_id': req.params.id
-      }, '_id name username email role', (err, user) => {
-        if (err) {
-          return res.status(500).json({
-            error: err.message
-          });
-        } else {
-          res.json(user);
-        }
-      });
+      Users.findById(req.params.id, '_id name username email role loggedIn')
+        .populate('role')
+        .exec((err, user) => {
+          if (err) {
+            return next(err);
+          } else {
+            res.json(user);
+          }
+        });
     },
 
     update: (req, res, next) => {
@@ -116,6 +115,7 @@
           error: 'Unauthorized Access'
         });
       }
+
       Users.findOneAndRemove({
         _id: req.params.id
       }, function(err, user) {
@@ -163,15 +163,23 @@
     },
 
     login: (req, res, next) => {
-      Users.findOne({
-          username: req.body.username
-        })
+      // Find the user and set the loggedIn flag to true
+      Users.findOneAndUpdate({
+            username: req.body.username
+          }, {
+            $set: {
+              loggedIn: true
+            }
+          }, // Return the updated user object
+          {
+            new: true
+          })
         .populate('role')
         .exec((err, user) => {
           if (err) {
             return next(err);
           } else if (!user) {
-            res.status(401).json({
+            res.status(404).json({
               error: 'User not found.'
             });
           } else if (user.password != req.body.password) {
@@ -192,6 +200,27 @@
         });
     },
 
+    logout: (req, res, next) => {
+      // Set the loggedIn flag for the user to false
+      let user = extractToken(req);
+      Users.findByIdAndUpdate(user._id, {
+          loggedIn: false
+        })
+        .exec((err, user) => {
+          if (err) {
+            return next(err);
+          } else if (!user) {
+            res.status(404).json({
+              error: 'User not found.'
+            });
+          } else {
+            res.json({
+              message: 'Successfully logged out'
+            });
+          }
+        });
+    },
+
     // route middleware to verify a token
     authenticate: (req, res, next) => {
       // check header or post parameters for token
@@ -199,6 +228,13 @@
 
       // decode token
       if (token) {
+        // Check if the user is logged in
+        let user = extractToken(req);
+        if (!user.loggedIn) {
+          return res.status(401).json({
+            error: 'Unauthorized Access. Please login first'
+          });
+        }
         // verifies secret and checks expiry time
         jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
           if (err) {
