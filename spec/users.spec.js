@@ -110,6 +110,35 @@ describe('User Spec', () => {
 
   });
 
+  describe('User Get', () => {
+    let user = null;
+
+    beforeEach((done) => {
+      // Decode the user object from the token
+      let decodedUser = jwt.decode(token, {
+        complete: true
+      });
+      user = decodedUser.payload;
+      done();
+    });
+
+    it('should update a user successfully', (done) => {
+      request(app)
+        .get('/api/users/' + user._id)
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(200);
+          expect(res.body.username).toBe(user.username);
+          expect(res.body.name.first).toBe(user.name.first);
+          expect(res.body.name.last).toBe(user.name.last);
+          expect(res.body.email).toBe(user.email);
+          done();
+        });
+    });
+  });
+
   describe('User update', () => {
     let userId = null;
 
