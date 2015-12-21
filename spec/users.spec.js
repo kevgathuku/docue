@@ -8,6 +8,7 @@ describe('User Spec', () => {
   let token = null;
   let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
+  let jwt = require('jsonwebtoken');
 
   beforeEach((done) => {
     helper.beforeEach(token, (generatedToken) => {
@@ -103,6 +104,42 @@ describe('User Spec', () => {
           expect(res.body.role).not.toBeNull();
           // The role should be a string data type
           expect(res.body.role).toEqual(jasmine.any(String));
+          done();
+        });
+    });
+
+  });
+
+  describe('User update', () => {
+    let userId = null;
+
+    beforeEach((done) => {
+      // Decode the user object from the token
+      let decodedUser = jwt.decode(token, {
+        complete: true
+      });
+      userId = decodedUser.payload._id;
+      done();
+    });
+
+    it('should update a user successfully', (done) => {
+      request(app)
+        .put('/api/users/' + userId)
+        .send({
+          username: 'theImp',
+          firstname: 'Half',
+          lastname: 'Man',
+          email: 'masterofcoin@westeros.org'
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(200);
+          expect(res.body.username).toBe('theImp');
+          expect(res.body.name.first).toBe('Half');
+          expect(res.body.name.last).toBe('Man');
+          expect(res.body.email).toBe('masterofcoin@westeros.org');
           done();
         });
     });

@@ -80,6 +80,34 @@
       });
     },
 
+    update: (req, res, next) => {
+      // A user can only update their own profile
+      if (req.decoded._id !== req.params.id) {
+        return res.status(401).json({
+          error: 'Unauthorized Access'
+        });
+      }
+      // Set the name fields in the format expected by the model
+      if (req.body.hasOwnProperty('firstname') || req.body.hasOwnProperty('lastname')) {
+        req.body.name = {
+          first: req.body.firstname,
+          last: req.body.lastname
+        };
+      }
+      Users.findByIdAndUpdate(req.params.id, {
+          $set: req.body
+        },
+        // Return the updated user object
+        {
+          new: true
+        }, (err, user) => {
+          if (!user) {
+            return next(err);
+          }
+          res.send(user);
+        });
+    },
+
     // Get all documents created by this user
     getDocs: (req, res) => {
       Documents.find()
@@ -98,7 +126,7 @@
 
     all: (req, res) => {
       // This action is available to admin roles only
-      if (req.decoded.role.title !== 'admin' ) {
+      if (req.decoded.role.title !== 'admin') {
         return res.status(401).json({
           error: 'Unauthorized Access'
         });
@@ -116,32 +144,32 @@
 
     login: (req, res, next) => {
       Users.findOne({
-        username: req.body.username
-      })
-      .populate('role')
-      .exec((err, user) => {
-        if (err) {
-          return next(err);
-        } else if (!user) {
-          res.status(401).json({
-            error: 'User not found.'
-          });
-        } else if (user.password != req.body.password) {
-          res.status(401).json({
-            error: 'Authentication failed. Wrong password.'
-          });
-        } else {
-          // User is found and password is correct
-          // Sign the user object with the app secret
-          let token = jwt.sign(user, req.app.get('superSecret'), {
-            expiresIn: 86400 // expires in 24 hours
-          });
-          res.json({
-            user: user,
-            token: token
-          });
-        }
-      });
+          username: req.body.username
+        })
+        .populate('role')
+        .exec((err, user) => {
+          if (err) {
+            return next(err);
+          } else if (!user) {
+            res.status(401).json({
+              error: 'User not found.'
+            });
+          } else if (user.password != req.body.password) {
+            res.status(401).json({
+              error: 'Authentication failed. Wrong password.'
+            });
+          } else {
+            // User is found and password is correct
+            // Sign the user object with the app secret
+            let token = jwt.sign(user, req.app.get('superSecret'), {
+              expiresIn: 86400 // expires in 24 hours
+            });
+            res.json({
+              user: user,
+              token: token
+            });
+          }
+        });
     },
 
     // route middleware to verify a token
@@ -159,6 +187,7 @@
             });
           } else {
             // if everything is good, save to request for use in other routes
+            decoded.password = null;
             req.decoded = decoded;
             next();
           }
