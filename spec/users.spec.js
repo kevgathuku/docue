@@ -140,7 +140,7 @@ describe('User Spec', () => {
       done();
     });
 
-    it('should update a user successfully', (done) => {
+    it('should fetch a user successfully', (done) => {
       request(app)
         .get('/api/users/' + user._id)
         .set('Accept', 'application/json')
@@ -152,6 +152,8 @@ describe('User Spec', () => {
           expect(res.body.name.first).toBe(user.name.first);
           expect(res.body.name.last).toBe(user.name.last);
           expect(res.body.email).toBe(user.email);
+          // The password should not be returned
+          expect(res.body.password).toBeUndefined();
           done();
         });
     });
