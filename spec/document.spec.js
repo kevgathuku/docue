@@ -25,7 +25,6 @@ describe('Documents Spec', () => {
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .expect(201)
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
@@ -181,6 +180,7 @@ describe('Documents Spec', () => {
         .get('/api/documents')
         .set('x-access-token', token)
         .end((err, res) => {
+          expect(res.statusCode).toBe(200);
           // Store the first document's Id for later use
           documentID = res.body[0]._id;
           done();
@@ -196,7 +196,6 @@ describe('Documents Spec', () => {
           content: 'New'
         })
         .end((err, res) => {
-          // console.log(res.body);
           expect(res.statusCode).toBe(200);
           // Should contain the updated doc attributes
           expect(res.body.title).toBe('Brand');
@@ -232,6 +231,7 @@ describe('Documents Spec', () => {
           done();
         });
     });
+
   });
 
   describe('Document delete', () => {
@@ -298,6 +298,7 @@ describe('Documents Spec', () => {
   describe('Get Documents by Date', () => {
     let today = new Date();
     // Build the date format to be sent from the current date
+    // Formt should be YYYY-MM-DD
     let testDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
     it('should return documents created on the date provided', (done) => {
       request(app)

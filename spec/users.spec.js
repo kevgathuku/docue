@@ -30,7 +30,6 @@ describe('User Spec', () => {
           role: Roles.schema.paths.title.default()
         })
         .set('Accept', 'application/json')
-        .expect(201)
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);

@@ -9,8 +9,10 @@
 
   module.exports = {
     create: (req, res, next) => {
-      if (!req.body.username || !req.body.firstname ||
-        !req.body.lastname || !req.body.email || !req.body.password) {
+      let required = ['username', 'firstname', 'lastname', 'email', 'password'];
+      // If all the required fields are not present, raise an error
+      // Returns true only if all the required fields are found in req.body
+      if (!required.every(field => field in req.body)) {
         let err = new Error(
           'Please provide the username, firstname, ' +
           'lastname, email, and password values'
@@ -119,9 +121,7 @@
       Users.findOneAndRemove({
         _id: req.params.id
       }, function(err, user) {
-        if (err) {
-          return next(err);
-        } else if (!user) {
+        if (err || !user) {
           return next(err);
         }
         res.sendStatus(204);
@@ -176,12 +176,8 @@
           })
         .populate('role')
         .exec((err, user) => {
-          if (err) {
+          if (err || !user) {
             return next(err);
-          } else if (!user) {
-            res.status(404).json({
-              error: 'User not found.'
-            });
           } else if (user.password != req.body.password) {
             res.status(401).json({
               error: 'Authentication failed. Wrong password.'
@@ -208,12 +204,8 @@
           loggedIn: false
         })
         .exec((err, user) => {
-          if (err) {
+          if (err || !user) {
             return next(err);
-          } else if (!user) {
-            res.status(404).json({
-              error: 'User not found.'
-            });
           } else {
             res.json({
               message: 'Successfully logged out'

@@ -23,7 +23,6 @@ describe('Roles Spec', () => {
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .expect(201)
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);

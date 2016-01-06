@@ -31,7 +31,7 @@
             let decodedUser = jwt.decode(token, {
               complete: true
             });
-            // Get the passed in roles as an array
+            // Get the passed in roles as an array of role titles
             // If no roles have been provided, assign the default role
             var decodedRoles;
             if (req.body.roles) {
@@ -50,6 +50,7 @@
                 title: role
               };
             });
+            // Find the corresponding roles in the DB
             Roles.find().or(mappedRoles)
               .exec((err, roles) => {
                 // If the document does not exist, create it
@@ -73,7 +74,7 @@
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
         },
-        // Return the newly edited doc rather than the original
+        // Return the newly updated doc rather than the original
         {
           new: true
         }, (err, document) => {
@@ -88,9 +89,7 @@
       Documents.findById(req.params.id)
         .populate('roles')
         .exec((err, document) => {
-          if (err) {
-            return next(err);
-          } else if (!document) {
+          if (err || !document) {
             return next(err);
           } else {
             res.send(document);
@@ -102,9 +101,7 @@
       Documents.findOneAndRemove({
         _id: req.params.id
       }, function(err, doc) {
-        if (err) {
-          return next(err);
-        } else if (!doc) {
+        if (err || !doc) {
           return next(err);
         }
         res.sendStatus(204);
@@ -157,11 +154,14 @@
       }
       // Get the date provided as a Date object
       let date = new Date(req.params.date);
+      // Save the date in a temp variable since the date object is mutable
       let tmp = new Date(req.params.date);
       // Save the next day in a nextDate variable
+      // Modifies the tmp variable instead of the date variable
       let nextDate = new Date(tmp.setDate(tmp.getDate() + 1));
       Documents.find()
-      // Date is greater than the date provided and less than one day ahead
+        // Date is greater than the date provided and less than one day ahead
+        // i.e. documents created today
         .where('dateCreated').gte(date).lt(nextDate)
         .limit(limit)
         .exec((err, docs) => {

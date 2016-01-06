@@ -4,7 +4,7 @@
   let Role = require('../models/roles');
 
   module.exports = {
-    create: (req, res) => {
+    create: (req, res, next) => {
       let validRoles = Role.schema.paths.title.enumValues;
       if (!req.body.title) {
         res.status(400).json({
@@ -22,10 +22,11 @@
         title: req.body.title
       }, (err, role) => {
         if (role) {
-          // If the role already exists send a validation error
-          res.status(400).json({
-            error: 'Role already exists'
-          });
+          let err = new Error(
+            'Role already exists'
+          );
+          err.status = 400;
+          return next(err);
         } else {
           // If the role does not exist, create it
           Role.create({
