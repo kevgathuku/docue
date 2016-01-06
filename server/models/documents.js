@@ -16,10 +16,10 @@
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
-    roles: [{
+    role: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Role'
-    }]
+    }
   }, {
     timestamps: {
       createdAt: 'dateCreated',

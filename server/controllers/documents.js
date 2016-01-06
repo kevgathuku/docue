@@ -9,6 +9,7 @@
     create: (req, res, next) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
+      let role;
 
       if (!req.body.title || req.body.title.trim === '') {
         let err = new Error(
@@ -31,39 +32,34 @@
             let decodedUser = jwt.decode(token, {
               complete: true
             });
-            // Get the passed in roles as an array of role titles
-            // If no roles have been provided, assign the default role
-            var decodedRoles;
-            if (req.body.roles) {
-              decodedRoles = req.body.roles.trim().replace(/\s/g, '')
-                .split(',');
+            // Get the role from the request body
+            // Or assign the default role
+            if (req.body.role) {
+              role = req.body.role.trim();
             } else {
-              decodedRoles = [
-                Roles.schema.paths.title.default()
-              ];
+              role = Roles.schema.paths.title.default();
             }
-            // Convert the roles into an array of the form:
-            // [{title: 'Role1'}, {title: 'Role2'}]
-            // in preparation for passing them to the 'or' query
-            let mappedRoles = decodedRoles.map((role) => {
-              return {
-                title: role
-              };
-            });
+
             // Find the corresponding roles in the DB
-            Roles.find().or(mappedRoles)
-              .exec((err, roles) => {
-                // If the document does not exist, create it
-                Documents.create({
-                  title: req.body.title,
-                  content: req.body.content,
-                  ownerId: decodedUser.payload._id,
-                  roles: roles
-                }, (error, newDocument) => {
-                  if (!error) {
-                    res.status(201).json(newDocument);
-                  }
-                });
+            Roles.findOne({
+                title: role
+              })
+              .exec((err, fetchedRole) => {
+                if (err || !fetchedRole) {
+                  return next(err);
+                } else {
+                  // If the document does not exist, create it
+                  Documents.create({
+                    title: req.body.title,
+                    content: req.body.content,
+                    ownerId: decodedUser.payload._id,
+                    role: fetchedRole
+                  }, (error, newDocument) => {
+                    if (!error) {
+                      res.status(201).json(newDocument);
+                    }
+                  });
+                }
               });
           }
         });
