@@ -1,9 +1,10 @@
 (() => {
   'use strict';
 
-  let jwt = require('jsonwebtoken');
-  let Documents = require('../models/documents');
-  let Roles = require('../models/roles');
+  let jwt = require('jsonwebtoken'),
+    extractUserFromToken = require('./utils'),
+    Documents = require('../models/documents'),
+    Roles = require('../models/roles');
 
   module.exports = {
     create: (req, res, next) => {
@@ -66,6 +67,54 @@
       }
     },
 
+    docsAuthenticate: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+      // Validate whether a user can access a specific document
+      Documents.findById(req.params.id)
+        .populate('role')
+        .exec((err, doc) => {
+          if (err) {
+            return next(err);
+          } else {
+            // If the user is the document owner or the roles match, proceed
+            if (user._id === doc.ownerId) {
+              next();
+            }
+            if (doc.role === undefined) {
+              return next(new Error('The document does not specify a role'));
+            }
+            switch (doc.role.title) {
+              // Allow all if the doc specifies a viewer role
+              case 'viewer':
+                next();
+                break;
+              case 'staff':
+                if (user.role.title === 'staff' || user.role.title === 'admin') {
+                  next();
+                } else {
+                  return res.status(403).json({
+                    error: 'You are not allowed to access this document'
+                  });
+                }
+                break;
+              case 'admin':
+                if (user.role.title === 'admin') {
+                  next();
+                } else {
+                  return res.status(403).json({
+                    error: 'You are not allowed to access this document'
+                  });
+                }
+                break;
+              default:
+
+            }
+          }
+        });
+    },
+
     update: (req, res, next) => {
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
@@ -109,6 +158,7 @@
       let limit = parseInt(req.query.limit) || 10;
       Documents.find({})
         .limit(limit)
+        .populate('role')
         .sort('-dateCreated')
         .exec((err, docs) => {
           if (err) {

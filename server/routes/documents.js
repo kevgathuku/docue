@@ -11,9 +11,9 @@
     .get(Users.authenticate, Documents.all);
 
   router.route('/documents/:id')
-    .get(Users.authenticate, Documents.get)
-    .put(Users.authenticate, Documents.update)
-    .delete(Users.authenticate, Documents.delete);
+    .get(Documents.docsAuthenticate, Users.authenticate, Documents.get)
+    .put(Documents.docsAuthenticate, Users.authenticate, Documents.update)
+    .delete(Documents.docsAuthenticate, Users.authenticate, Documents.delete);
 
     router.get('/documents/created/:date', Documents.allByDate);
 

@@ -50,15 +50,18 @@
     let documents = [{
       title: 'Doc1',
       content: '1Doc',
-      ownerId: user._id
+      ownerId: user._id,
+      role: user.role
     }, {
       title: 'Doc2',
       content: '2Doc',
-      ownerId: user._id
+      ownerId: user._id,
+      role: user.role
     }, {
       title: 'Doc3',
       content: '3Doc',
-      ownerId: user._id
+      ownerId: user._id,
+      role: user.role
     }];
 
     async.series([

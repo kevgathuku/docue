@@ -1,6 +1,7 @@
 describe('Documents Spec', () => {
   'use strict';
 
+  let async = require('async');
   let request = require('supertest');
   let helper = require('./helper');
   let app = require('../index');
@@ -225,7 +226,112 @@ describe('Documents Spec', () => {
           done();
         });
     });
+  });
 
+  describe('Document Role Access', () => {
+    let staffToken = null;
+    let documentID = null;
+
+    beforeEach((done) => {
+      async.waterfall([
+        // Create a new user with the staff role
+        (callback) => {
+          request(app)
+            .post('/api/users')
+            .send({
+              username: 'staffUser',
+              firstname: 'John',
+              lastname: 'Snow',
+              email: 'snow@staff.org',
+              password: 'staff',
+              role: 'staff'
+            })
+            // Call the callback with the newly created user
+            .end((err, res) => {
+              callback(err, res.body);
+            });
+        }, (staffUser, callback) => {
+          request(app)
+            .post('/api/users/login')
+            .send({
+              username: staffUser.username,
+              password: staffUser.password
+            })
+            // Call the callback with the user's token
+            .end((err, res) => {
+              staffToken = res.body.token;
+              callback(err, staffToken);
+            });
+        },
+        // Create a new document accessible to staff only
+        (newToken, callback) => {
+          request(app)
+            .post('/api/documents')
+            .set('x-access-token', newToken)
+            .send({
+              title: 'Staff',
+              description: 'Document',
+              role: 'staff'
+            })
+            // Call the callback with the newly created doc
+            .end((err, res) => {
+              callback(err, res.body);
+            });
+        }
+      ], (err, staffDocument) => {
+        // Save the document ID in the documentID variable
+        documentID = staffDocument._id;
+        done();
+      });
+    });
+
+    it('should allow access to authorized users', (done) => {
+      request(app)
+        .get('/api/documents/' + documentID)
+        .set('x-access-token', staffToken)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.title).not.toBe(null);
+          expect(res.body.content).not.toBe(null);
+          done();
+        });
+    });
+
+    it('should not allow unauthorized viewing of a document', (done) => {
+      request(app)
+        .get('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('You are not allowed to access this document');
+          done();
+        });
+    });
+
+    it('should not allow unauthorized editing of documents', (done) => {
+      request(app)
+        .put('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .send({
+          title: 'Users docs'
+        })
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('You are not allowed to access this document');
+          done();
+        });
+    });
+
+    it('should not allow unauthorized deletion of documents', (done) => {
+      request(app)
+        .delete('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('You are not allowed to access this document');
+          done();
+        });
+    });
   });
 
   describe('Document delete', () => {
