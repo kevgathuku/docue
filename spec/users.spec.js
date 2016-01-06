@@ -108,6 +108,27 @@ describe('User Spec', () => {
         });
     });
 
+    it('should raise an error if required attributes are missing', (done) => {
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'kevin',
+          firstname: 'Kevin',
+          email: 'kev@winterfell.org',
+          password: 'knnfenfen',
+          role: Roles.schema.paths.title.default()
+        })
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(400);
+          expect(res.body.error).toBe(
+            'Please provide the username, firstname, ' +
+            'lastname, email, and password values');
+          done();
+        });
+    });
+
   });
 
   describe('User Get', () => {
