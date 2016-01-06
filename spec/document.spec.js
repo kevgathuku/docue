@@ -99,11 +99,9 @@ describe('Documents Spec', () => {
         .set('Accept', 'application/json')
         .set('x-access-token', token)
         .end((err, res) => {
-          expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.roles.length).toBe(1);
           // It should assign the default role
-          expect(res.body.roles[0].title).toBe(defaultRole);
+          expect(res.body.role.title).toBe(defaultRole);
           done();
         });
     });
@@ -114,18 +112,14 @@ describe('Documents Spec', () => {
         .send({
           title: 'Doc 1',
           content: 'JS Curriculum',
-          roles: 'staff, viewer'
+          role: 'staff'
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .expect(201)
         .end((err, res) => {
-          let roleTitles = res.body.roles.map(titleObj => titleObj.title);
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.roles.length).toBe(2);
-          expect(roleTitles).toContain('staff');
-          expect(roleTitles).toContain('viewer');
+          expect(res.body.role.title).toBe('staff');
           done();
         });
     });
@@ -270,13 +264,13 @@ describe('Documents Spec', () => {
         .send({
           title: 'Doc Test',
           content: 'JS Curriculum',
-          roles: testRole
+          role: testRole
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
         .end((err, res) => {
           expect(err).toBeNull();
-          expect(res.body.roles[0]).not.toBeNull();
+          expect(res.body.role).not.toBeNull();
           done();
         });
     });
@@ -289,7 +283,7 @@ describe('Documents Spec', () => {
         .set('Accept', 'application/json')
         .end((err, res) => {
           expect(res.body.length).toBe(1);
-          expect(res.body[0].roles[0].title).toBe(testRole);
+          expect(res.body[0].role.title).toBe(testRole);
           done();
         });
     });

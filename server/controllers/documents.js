@@ -40,7 +40,7 @@
               role = Roles.schema.paths.title.default();
             }
 
-            // Find the corresponding roles in the DB
+            // Find the corresponding role in the DB
             Roles.findOne({
                 title: role
               })
@@ -124,9 +124,9 @@
         title: req.params.role
       }).exec((err, role) => {
         Documents.find({
-            'roles': role
+            'role': role
           })
-          .populate('roles')
+          .populate('role')
           .limit(limit)
           .sort('-dateCreated')
           .exec((err, docs) => {
