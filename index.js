@@ -29,7 +29,7 @@
 
   // default route
   app.get('/', (req, res) => {
-    res.send('Welcome to Express!');
+    res.json('Welcome to Express!');
   });
 
   app.use(require('./server/routes'));
