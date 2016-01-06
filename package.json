@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "jasmine",
-    "coverage": "nyc --require babel-core/register npm t && nyc report --reporter=text-lcov"
+    "coverage": "nyc --require babel-core/register npm t && nyc report --reporter=text-lcov | coveralls"
   },
   "dependencies": {
     "async": "^1.5.0",
