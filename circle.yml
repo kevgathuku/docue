@@ -2,6 +2,3 @@ test:
   override:
     - nvm install stable && nvm alias default stable
     - npm run coverage
-general:
-  artifacts:
-    - ./coverage
