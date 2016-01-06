@@ -49,9 +49,7 @@ describe('Documents Spec', () => {
           content: 'JS Curriculum'
         })
         .set('Accept', 'application/json')
-        .expect(201)
         .end((err, res) => {
-          expect(err).not.toBeNull();
           expect(res.statusCode).toBe(403);
           expect(res.body.error).toBe('No token provided.');
           done();
@@ -67,9 +65,7 @@ describe('Documents Spec', () => {
           content: 'JS Curriculum'
         })
         .set('x-access-token', token)
-        .expect(201)
         .end((err, res) => {
-          expect(err).not.toBeNull();
           expect(res.statusCode).toBe(400);
           expect(res.body.error).toBe(
             'The document title is required');
@@ -103,7 +99,6 @@ describe('Documents Spec', () => {
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .expect(201)
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
