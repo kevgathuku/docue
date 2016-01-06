@@ -1,6 +1,6 @@
 # Document Management System
 
-[![Circle CI](https://circleci.com/gh/kevgathuku/document-management-system/tree/master.svg?style=shield)](https://circleci.com/gh/kevgathuku/document-management-system/tree/master)   [![Coverage Status](https://coveralls.io/repos/kevgathuku/document-management-system/badge.svg?branch=feature%2Ftest-coverage&service=github)](https://coveralls.io/github/kevgathuku/document-management-system?branch=feature%2Ftest-coverage)
+[![Circle CI](https://circleci.com/gh/kevgathuku/document-management-system/tree/master.svg?style=shield)](https://circleci.com/gh/kevgathuku/document-management-system/tree/master)   [![Coverage Status](https://coveralls.io/repos/kevgathuku/document-management-system/badge.svg?branch=master&service=github)](https://coveralls.io/github/kevgathuku/document-management-system?branch=master)
 
 The system manages documents, users and roles.
 
