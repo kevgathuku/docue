@@ -146,8 +146,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should return documents limited by a specified number', (
-      done) => {
+    it('should return documents limited by a specified number', (done) => {
       let limit = 2;
       request(app)
         .get('/api/documents?limit=' + limit)
@@ -169,6 +168,94 @@ describe('Documents Spec', () => {
           expect(res.body[0].title).toBe('Doc3');
           expect(res.body[1].title).toBe('Doc2');
           expect(res.body[2].title).toBe('Doc1');
+          done();
+        });
+    });
+  });
+
+  describe('Documents Update', () => {
+    let documentID = null;
+
+    beforeEach((done) => {
+      request(app)
+        .get('/api/documents')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          // Store the first document's Id for later use
+          documentID = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('should correctly update a document', (done) => {
+      request(app)
+        .put('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .send({
+          title: 'Brand',
+          content: 'New'
+        })
+        .end((err, res) => {
+          // console.log(res.body);
+          expect(res.statusCode).toBe(200);
+          // Should contain the updated doc attributes
+          expect(res.body.title).toBe('Brand');
+          expect(res.body.content).toBe('New');
+          done();
+        });
+    });
+  });
+
+  describe('Single Document Fetch', () => {
+    let documentID = null;
+
+    beforeEach((done) => {
+      request(app)
+        .get('/api/documents')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          // Store the first document's Id for later use
+          documentID = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('should correctly fetch a single document', (done) => {
+      request(app)
+        .get('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          // Should contain the doc's attributes
+          expect(res.body.title).not.toBe(null);
+          expect(res.body.content).not.toBe(null);
+          done();
+        });
+    });
+  });
+
+  describe('Document delete', () => {
+    let documentID = null;
+
+    beforeEach((done) => {
+      request(app)
+        .get('/api/documents')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          // Store the first document's Id for later use
+          documentID = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('should correctly delete a document', (done) => {
+      request(app)
+        .delete('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(204);
+          // should send back an empty body
+          expect(res.body).toEqual({});
           done();
         });
     });

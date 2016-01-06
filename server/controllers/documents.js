@@ -70,12 +70,6 @@
     },
 
     update: (req, res, next) => {
-      // Delete all fields from req.body other than title & content
-      Object.keys(req.body).forEach(value => {
-        if ((value !== 'title') && (value !== 'content')) {
-          delete req.body[value];
-        }
-      });
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
         },
