@@ -35,3 +35,6 @@ node_modules
 
 # Environment Variables
 .env
+
+# Mac Files
+.DS_Store
