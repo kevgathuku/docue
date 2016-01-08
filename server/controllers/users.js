@@ -141,9 +141,7 @@
           ownerId: req.params.id
         }).exec((err, docs) => {
           if (err) {
-            return res.status(500).json({
-              error: err.message
-            });
+            res.next(err);
           } else {
             res.json(docs);
           }
@@ -159,9 +157,7 @@
       }
       Users.find((err, users) => {
         if (err) {
-          return res.status(500).json({
-            error: err.message
-          });
+          res.next(err);
         } else {
           res.json(users);
         }
