@@ -132,14 +132,50 @@ describe('User Spec', () => {
 
   describe('User Get', () => {
     let user = null;
+    let staffToken = null;
 
     beforeEach((done) => {
-      // Decode the user object from the token
-      user = extractUserFromToken(token);
-      done();
+      async.waterfall([
+          // Create a new user with the staff role
+          (callback) => {
+            // The first arg is the newly created staff
+            request(app)
+              .post('/api/users')
+              .send({
+                username: 'staffUser',
+                firstname: 'John',
+                lastname: 'Snow',
+                email: 'snow@staff.org',
+                password: 'staff',
+                role: 'staff'
+              })
+              // Call the callback with the newly created user
+              .end((err, res) => {
+                callback(err, res.body);
+              });
+          },
+          (adminUser, callback) => {
+            request(app)
+              .post('/api/users/login')
+              .send({
+                username: adminUser.username,
+                password: adminUser.password
+              })
+              // Call the callback with the admin user's token
+              .end((err, res) => {
+                callback(err, res.body.token);
+              });
+          }
+        ],
+        (err, generatedToken) => {
+          // Decode the user object from the token
+          user = extractUserFromToken(token);
+          staffToken = generatedToken;
+          done();
+        });
     });
 
-    it('should fetch a user successfully', (done) => {
+    it('should fetch the user\'s own profile successfully', (done) => {
       request(app)
         .get('/api/users/' + user._id)
         .set('Accept', 'application/json')
@@ -156,6 +192,20 @@ describe('User Spec', () => {
           done();
         });
     });
+
+    it('should not allow a user to fetch another user\'s profile', (done) => {
+      request(app)
+        .get('/api/users/' + user._id)
+        .set('Accept', 'application/json')
+        .set('x-access-token', staffToken)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('Unauthorized Access');
+          done();
+        });
+    });
+
   });
 
   describe('User update', () => {
@@ -306,7 +356,7 @@ describe('User Spec', () => {
         .get('/api/users')
         .set('x-access-token', token)
         .end((err, res) => {
-          expect(res.statusCode).toBe(401);
+          expect(res.statusCode).toBe(403);
           expect(res.body.error).toBe('Unauthorized Access');
           done();
         });

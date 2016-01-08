@@ -69,6 +69,12 @@
     },
 
     get: (req, res, next) => {
+      // Only an admin or owner can view their own profile
+      if (req.decoded._id !== req.params.id || req.decoded.role.title == 'admin') {
+        return res.status(403).json({
+          error: 'Unauthorized Access'
+        });
+      }
       // Don't send back the password field
       Users.findById(req.params.id, '_id name username email role loggedIn')
         .populate('role')
@@ -84,7 +90,7 @@
     update: (req, res, next) => {
       // A user can only update their own profile
       if (req.decoded._id !== req.params.id) {
-        return res.status(401).json({
+        return res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
@@ -113,7 +119,7 @@
       // A user can only delete their own profile
       // An admin can also delete a user
       if (req.decoded._id !== req.params.id || req.decoded.role.title === 'admin') {
-        return res.status(401).json({
+        return res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
@@ -147,7 +153,7 @@
     all: (req, res) => {
       // This action is available to admin roles only
       if (req.decoded.role.title !== 'admin') {
-        return res.status(401).json({
+        return res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
