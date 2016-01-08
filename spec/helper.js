@@ -10,9 +10,11 @@
 
   let seedRoles = (next) => {
     let roles = [{
-      title: 'viewer'
+      title: 'viewer',
+      accessLevel: 0
     }, {
-      title: 'staff'
+      title: 'staff',
+      accessLevel: 1
     }];
 
     Roles.create(roles, (err, roles) => {

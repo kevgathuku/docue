@@ -9,7 +9,12 @@
       unique: true,
       required: true,
       default: 'viewer',
-      enum: ['admin', 'staff', 'viewer']
+      enum: ['viewer', 'admin', 'staff']
+    },
+    // The accessLevel will be used to check for permissions
+    accessLevel: {
+      type: Number,
+      enum: [0, 1, 2]
     }
   });
 

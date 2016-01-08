@@ -27,6 +27,8 @@ describe('Roles Spec', () => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
           expect(res.body.title).toBe('admin');
+          // Should assign the accessLevel correctly
+          expect(res.body.accessLevel).toBe(2);
           expect(res.body.id).not.toBeNull();
           done();
         });

@@ -17,6 +17,25 @@
             ' is not a valid role title'
         });
       }
+
+      let newRole = {
+        title: req.body.title,
+        accessLevel: null
+      };
+      // Assign the access levels
+      switch (newRole.title) {
+        case 'viewer':
+          newRole.accessLevel = 0;
+          break;
+        case 'staff':
+          newRole.accessLevel = 1;
+          break;
+          case 'admin':
+            newRole.accessLevel = 2;
+            break;
+        default:
+
+      }
       // Find if the role exists
       Role.findOne({
         title: req.body.title
@@ -29,9 +48,7 @@
           return next(err);
         } else {
           // If the role does not exist, create it
-          Role.create({
-            title: req.body.title
-          }, (error, newRole) => {
+          Role.create(newRole, (error, newRole) => {
             if (!error) {
               res.status(201).json(newRole);
             }
