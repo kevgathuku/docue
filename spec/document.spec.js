@@ -1,6 +1,7 @@
 describe('Documents Spec', () => {
   'use strict';
 
+  let async = require('async');
   let request = require('supertest');
   let helper = require('./helper');
   let app = require('../index');
@@ -99,11 +100,9 @@ describe('Documents Spec', () => {
         .set('Accept', 'application/json')
         .set('x-access-token', token)
         .end((err, res) => {
-          expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.roles.length).toBe(1);
           // It should assign the default role
-          expect(res.body.roles[0].title).toBe(defaultRole);
+          expect(res.body.role.title).toBe(defaultRole);
           done();
         });
     });
@@ -114,18 +113,14 @@ describe('Documents Spec', () => {
         .send({
           title: 'Doc 1',
           content: 'JS Curriculum',
-          roles: 'staff, viewer'
+          role: 'staff'
         })
         .set('Accept', 'application/json')
         .set('x-access-token', token)
-        .expect(201)
         .end((err, res) => {
-          let roleTitles = res.body.roles.map(titleObj => titleObj.title);
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.roles.length).toBe(2);
-          expect(roleTitles).toContain('staff');
-          expect(roleTitles).toContain('viewer');
+          expect(res.body.role.title).toBe('staff');
           done();
         });
     });
@@ -231,6 +226,124 @@ describe('Documents Spec', () => {
           done();
         });
     });
+  });
+
+  describe('Document Role Access', () => {
+    let staffToken = null;
+    let documentID = null;
+
+    beforeEach((done) => {
+      async.waterfall([
+        // Create a new user with the staff role
+        (callback) => {
+          request(app)
+            .post('/api/users')
+            .send({
+              username: 'staffUser',
+              firstname: 'John',
+              lastname: 'Snow',
+              email: 'snow@staff.org',
+              password: 'staff',
+              role: 'staff'
+            })
+            // Call the callback with the newly created user
+            .end((err, res) => {
+              callback(err, res.body);
+            });
+        }, (staffUser, callback) => {
+          request(app)
+            .post('/api/users/login')
+            .send({
+              username: staffUser.username,
+              password: staffUser.password
+            })
+            // Call the callback with the user's token
+            .end((err, res) => {
+              staffToken = res.body.token;
+              callback(err, staffToken);
+            });
+        },
+        // Create a new document accessible to staff only
+        (newToken, callback) => {
+          request(app)
+            .post('/api/documents')
+            .set('x-access-token', newToken)
+            .send({
+              title: 'Staff Doc',
+              description: 'Confidential',
+              role: 'staff'
+            })
+            // Call the callback with the newly created doc
+            .end((err, res) => {
+              callback(err, res.body);
+            });
+        }
+      ], (err, staffDocument) => {
+        // Save the document ID in the documentID variable
+        documentID = staffDocument._id;
+        done();
+      });
+    });
+
+    it('should allow access to authorized users', (done) => {
+      request(app)
+        .get('/api/documents/' + documentID)
+        .set('x-access-token', staffToken)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.title).not.toBe(null);
+          expect(res.body.content).not.toBe(null);
+          done();
+        });
+    });
+
+    it('should not allow unauthorized viewing of a document', (done) => {
+      request(app)
+        .get('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('You are not allowed to access this document');
+          done();
+        });
+    });
+
+    it('should not allow unauthorized editing of documents', (done) => {
+      request(app)
+        .put('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .send({
+          title: 'Users docs'
+        })
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('You are not allowed to access this document');
+          done();
+        });
+    });
+
+    it('should not allow unauthorized deletion of documents', (done) => {
+      request(app)
+        .delete('/api/documents/' + documentID)
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('You are not allowed to access this document');
+          done();
+        });
+    });
+
+    it('should only return documents a user is allowed to access', (done) => {
+      request(app)
+        .get('/api/documents/')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          // Should not return the doc with the staff role
+          expect(res.body.length).toBe(3);
+          done();
+        });
+    });
 
   });
 
@@ -262,24 +375,8 @@ describe('Documents Spec', () => {
   });
 
   describe('Get Documents by Role', () => {
-    // Create a new document with the staff role
-    let testRole = 'staff';
-    beforeEach((done) => {
-      request(app)
-        .post('/api/documents')
-        .send({
-          title: 'Doc Test',
-          content: 'JS Curriculum',
-          roles: testRole
-        })
-        .set('Accept', 'application/json')
-        .set('x-access-token', token)
-        .end((err, res) => {
-          expect(err).toBeNull();
-          expect(res.body.roles[0]).not.toBeNull();
-          done();
-        });
-    });
+    // The viewer role (default) is the test role
+    let testRole = defaultRole;
 
     it('should return documents accessible by the given role', (done) => {
       // Get the documents accessible by the test role
@@ -288,8 +385,8 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .set('Accept', 'application/json')
         .end((err, res) => {
-          expect(res.body.length).toBe(1);
-          expect(res.body[0].roles[0].title).toBe(testRole);
+          expect(res.body.length).toBe(3);
+          expect(res.body[0].role.title).toBe(testRole);
           done();
         });
     });

@@ -3,7 +3,7 @@
   'use strict';
 
   let mongoose = require('mongoose');
-  mongoose.connect('mongodb://localhost/dms');
+  mongoose.connect(process.env.MONGODB_URL);
 
   let db = mongoose.connection;
 

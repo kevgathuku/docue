@@ -1,14 +1,16 @@
 (() => {
   'use strict';
 
-  let jwt = require('jsonwebtoken');
-  let Documents = require('../models/documents');
-  let Roles = require('../models/roles');
+  let jwt = require('jsonwebtoken'),
+    extractUserFromToken = require('./utils'),
+    Documents = require('../models/documents'),
+    Roles = require('../models/roles');
 
   module.exports = {
     create: (req, res, next) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
+      let role;
 
       if (!req.body.title || req.body.title.trim === '') {
         let err = new Error(
@@ -31,43 +33,67 @@
             let decodedUser = jwt.decode(token, {
               complete: true
             });
-            // Get the passed in roles as an array of role titles
-            // If no roles have been provided, assign the default role
-            var decodedRoles;
-            if (req.body.roles) {
-              decodedRoles = req.body.roles.trim().replace(/\s/g, '')
-                .split(',');
+            // Get the role from the request body
+            // Or assign the default role
+            if (req.body.role) {
+              role = req.body.role.trim();
             } else {
-              decodedRoles = [
-                Roles.schema.paths.title.default()
-              ];
+              role = Roles.schema.paths.title.default();
             }
-            // Convert the roles into an array of the form:
-            // [{title: 'Role1'}, {title: 'Role2'}]
-            // in preparation for passing them to the 'or' query
-            let mappedRoles = decodedRoles.map((role) => {
-              return {
+
+            // Find the corresponding role in the DB
+            Roles.findOne({
                 title: role
-              };
-            });
-            // Find the corresponding roles in the DB
-            Roles.find().or(mappedRoles)
-              .exec((err, roles) => {
-                // If the document does not exist, create it
-                Documents.create({
-                  title: req.body.title,
-                  content: req.body.content,
-                  ownerId: decodedUser.payload._id,
-                  roles: roles
-                }, (error, newDocument) => {
-                  if (!error) {
-                    res.status(201).json(newDocument);
-                  }
-                });
+              })
+              .exec((err, fetchedRole) => {
+                if (err || !fetchedRole) {
+                  return next(err);
+                } else {
+                  // If the document does not exist, create it
+                  Documents.create({
+                    title: req.body.title,
+                    content: req.body.content,
+                    ownerId: decodedUser.payload._id,
+                    role: fetchedRole
+                  }, (error, newDocument) => {
+                    if (!error) {
+                      res.status(201).json(newDocument);
+                    }
+                  });
+                }
               });
           }
         });
       }
+    },
+
+    docsAuthenticate: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+      // Validate whether a user can access a specific document
+      Documents.findById(req.params.id)
+        .populate('role')
+        .exec((err, doc) => {
+          if (err) {
+            return next(err);
+          } else {
+            // If the user is the doc owner, allow access
+            if (user._id === doc.ownerId) {
+              next();
+            } else if (doc.role === undefined) {
+              return next(new Error('The document does not specify a role'));
+            } else if (user.role.accessLevel >= doc.role.accessLevel) {
+              // If the user's accessLevel is equal or higher to the one
+              // specified by the doc, allow access
+              next();
+            } else {
+              return res.status(403).json({
+                error: 'You are not allowed to access this document'
+              });
+            }
+          }
+        });
     },
 
     update: (req, res, next) => {
@@ -109,40 +135,57 @@
     },
 
     all: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
       // Set a default limit of 10 if one is not set
       let limit = parseInt(req.query.limit) || 10;
       Documents.find({})
         .limit(limit)
+        .populate('role')
         .sort('-dateCreated')
         .exec((err, docs) => {
           if (err) {
             return next(err);
           }
-          res.json(docs);
+          // Return docs with accessLevel lower or equal to user's access level
+          res.json(docs.filter(function(doc) {
+            return doc.role.accessLevel <= user.role.accessLevel;
+          }));
         });
     },
 
     allByRole: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+
       let limit = parseInt(req.query.limit) || 10;
       Roles.findOne({
         title: req.params.role
       }).exec((err, role) => {
         Documents.find({
-            'roles': role
+            'role': role
           })
-          .populate('roles')
+          .populate('role')
           .limit(limit)
           .sort('-dateCreated')
           .exec((err, docs) => {
             if (err) {
               return next(err);
             }
-            res.json(docs);
+            res.json(docs.filter(function(doc) {
+              return doc.role.accessLevel <= user.role.accessLevel;
+            }));
           });
       });
     },
 
     allByDate: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+
       let limit = parseInt(req.query.limit) || 10;
       // Ensure the date format is in the format expected
       let dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
@@ -163,12 +206,15 @@
         // Date is greater than the date provided and less than one day ahead
         // i.e. documents created today
         .where('dateCreated').gte(date).lt(nextDate)
+        .populate('role')
         .limit(limit)
         .exec((err, docs) => {
           if (err) {
             return next(err);
           }
-          res.json(docs);
+          res.json(docs.filter(function(doc) {
+            return doc.role.accessLevel <= user.role.accessLevel;
+          }));
         });
     }
 

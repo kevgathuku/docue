@@ -9,10 +9,13 @@
   let app = require('../index');
 
   let seedRoles = (next) => {
+    // Users will be created with the first role
     let roles = [{
-      title: 'viewer'
+      title: 'viewer',
+      accessLevel: 0
     }, {
-      title: 'staff'
+      title: 'staff',
+      accessLevel: 1
     }];
 
     Roles.create(roles, (err, roles) => {
@@ -21,6 +24,7 @@
   };
 
   let seedUsers = (role, next) => {
+    // Documents will be created with the first user, role = viewer
     let users = [{
       username: 'jsnow',
       name: {
@@ -50,15 +54,18 @@
     let documents = [{
       title: 'Doc1',
       content: '1Doc',
-      ownerId: user._id
+      ownerId: user._id,
+      role: user.role
     }, {
       title: 'Doc2',
       content: '2Doc',
-      ownerId: user._id
+      ownerId: user._id,
+      role: user.role
     }, {
       title: 'Doc3',
       content: '3Doc',
-      ownerId: user._id
+      ownerId: user._id,
+      role: user.role
     }];
 
     async.series([
