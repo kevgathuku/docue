@@ -9,6 +9,7 @@
   let app = require('../index');
 
   let seedRoles = (next) => {
+    // Users will be created with the first role
     let roles = [{
       title: 'viewer',
       accessLevel: 0
@@ -23,6 +24,7 @@
   };
 
   let seedUsers = (role, next) => {
+    // Documents will be created with the first user, role = viewer
     let users = [{
       username: 'jsnow',
       name: {

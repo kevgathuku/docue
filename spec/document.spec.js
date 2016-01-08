@@ -269,8 +269,8 @@ describe('Documents Spec', () => {
             .post('/api/documents')
             .set('x-access-token', newToken)
             .send({
-              title: 'Staff',
-              description: 'Document',
+              title: 'Staff Doc',
+              description: 'Confidential',
               role: 'staff'
             })
             // Call the callback with the newly created doc
@@ -332,6 +332,19 @@ describe('Documents Spec', () => {
           done();
         });
     });
+
+    it('should only return documents a user is allowed to access', (done) => {
+      request(app)
+        .get('/api/documents/')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          // Should not return the doc with the staff role
+          expect(res.body.length).toBe(3);
+          done();
+        });
+    });
+
   });
 
   describe('Document delete', () => {
@@ -362,24 +375,8 @@ describe('Documents Spec', () => {
   });
 
   describe('Get Documents by Role', () => {
-    // Create a new document with the staff role
-    let testRole = 'staff';
-    beforeEach((done) => {
-      request(app)
-        .post('/api/documents')
-        .send({
-          title: 'Doc Test',
-          content: 'JS Curriculum',
-          role: testRole
-        })
-        .set('Accept', 'application/json')
-        .set('x-access-token', token)
-        .end((err, res) => {
-          expect(err).toBeNull();
-          expect(res.body.role).not.toBeNull();
-          done();
-        });
-    });
+    // The viewer role (default) is the test role
+    let testRole = defaultRole;
 
     it('should return documents accessible by the given role', (done) => {
       // Get the documents accessible by the test role
@@ -388,7 +385,7 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .set('Accept', 'application/json')
         .end((err, res) => {
-          expect(res.body.length).toBe(1);
+          expect(res.body.length).toBe(3);
           expect(res.body[0].role.title).toBe(testRole);
           done();
         });

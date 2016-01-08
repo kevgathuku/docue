@@ -135,6 +135,9 @@
     },
 
     all: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
       // Set a default limit of 10 if one is not set
       let limit = parseInt(req.query.limit) || 10;
       Documents.find({})
@@ -145,11 +148,18 @@
           if (err) {
             return next(err);
           }
-          res.json(docs);
+          // Return docs with accessLevel lower or equal to user's access level
+          res.json(docs.filter(function(doc) {
+            return doc.role.accessLevel <= user.role.accessLevel;
+          }));
         });
     },
 
     allByRole: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+
       let limit = parseInt(req.query.limit) || 10;
       Roles.findOne({
         title: req.params.role
@@ -164,12 +174,18 @@
             if (err) {
               return next(err);
             }
-            res.json(docs);
+            res.json(docs.filter(function(doc) {
+              return doc.role.accessLevel <= user.role.accessLevel;
+            }));
           });
       });
     },
 
     allByDate: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+
       let limit = parseInt(req.query.limit) || 10;
       // Ensure the date format is in the format expected
       let dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
@@ -190,12 +206,15 @@
         // Date is greater than the date provided and less than one day ahead
         // i.e. documents created today
         .where('dateCreated').gte(date).lt(nextDate)
+        .populate('role')
         .limit(limit)
         .exec((err, docs) => {
           if (err) {
             return next(err);
           }
-          res.json(docs);
+          res.json(docs.filter(function(doc) {
+            return doc.role.accessLevel <= user.role.accessLevel;
+          }));
         });
     }
 
