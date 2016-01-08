@@ -78,38 +78,19 @@
           if (err) {
             return next(err);
           } else {
-            // If the user is the document owner or the roles match, proceed
+            // If the user is the doc owner, allow access
             if (user._id === doc.ownerId) {
               next();
-            }
-            if (doc.role === undefined) {
+            } else if (doc.role === undefined) {
               return next(new Error('The document does not specify a role'));
-            }
-            switch (doc.role.title) {
-              // Allow all if the doc specifies a viewer role
-              case 'viewer':
-                next();
-                break;
-              case 'staff':
-                if (user.role.title === 'staff' || user.role.title === 'admin') {
-                  next();
-                } else {
-                  return res.status(403).json({
-                    error: 'You are not allowed to access this document'
-                  });
-                }
-                break;
-              case 'admin':
-                if (user.role.title === 'admin') {
-                  next();
-                } else {
-                  return res.status(403).json({
-                    error: 'You are not allowed to access this document'
-                  });
-                }
-                break;
-              default:
-
+            } else if (user.role.accessLevel >= doc.role.accessLevel) {
+              // If the user's accessLevel is equal or higher to the one
+              // specified by the doc, allow access
+              next();
+            } else {
+              return res.status(403).json({
+                error: 'You are not allowed to access this document'
+              });
             }
           }
         });
