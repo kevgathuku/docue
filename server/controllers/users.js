@@ -185,9 +185,15 @@
               error: 'Authentication failed. Wrong password.'
             });
           } else {
+            user.password = null;
+            let tokenUser = {
+              _id: user._id,
+              role: user.role,
+              loggedIn: user.loggedIn
+            };
             // User is found and password is correct
             // Sign the user object with the app secret
-            let token = jwt.sign(user, req.app.get('superSecret'), {
+            let token = jwt.sign(tokenUser, req.app.get('superSecret'), {
               expiresIn: 86400 // expires in 24 hours
             });
             res.json({

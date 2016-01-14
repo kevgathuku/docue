@@ -183,10 +183,7 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(200);
-          expect(res.body.username).toBe(user.username);
-          expect(res.body.name.first).toBe(user.name.first);
-          expect(res.body.name.last).toBe(user.name.last);
-          expect(res.body.email).toBe(user.email);
+          expect(res.body._id).toBe(user._id);
           // The password should not be returned
           expect(res.body.password).toBeUndefined();
           done();
