@@ -40,3 +40,9 @@ node_modules
 
 # Mac Files
 .DS_Store
+
+# Bower dependencies
+public/lib/
+
+# Generated bundle
+public/build/
