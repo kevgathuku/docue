@@ -9,26 +9,40 @@
   },
   "dependencies": {
     "async": "^1.5.0",
-    "babel-core": "^6.3.26",
-    "babel-eslint": "^4.1.6",
+    "babel-core": "^6.4.0",
+    "babel-loader": "^6.2.0",
     "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
     "babel-register": "^6.3.13",
     "body-parser": "^1.14.2",
+    "bower": "^1.7.2",
     "debug": "~2.2.0",
-    "dotenv": "^1.2.0",
-    "eslint": "^1.10.3",
     "express": "~4.13.1",
+    "flux": "^2.1.1",
     "jasmine": "^2.3.2",
     "jsonwebtoken": "5.4.1",
+    "keymirror": "^0.1.1",
     "mongoose": "^4.2.7",
     "morgan": "~1.6.1",
     "nodemon": "^1.8.1",
     "nyc": "^5.3.0",
-    "supertest": "^1.1.0"
+    "object-assign": "^4.0.1",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
+    "superagent": "^1.6.1",
+    "supertest": "^1.1.0",
+    "webpack": "^1.12.11"
   },
   "devDependencies": {
-    "coveralls": "^2.11.6"
+    "babel-cli": "^6.4.0",
+    "babel-eslint": "^4.1.6",
+    "coveralls": "^2.11.6",
+    "dotenv": "^1.2.0",
+    "eslint": "^1.10.3",
+    "eslint-loader": "^1.2.0",
+    "eslint-plugin-react": "^3.15.0",
+    "webpack-dev-server": "^1.14.1"
   },
   "nyc": {
     "exclude": [
