@@ -8,7 +8,7 @@
     morgan = require('morgan'),
     path = require('path'),
     app = express(),
-    publicPath = path.resolve(__dirname, '..', 'public'),
+    publicPath = path.resolve(__dirname, 'public'),
     proxy = httpProxy.createProxyServer(),
     isProduction = process.env.NODE_ENV === 'production';
 
@@ -47,7 +47,6 @@
         target: 'http://localhost:8080/'
       });
     });
-
   }
 
   // It is important to catch any errors from the proxy or the
@@ -58,11 +57,6 @@
   });
 
   let port = process.env.PORT || 3000; // set our port
-
-  // default route
-  app.get('/', (req, res) => {
-    res.json('Welcome to Express!');
-  });
 
   app.use(require('./server/routes'));
 
@@ -85,7 +79,7 @@
 
   // START THE SERVER
   app.listen(port);
-  console.log('Listening on port ' + port);
+  console.log('Listening on port', port);
 
   // Export the app object
   module.exports = app;
