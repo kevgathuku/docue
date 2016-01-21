@@ -4,6 +4,7 @@
 
   let express = require('express'),
     bodyParser = require('body-parser'),
+    favicon = require('serve-favicon'),
     httpProxy = require('http-proxy'),
     morgan = require('morgan'),
     path = require('path'),
@@ -24,6 +25,8 @@
   if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
   }
+
+  app.use(favicon(path.join(__dirname, 'app', 'images', 'favicon.png')));
 
   // configure app to use bodyParser()
   // this will let us get the data from a POST
