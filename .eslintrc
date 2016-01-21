@@ -53,5 +53,8 @@
     "jasmine": true,
     "browser": true
   },
-  "extends": "eslint:recommended"
+  "extends": "eslint:recommended",
+  "plugins": [
+    "react"
+  ],
 }
