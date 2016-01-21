@@ -9,7 +9,9 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "jasmine",
-    "coverage": "nyc --require babel-core/register npm t && nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc --require babel-core/register npm t && nyc report --reporter=text-lcov | coveralls",
+    "deploy": "NODE_ENV=production webpack -p --config webpack.production.config.js --progress --colors",
+    "postinstall": "./node_modules/bower/bin/bower install && npm run deploy"
   },
   "dependencies": {
     "async": "^1.5.0",
