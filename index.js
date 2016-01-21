@@ -13,7 +13,7 @@
     isProduction = process.env.NODE_ENV === 'production';
 
   // Load the env variables only in DEV mode
-  if (process.env.NODE_ENV === 'development') {
+  if (!isProduction) {
     require('dotenv').load();
   }
 
