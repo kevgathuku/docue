@@ -1,0 +1,19 @@
+language: node_js
+sudo: false
+services:
+- mongodb
+node_js:
+- stable
+cache:
+  directories:
+  - node_modules
+script:
+- npm run coverage
+deploy:
+  provider: heroku
+  api_key:
+    secure: vKs56CsVH799vPF/NJJDtrtdhbS7FeoPCUXjT1ZgUwj8Qm6y1XumMuUwdXKdR6gy+XT7LxZ2O3rOw07VNHwcc9LF8e13CC2xGRUaiduNWqNHiketteyuJePKLuLSfkuVs5EY572TEfMlJZQL9jML8bsKwS0oxxUGHqmqnby8aFObcSqkIaOTIks7o93/UyKqm5Rq8smTCyGfUPlPaVW7M9h/xLIpH/iYh5hLUDuqkfA7M7bozukd+O7AsQl9SMpFMylk8utff/S3nhOXRH31xEsSqXnRdLJ4aT5nMsCxhlxoUl+vIPfEzIgiTha5Loy6VGm4RvWlsz+4PS+k4oxxdBNaAwQsvy2tqIwQO3W+t2fhQex2cze0J+mB9HHs6v4m3YKZchagVhOEVbkkN7wSVjT7w7er8pqcvu0YP58aXmV2tJnUDxHkWPLd49fdfbUS/lKIeLgFfbWFi1BmViN2ylYrgXXd0UdyZm2mTnUSQBhxKCDJzWLQ5+AnFTksm5IG6OFgvw8LZmSZYVwSgBD+8wraKGLiIeGSVhOoPcCvCipOLqr9TAujbC2QWTdYnuMvkkPl1F7y13JNAkG4xyZtL6asqivFnidzThH4Aidi9Z6Twb+mq2SbmXpM1coVrhkbyyql70r9g2+6pH+itucF4sFDr04s9Xx5TuKOXaAbytA=
+  app: react-docms
+  on:
+    repo: kevgathuku/react-docms
+    branch: master

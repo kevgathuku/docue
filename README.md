@@ -1,6 +1,6 @@
 # Document Management System
 
-[![Circle CI](https://circleci.com/gh/kevgathuku/document-management-system/tree/master.svg?style=shield)](https://circleci.com/gh/kevgathuku/document-management-system/tree/master)   [![Coverage Status](https://coveralls.io/repos/kevgathuku/document-management-system/badge.svg?branch=master&service=github)](https://coveralls.io/github/kevgathuku/document-management-system?branch=master)
+[![Build Status](https://travis-ci.org/kevgathuku/react-docms.svg?branch=master)](https://travis-ci.org/kevgathuku/react-docms)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/react-top40/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/react-top40?branch=master)
 
 The system manages documents, users and roles.
 
@@ -12,9 +12,9 @@ Users are categorized by roles. Each user must have a role defined for them.
 
 - Clone the repo locally and navigate to the newly created folder
 
-    `$ git clone https://github.com/kevgathuku/document-management-system`
+    `$ git clone https://github.com/kevgathuku/react-docms`
 
-    `$ cd document-management-system`
+    `$ cd react-docms`
 
  - Install the app dependencies
 
@@ -45,7 +45,7 @@ To run the tests, use the following steps:
 
  - Navigate to the project folder
 
-    `$ cd document-management-system`
+    `$ cd react-docms`
 
  - Run the tests through the following command:
 

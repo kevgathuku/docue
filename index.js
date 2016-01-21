@@ -12,8 +12,10 @@
     proxy = httpProxy.createProxyServer(),
     isProduction = process.env.NODE_ENV === 'production';
 
-  // Load the env variables
-  require('dotenv').load();
+  // Load the env variables only in DEV mode
+  if (!isProduction) {
+    require('dotenv').load();
+  }
 
   // Set JWT secret on the app object
   app.set('superSecret', process.env.SECRET);

@@ -1,6 +1,6 @@
 {
-  "name": "document-management-system",
-  "version": "0.1.0",
+  "name": "react-docms",
+  "version": "0.1.1",
   "engines": {
     "node": "5.4.1",
     "npm": "3.5.3"
