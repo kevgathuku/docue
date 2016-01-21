@@ -1,9 +1,0 @@
-test:
-  override:
-    - nvm install stable && nvm alias default stable
-    - npm run coverage
-deployment:
-  production:
-    branch: master
-    heroku:
-      appname: react-docms
