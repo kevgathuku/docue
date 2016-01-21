@@ -12,9 +12,9 @@ Users are categorized by roles. Each user must have a role defined for them.
 
 - Clone the repo locally and navigate to the newly created folder
 
-    `$ git clone https://github.com/kevgathuku/document-management-system`
+    `$ git clone https://github.com/kevgathuku/react-docms`
 
-    `$ cd document-management-system`
+    `$ cd react-docms`
 
  - Install the app dependencies
 
@@ -45,7 +45,7 @@ To run the tests, use the following steps:
 
  - Navigate to the project folder
 
-    `$ cd document-management-system`
+    `$ cd react-docms`
 
  - Run the tests through the following command:
 
