@@ -1,6 +1,6 @@
 # Document Management System
 
-[![Build Status](https://travis-ci.org/kevgathuku/react-docms.svg?branch=master)](https://travis-ci.org/kevgathuku/react-docms)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/react-docms/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/react-docms?branch=master)
+[![Build Status](https://travis-ci.org/kevgathuku/docue.svg?branch=master)](https://travis-ci.org/kevgathuku/docue)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/docue/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/docue?branch=master)
 
 The system manages documents, users and roles.
 
