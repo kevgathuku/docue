@@ -37,8 +37,10 @@
     "object-assign": "^4.0.1",
     "react": "^0.14.6",
     "react-dom": "^0.14.6",
+    "serve-favicon": "^2.3.0",
     "superagent": "^1.6.1",
     "supertest": "^1.1.0",
+    "url-loader": "^0.5.7",
     "webpack": "^1.12.11"
   },
   "devDependencies": {
