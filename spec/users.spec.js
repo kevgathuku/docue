@@ -136,43 +136,41 @@ describe('User Spec', () => {
 
     beforeEach((done) => {
       async.waterfall([
-          // Create a new user with the staff role
-          (callback) => {
-            // The first arg is the newly created staff
-            request(app)
-              .post('/api/users')
-              .send({
-                username: 'staffUser',
-                firstname: 'John',
-                lastname: 'Snow',
-                email: 'snow@staff.org',
-                password: 'staff',
-                role: 'staff'
-              })
-              // Call the callback with the newly created user
-              .end((err, res) => {
-                callback(err, res.body);
-              });
-          },
-          (adminUser, callback) => {
-            request(app)
-              .post('/api/users/login')
-              .send({
-                username: adminUser.username,
-                password: adminUser.password
-              })
-              // Call the callback with the admin user's token
-              .end((err, res) => {
-                callback(err, res.body.token);
-              });
-          }
-        ],
-        (err, generatedToken) => {
-          // Decode the user object from the token
-          user = extractUserFromToken(token);
-          staffToken = generatedToken;
-          done();
-        });
+        // Create a new user with the staff role
+        (callback) => {
+          // The first arg is the newly created staff
+          request(app)
+            .post('/api/users')
+            .send({
+              username: 'staffUser',
+              firstname: 'John',
+              lastname: 'Snow',
+              email: 'snow@staff.org',
+              password: 'staff',
+              role: 'staff'
+            })
+            // Call the callback with the newly created user
+            .end((err, res) => {
+              callback(err, res.body);
+            });
+        }, (adminUser, callback) => {
+          request(app)
+            .post('/api/users/login')
+            .send({
+              username: adminUser.username,
+              password: adminUser.password
+            })
+            // Call the callback with the admin user's token
+            .end((err, res) => {
+              callback(err, res.body.token);
+            });
+        }
+      ], (err, generatedToken) => {
+        // Decode the user object from the token
+        user = extractUserFromToken(token);
+        staffToken = generatedToken;
+        done();
+      });
     });
 
     it('should fetch the user\'s own profile successfully', (done) => {
@@ -287,49 +285,47 @@ describe('User Spec', () => {
 
     beforeEach((done) => {
       async.waterfall([
-          // Create the admin role in the DB
-          (callback) => {
-            Roles.create({
-              title: 'admin'
-            }, (err, adminRole) => {
-              callback(err, adminRole);
+        // Create the admin role in the DB
+        (callback) => {
+          Roles.create({
+            title: 'admin'
+          }, (err, adminRole) => {
+            callback(err, adminRole);
+          });
+        },
+        // Create a new user with the admin role
+        (admin, callback) => {
+          // The first arg is the newly created adminRole
+          request(app)
+            .post('/api/users')
+            .send({
+              username: 'adminUser',
+              firstname: 'John',
+              lastname: 'Snow',
+              email: 'snow@admin.org',
+              password: 'admin',
+              role: 'admin'
+            })
+            // Call the callback with the newly created user
+            .end((err, res) => {
+              callback(err, res.body);
             });
-          },
-          // Create a new user with the admin role
-          (admin, callback) => {
-            // The first arg is the newly created adminRole
-            request(app)
-              .post('/api/users')
-              .send({
-                username: 'adminUser',
-                firstname: 'John',
-                lastname: 'Snow',
-                email: 'snow@admin.org',
-                password: 'admin',
-                role: 'admin'
-              })
-              // Call the callback with the newly created user
-              .end((err, res) => {
-                callback(err, res.body);
-              });
-          },
-          (adminUser, callback) => {
-            request(app)
-              .post('/api/users/login')
-              .send({
-                username: adminUser.username,
-                password: adminUser.password
-              })
-              // Call the callback with the admin user's token
-              .end((err, res) => {
-                callback(err, res.body.token);
-              });
-          }
-        ],
-        (err, generatedToken) => {
-          adminToken = generatedToken;
-          done();
-        });
+        }, (adminUser, callback) => {
+          request(app)
+            .post('/api/users/login')
+            .send({
+              username: adminUser.username,
+              password: adminUser.password
+            })
+            // Call the callback with the admin user's token
+            .end((err, res) => {
+              callback(err, res.body.token);
+            });
+        }
+      ], (err, generatedToken) => {
+        adminToken = generatedToken;
+        done();
+      });
     });
 
     it('should return all users when called by admin user', (done) => {
@@ -401,18 +397,80 @@ describe('User Spec', () => {
     it('should logout user successfully', (done) => {
       request(app)
         .post('/api/users/logout')
-        .send({
-          username: user.username,
-          password: user.password
-        })
         .set('x-access-token', token)
         .end((err, res) => {
-        expect(res.statusCode).toBe(200);
-        expect(res.body.message).toBe('Successfully logged out');
+          expect(res.statusCode).toBe(200);
+          expect(res.body.message).toBe('Successfully logged out');
           // The user's loggedIn flag should be set to false in the DB
           expect(user.loggedIn).toBe(false);
           done();
         });
     });
+  });
+
+  describe('User Session', () => {
+    it('should return false if no token is provided', (done) => {
+      request(app)
+        .get('/api/users/session')
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.loggedIn).toBe('false');
+          done();
+        });
+    });
+
+    it('should return true if the user is logged in', (done) => {
+      request(app)
+        .get('/api/users/session')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.loggedIn).toBe('true');
+          done();
+        });
+    });
+
+    it('should return false if the token is invalid', (done) => {
+      request(app)
+        .get('/api/users/session')
+        .set('x-access-token', 'i-will-hack-you')
+        .end((err, res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.loggedIn).toBe('false');
+          done();
+        });
+    });
+
+    it('should return false if the user is logged out', (done) => {
+      async.series([
+          function(callback) {
+            // logout the user
+            request(app)
+              .post('/api/users/logout')
+              .set('x-access-token', token)
+              .end((err, res) => {
+                expect(res.statusCode).toBe(200);
+                callback(null, res.body.message);
+              });
+          },
+          function(callback) {
+            request(app)
+              .get('/api/users/session')
+              .set('x-access-token', token)
+              .end((err, res) => {
+                expect(res.statusCode).toBe(200);
+                expect(res.body.loggedIn).toBe('false');
+                callback(null, res.body.loggedIn);
+              });
+          }
+        ],
+        // optional callback
+        function(err, results) {
+          // results holds the values from the callbacks
+          expect(results[1]).toBe('false');
+          done();
+        });
+    });
+
   });
 });

@@ -266,6 +266,7 @@
         // verifies secret and checks expiry time
         jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
           if (err) {
+            // If the token is invalid, return false
             res.json({
               loggedIn: 'false'
             });
