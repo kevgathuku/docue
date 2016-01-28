@@ -4,12 +4,11 @@ describe('Application Spec', () => {
   let request = require('supertest');
   let app = require('../index');
 
-  it('should raise 404 error if page is not found', (done) => {
+  it('should delegate absent routes to the frontend', (done) => {
     request(app)
       .get('/hows-your-father')
       .end((err, res) => {
-        expect(res.statusCode).toBe(404);
-        expect(res.body.error).toBe('Not Found');
+        expect(res.statusCode).toBe(200);
         done();
       });
   });

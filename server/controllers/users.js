@@ -255,6 +255,41 @@
           error: 'No token provided.'
         });
       }
+    },
+
+    getSession: (req, res, next) => {
+      // check header or post parameters for token
+      let token = req.body.token || req.headers['x-access-token'];
+
+      // decode token
+      if (token) {
+        // verifies secret and checks expiry time
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
+          if (err) {
+            // If the token is invalid, return false
+            res.json({
+              loggedIn: 'false'
+            });
+          } else {
+            // Return user's loggedIn status from the DB
+            Users.findById(decoded._id)
+              .exec((err, user) => {
+                if (err) {
+                  return next(err);
+                } else {
+                  return res.json({
+                    loggedIn: user.loggedIn.toString()
+                  });
+                }
+              });
+          }
+        });
+      } else {
+        // if there is no token, return a logged out status
+        return res.json({
+          loggedIn: 'false'
+        });
+      }
     }
 
   };
