@@ -33,14 +33,77 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.username).toBe('johnSnow');
-          expect(res.body.name.first).toBe(
+          expect(res.body.user.username).toBe('johnSnow');
+          expect(res.body.user.name.first).toBe(
             'John');
-          expect(res.body.name.last).toBe(
+          expect(res.body.user.name.last).toBe(
             'Snow');
-          expect(res.body.id).not.toBeNull();
+          expect(res.body.token).not.toBeNull();
+          expect(res.body.user.id).not.toBeNull();
           done();
         });
+    });
+
+    it('should log the user in after signup', (done) => {
+      let userID = null;
+      let userToken = null;
+      async.series([
+          function(callback) {
+            // Create the user
+            request(app)
+              .post('/api/users')
+              .send({
+                username: 'jnSnow',
+                firstname: 'John',
+                lastname: 'Snow',
+                email: 'Jjsnow@winterfell.org',
+                password: 'knffenfen',
+                role: Roles.schema.paths.title.default()
+              })
+              .set('Accept', 'application/json')
+              .end((err, res) => {
+                expect(err).toBeNull();
+                expect(res.statusCode).toBe(201);
+                userID = res.body.user._id;
+                userToken = res.body.token;
+                callback(err, userToken);
+              });
+          },
+          function(callback) {
+            request(app)
+              .get('/api/users/' + userID)
+              .set('x-access-token', userToken)
+              .end((err, res) => {
+                expect(res.statusCode).toBe(200);
+                callback(null, res.body.loggedIn);
+              });
+          }
+        ],
+        // optional callback
+        function(err, results) {
+          // results holds the values from the callbacks
+          expect(results[1]).toBe(true);
+          done();
+        });
+
+      // request(app)
+      //   .post('/api/users')
+      //   .send({
+      //     username: 'jnSnow',
+      //     firstname: 'John',
+      //     lastname: 'Snow',
+      //     email: 'Jsnow@winterfell.org',
+      //     password: 'knffenfen',
+      //     role: Roles.schema.paths.title.default()
+      //   })
+      //   .set('Accept', 'application/json')
+      //   .end((err, res) => {
+      //     expect(err).toBeNull();
+      //     expect(res.statusCode).toBe(201);
+      //     let user = extractUserFromToken(res.body.token);
+      //     expect(user.loggedIn).toBe('true');
+      //     done();
+      //   });
     });
 
     it('should enforce a unique username field', (done) => {
@@ -100,9 +163,9 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
-          expect(res.body.role).not.toBeNull();
-          // The role should be a string data type
-          expect(res.body.role).toEqual(jasmine.any(String));
+          expect(res.body.user.role).not.toBeNull();
+          // The role should be populated i.e. an object
+          expect(res.body.user.role).toEqual(jasmine.any(Object));
           done();
         });
     });
@@ -150,17 +213,6 @@ describe('User Spec', () => {
               role: 'staff'
             })
             // Call the callback with the newly created user
-            .end((err, res) => {
-              callback(err, res.body);
-            });
-        }, (adminUser, callback) => {
-          request(app)
-            .post('/api/users/login')
-            .send({
-              username: adminUser.username,
-              password: adminUser.password
-            })
-            // Call the callback with the admin user's token
             .end((err, res) => {
               callback(err, res.body.token);
             });
@@ -306,18 +358,7 @@ describe('User Spec', () => {
               password: 'admin',
               role: 'admin'
             })
-            // Call the callback with the newly created user
-            .end((err, res) => {
-              callback(err, res.body);
-            });
-        }, (adminUser, callback) => {
-          request(app)
-            .post('/api/users/login')
-            .send({
-              username: adminUser.username,
-              password: adminUser.password
-            })
-            // Call the callback with the admin user's token
+            // Call the callback with the user's token
             .end((err, res) => {
               callback(err, res.body.token);
             });
@@ -358,6 +399,7 @@ describe('User Spec', () => {
 
   describe('User Actions', () => {
     let user = null;
+    let userToken = null;
 
     beforeEach((done) => {
       request(app)
@@ -373,36 +415,43 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           // Save the new user in a variable
-          user = res.body;
-          // Expect the loggedIn flag to be false by default
-          expect(res.body.loggedIn).toBe(false);
-          done();
-        });
-    });
-
-    it('should login user successfully', (done) => {
-      request(app)
-        .post('/api/users/login')
-        .send({
-          username: user.username,
-          password: user.password
-        })
-        .end((err, res) => {
-          // The loggedIn flag should be set to true
+          user = res.body.user;
+          userToken = res.body.token;
+          // Expect the user to be logged in
           expect(res.body.user.loggedIn).toBe(true);
           done();
         });
     });
 
-    it('should logout user successfully', (done) => {
-      request(app)
-        .post('/api/users/logout')
-        .set('x-access-token', token)
-        .end((err, res) => {
-          expect(res.statusCode).toBe(200);
-          expect(res.body.message).toBe('Successfully logged out');
-          // The user's loggedIn flag should be set to false in the DB
-          expect(user.loggedIn).toBe(false);
+    it('should login and logout user successfully', (done) => {
+      async.series([
+          function(callback) {
+            // logout the user
+            request(app)
+              .post('/api/users/logout')
+              .set('x-access-token', userToken)
+              .end((err, res) => {
+                expect(res.statusCode).toBe(200);
+                callback(null, res.body);
+              });
+          },
+          function(callback) {
+            request(app)
+              .post('/api/users/login')
+              .send({
+                username: user.username,
+                password: user.password
+              })
+              .end((err, res) => {
+                callback(null, res.body.user.loggedIn);
+              });
+          }
+        ],
+        // optional callback
+        function(err, results) {
+          expect(results[0].message).toBe('Successfully logged out');
+          // The loggedIn flag should be set to true
+          expect(results[1]).toBe(true);
           done();
         });
     });

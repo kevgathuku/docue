@@ -53,13 +53,27 @@
                 },
                 email: req.body.email,
                 password: req.body.password,
-                role: role._id
+                role: role,
+                loggedIn: true
               }, (error, newUser) => {
                 if (error) {
                   return next(error);
                 } else {
-                  // Return the newly created user
-                  res.status(201).json(newUser);
+                  // Successful signup
+                  let tokenUser = {
+                    _id: newUser._id,
+                    role: newUser.role,
+                    loggedIn: newUser.loggedIn
+                  };
+                  // Sign the user object with the app secret
+                  let token = jwt.sign(tokenUser, req.app.get('superSecret'), {
+                    expiresIn: 86400 // expires in 24 hours
+                  });
+                  // Return the newly created user with the token included
+                  res.status(201).json({
+                    user: newUser,
+                    token: token
+                  });
                 }
               });
             }
@@ -204,7 +218,7 @@
         });
     },
 
-    logout: (req, res, next) => {
+    logout: (req, res) => {
       // Set the loggedIn flag for the user to false
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -212,8 +226,8 @@
           loggedIn: false
         })
         .exec((err, user) => {
-          if (err || !user) {
-            return next(err);
+          if (!user) {
+            return res.json({error: 'User Not Found'});
           } else {
             res.json({
               message: 'Successfully logged out'
