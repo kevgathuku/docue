@@ -248,17 +248,6 @@ describe('Documents Spec', () => {
             })
             // Call the callback with the newly created user
             .end((err, res) => {
-              callback(err, res.body);
-            });
-        }, (staffUser, callback) => {
-          request(app)
-            .post('/api/users/login')
-            .send({
-              username: staffUser.username,
-              password: staffUser.password
-            })
-            // Call the callback with the user's token
-            .end((err, res) => {
               staffToken = res.body.token;
               callback(err, staffToken);
             });

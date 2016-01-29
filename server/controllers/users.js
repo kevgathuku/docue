@@ -53,13 +53,27 @@
                 },
                 email: req.body.email,
                 password: req.body.password,
-                role: role._id
+                role: role,
+                loggedIn: true
               }, (error, newUser) => {
                 if (error) {
                   return next(error);
                 } else {
-                  // Return the newly created user
-                  res.status(201).json(newUser);
+                  // Successful signup
+                  let tokenUser = {
+                    _id: newUser._id,
+                    role: newUser.role,
+                    loggedIn: newUser.loggedIn
+                  };
+                  // Sign the user object with the app secret
+                  let token = jwt.sign(tokenUser, req.app.get('superSecret'), {
+                    expiresIn: 86400 // expires in 24 hours
+                  });
+                  // Return the newly created user with the token included
+                  res.status(201).json({
+                    user: newUser,
+                    token: token
+                  });
                 }
               });
             }
@@ -204,7 +218,7 @@
         });
     },
 
-    logout: (req, res, next) => {
+    logout: (req, res) => {
       // Set the loggedIn flag for the user to false
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -212,8 +226,8 @@
           loggedIn: false
         })
         .exec((err, user) => {
-          if (err || !user) {
-            return next(err);
+          if (!user) {
+            return res.json({error: 'User Not Found'});
           } else {
             res.json({
               message: 'Successfully logged out'
@@ -253,6 +267,41 @@
         // if there is no token return an error
         return res.status(403).send({
           error: 'No token provided.'
+        });
+      }
+    },
+
+    getSession: (req, res, next) => {
+      // check header or post parameters for token
+      let token = req.body.token || req.headers['x-access-token'];
+
+      // decode token
+      if (token) {
+        // verifies secret and checks expiry time
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
+          if (err) {
+            // If the token is invalid, return false
+            res.json({
+              loggedIn: 'false'
+            });
+          } else {
+            // Return user's loggedIn status from the DB
+            Users.findById(decoded._id)
+              .exec((err, user) => {
+                if (err) {
+                  return next(err);
+                } else {
+                  return res.json({
+                    loggedIn: user.loggedIn.toString()
+                  });
+                }
+              });
+          }
+        });
+      } else {
+        // if there is no token, return a logged out status
+        return res.json({
+          loggedIn: 'false'
         });
       }
     }
