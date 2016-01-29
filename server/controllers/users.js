@@ -218,7 +218,7 @@
         });
     },
 
-    logout: (req, res) => {
+    logout: (req, res, next) => {
       // Set the loggedIn flag for the user to false
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -226,8 +226,8 @@
           loggedIn: false
         })
         .exec((err, user) => {
-          if (!user) {
-            return res.json({error: 'User Not Found'});
+          if (err || !user) {
+            return next(err);
           } else {
             res.json({
               message: 'Successfully logged out'
@@ -288,7 +288,7 @@
             // Return user's loggedIn status from the DB
             Users.findById(decoded._id)
               .exec((err, user) => {
-                if (err) {
+                if (err || !user) {
                   return next(err);
                 } else {
                   return res.json({
