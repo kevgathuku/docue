@@ -192,8 +192,12 @@
           })
         .populate('role')
         .exec((err, user) => {
-          if (err || !user) {
+          if (err) {
             return next(err);
+          } else if (!user) {
+            return res.status(404).json({
+              error: 'Authentication failed. User Not Found.'
+            });
           } else if (user.password != req.body.password) {
             res.status(401).json({
               error: 'Authentication failed. Wrong password.'
@@ -271,7 +275,7 @@
       }
     },
 
-    getSession: (req, res, next) => {
+    getSession: (req, res) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
@@ -280,7 +284,7 @@
         // verifies secret and checks expiry time
         jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
           if (err) {
-            // If the token is invalid, return false
+            // If the token cannot be verified, return false
             res.json({
               loggedIn: 'false'
             });
@@ -289,9 +293,12 @@
             Users.findById(decoded._id)
               .exec((err, user) => {
                 if (err || !user) {
-                  return next(err);
+                  res.json({
+                    loggedIn: 'false'
+                  });
                 } else {
                   return res.json({
+                    user: user,
                     loggedIn: user.loggedIn.toString()
                   });
                 }

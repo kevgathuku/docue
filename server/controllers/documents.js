@@ -143,6 +143,7 @@
       Documents.find({})
         .limit(limit)
         .populate('role')
+        .populate('ownerId')
         .sort('-dateCreated')
         .exec((err, docs) => {
           if (err) {
