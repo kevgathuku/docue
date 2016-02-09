@@ -131,7 +131,9 @@
         // Return the newly updated doc rather than the original
         {
           new: true
-        }, (err, document) => {
+        })
+        .populate('ownerId')
+        .exec((err, document) => {
           if (!document) {
             return next(err);
           }
