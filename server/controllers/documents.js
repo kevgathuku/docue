@@ -96,6 +96,34 @@
         });
     },
 
+    ownerAuthenticate: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+      // Validate whether a user can delete a specific document
+      Documents.findById(req.params.id)
+        .populate('role')
+        .exec((err, doc) => {
+          if (err) {
+            return next(err);
+          } else {
+            // If the user is the doc owner, allow access
+            if (user._id == doc.ownerId) {
+              next();
+            } else if (doc.role === undefined) {
+              return next(new Error('The document does not specify a role'));
+            } else if (user.role.accessLevel === 2) {
+              // If the user is an admin, allow access
+              next();
+            } else {
+              return res.status(403).json({
+                error: 'You are not allowed to delete this document'
+              });
+            }
+          }
+        });
+    },
+
     update: (req, res, next) => {
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
