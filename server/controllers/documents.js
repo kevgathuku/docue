@@ -4,7 +4,8 @@
   let jwt = require('jsonwebtoken'),
     extractUserFromToken = require('./utils'),
     Documents = require('../models/documents'),
-    Roles = require('../models/roles');
+    Roles = require('../models/roles'),
+    Users = require('../models/users');
 
   module.exports = {
     create: (req, res, next) => {
@@ -25,43 +26,55 @@
         }, (err, document) => {
           if (document) {
             // If the document already exists send a validation error
-            res.status(400).json({
-              error: 'Document already exists'
-            });
+            let docErr = new Error(
+              'Document already exists'
+            );
+            docErr.status = 400;
+            return next(docErr);
           } else {
             // Decode the user info from the token
             let decodedUser = jwt.decode(token, {
               complete: true
             });
-            // Get the role from the request body
-            // Or assign the default role
-            if (req.body.role) {
-              role = req.body.role.trim();
-            } else {
-              role = Roles.schema.paths.title.default();
-            }
-
-            // Find the corresponding role in the DB
-            Roles.findOne({
-                title: role
-              })
-              .exec((err, fetchedRole) => {
-                if (err || !fetchedRole) {
-                  return next(err);
+            Users.findById(decodedUser.payload._id, (err, user) => {
+              if (!user) {
+                let err = new Error('User does not exist');
+                err.status = 400;
+                return next(err);
+              } else {
+                // Get the role from the request body
+                // Or assign the default role
+                if (req.body.role) {
+                  role = req.body.role.trim();
                 } else {
-                  // If the document does not exist, create it
-                  Documents.create({
-                    title: req.body.title,
-                    content: req.body.content,
-                    ownerId: decodedUser.payload._id,
-                    role: fetchedRole
-                  }, (error, newDocument) => {
-                    if (!error) {
-                      res.status(201).json(newDocument);
+                  role = Roles.schema.paths.title.default();
+                }
+
+                // Find the corresponding role in the DB
+                Roles.findOne({
+                    title: role
+                  })
+                  .exec((err, fetchedRole) => {
+                    if (err || !fetchedRole) {
+                      return next(err);
+                    } else {
+                      // If the document does not exist, create it
+                      Documents.create({
+                        title: req.body.title,
+                        content: req.body.content,
+                        ownerId: decodedUser.payload._id,
+                        role: fetchedRole
+                      }, (error, newDocument) => {
+                        if (!error) {
+                          return res.status(201).json(newDocument);
+                        } else {
+                          return next(error);
+                        }
+                      });
                     }
                   });
-                }
-              });
+            }
+          });
           }
         });
       }
