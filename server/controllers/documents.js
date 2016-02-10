@@ -120,7 +120,6 @@
           if (err) {
             return next(err);
           } else {
-            console.log(doc);
             // If the user is the doc owner, allow access
             if (user._id == doc.ownerId) {
               next();
