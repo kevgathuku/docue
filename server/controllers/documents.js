@@ -155,6 +155,7 @@
     get: (req, res, next) => {
       Documents.findById(req.params.id)
         .populate('roles')
+        .populate('ownerId')
         .exec((err, document) => {
           if (err || !document) {
             return next(err);
