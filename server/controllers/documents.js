@@ -117,14 +117,12 @@
       Documents.findById(req.params.id)
         .populate('role')
         .exec((err, doc) => {
-          if (err) {
+          if (err || !doc) {
             return next(err);
           } else {
             // If the user is the doc owner, allow access
             if (user._id == doc.ownerId) {
               next();
-            } else if (doc.role === undefined) {
-              return next(new Error('The document does not specify a role'));
             } else if (user.role.accessLevel === 2) {
               // If the user is an admin, allow access
               next();
