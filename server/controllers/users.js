@@ -200,7 +200,8 @@
             return res.status(404).json({
               error: 'Authentication failed. User Not Found.'
             });
-          } else if (user.password != req.body.password) {
+          } else if (!user.comparePassword(req.body.password)) {
+            // If the password provided is wrong.
             res.status(401).json({
               error: 'Authentication failed. Wrong password.'
             });

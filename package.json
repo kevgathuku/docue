@@ -21,6 +21,7 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.5.1",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.0",
     "bower": "^1.7.7",
     "css-loader": "^0.23.1",
