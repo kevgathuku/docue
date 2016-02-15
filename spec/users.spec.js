@@ -85,25 +85,6 @@ describe('User Spec', () => {
           expect(results[1]).toBe(true);
           done();
         });
-
-      // request(app)
-      //   .post('/api/users')
-      //   .send({
-      //     username: 'jnSnow',
-      //     firstname: 'John',
-      //     lastname: 'Snow',
-      //     email: 'Jsnow@winterfell.org',
-      //     password: 'knffenfen',
-      //     role: Roles.schema.paths.title.default()
-      //   })
-      //   .set('Accept', 'application/json')
-      //   .end((err, res) => {
-      //     expect(err).toBeNull();
-      //     expect(res.statusCode).toBe(201);
-      //     let user = extractUserFromToken(res.body.token);
-      //     expect(user.loggedIn).toBe('true');
-      //     done();
-      //   });
     });
 
     it('should enforce a unique username field', (done) => {
