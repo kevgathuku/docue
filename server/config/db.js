@@ -3,11 +3,12 @@
   'use strict';
 
   let mongoose = require('mongoose');
-  // MONGOLAB_URI is the MongoDB url config in Heroku
   if (process.env.NODE_ENV === 'test') {
     mongoose.connect(process.env.MONGO_TEST_URL);
+  } else {
+    // MONGOLAB_URI is the MongoDB url config in Heroku
+    mongoose.connect(process.env.MONGODB_URL || process.env.MONGOLAB_URI);
   }
-  mongoose.connect(process.env.MONGODB_URL || process.env.MONGOLAB_URI);
 
   let db = mongoose.connection;
 
