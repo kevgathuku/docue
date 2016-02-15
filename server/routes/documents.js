@@ -13,7 +13,7 @@
   router.route('/documents/:id')
     .get(Documents.docsAuthenticate, Users.authenticate, Documents.get)
     .put(Documents.docsAuthenticate, Users.authenticate, Documents.update)
-    .delete(Documents.docsAuthenticate, Users.authenticate, Documents.delete);
+    .delete(Documents.ownerAuthenticate, Users.authenticate, Documents.delete);
 
     router.get('/documents/created/:date', Documents.allByDate);
 

@@ -4,7 +4,8 @@
   let jwt = require('jsonwebtoken'),
     extractUserFromToken = require('./utils'),
     Documents = require('../models/documents'),
-    Roles = require('../models/roles');
+    Roles = require('../models/roles'),
+    Users = require('../models/users');
 
   module.exports = {
     create: (req, res, next) => {
@@ -25,43 +26,55 @@
         }, (err, document) => {
           if (document) {
             // If the document already exists send a validation error
-            res.status(400).json({
-              error: 'Document already exists'
-            });
+            let docErr = new Error(
+              'Document already exists'
+            );
+            docErr.status = 400;
+            return next(docErr);
           } else {
             // Decode the user info from the token
             let decodedUser = jwt.decode(token, {
               complete: true
             });
-            // Get the role from the request body
-            // Or assign the default role
-            if (req.body.role) {
-              role = req.body.role.trim();
-            } else {
-              role = Roles.schema.paths.title.default();
-            }
-
-            // Find the corresponding role in the DB
-            Roles.findOne({
-                title: role
-              })
-              .exec((err, fetchedRole) => {
-                if (err || !fetchedRole) {
-                  return next(err);
+            Users.findById(decodedUser.payload._id, (err, user) => {
+              if (!user) {
+                let err = new Error('User does not exist');
+                err.status = 400;
+                return next(err);
+              } else {
+                // Get the role from the request body
+                // Or assign the default role
+                if (req.body.role) {
+                  role = req.body.role.trim();
                 } else {
-                  // If the document does not exist, create it
-                  Documents.create({
-                    title: req.body.title,
-                    content: req.body.content,
-                    ownerId: decodedUser.payload._id,
-                    role: fetchedRole
-                  }, (error, newDocument) => {
-                    if (!error) {
-                      res.status(201).json(newDocument);
+                  role = Roles.schema.paths.title.default();
+                }
+
+                // Find the corresponding role in the DB
+                Roles.findOne({
+                    title: role
+                  })
+                  .exec((err, fetchedRole) => {
+                    if (err || !fetchedRole) {
+                      return next(err);
+                    } else {
+                      // If the document does not exist, create it
+                      Documents.create({
+                        title: req.body.title,
+                        content: req.body.content,
+                        ownerId: decodedUser.payload._id,
+                        role: fetchedRole
+                      }, (error, newDocument) => {
+                        if (!error) {
+                          return res.status(201).json(newDocument);
+                        } else {
+                          return next(error);
+                        }
+                      });
                     }
                   });
-                }
-              });
+            }
+          });
           }
         });
       }
@@ -96,6 +109,32 @@
         });
     },
 
+    ownerAuthenticate: (req, res, next) => {
+      // Extract the user info from the token
+      let token = req.body.token || req.headers['x-access-token'];
+      let user = extractUserFromToken(token);
+      // Validate whether a user can delete a specific document
+      Documents.findById(req.params.id)
+        .populate('role')
+        .exec((err, doc) => {
+          if (err || !doc) {
+            return next(err);
+          } else {
+            // If the user is the doc owner, allow access
+            if (user._id == doc.ownerId) {
+              next();
+            } else if (user.role.accessLevel === 2) {
+              // If the user is an admin, allow access
+              next();
+            } else {
+              return res.status(403).json({
+                error: 'You are not allowed to delete this document'
+              });
+            }
+          }
+        });
+    },
+
     update: (req, res, next) => {
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
@@ -103,7 +142,9 @@
         // Return the newly updated doc rather than the original
         {
           new: true
-        }, (err, document) => {
+        })
+        .populate('ownerId')
+        .exec((err, document) => {
           if (!document) {
             return next(err);
           }
@@ -114,6 +155,7 @@
     get: (req, res, next) => {
       Documents.findById(req.params.id)
         .populate('roles')
+        .populate('ownerId')
         .exec((err, document) => {
           if (err || !document) {
             return next(err);
@@ -143,6 +185,7 @@
       Documents.find({})
         .limit(limit)
         .populate('role')
+        .populate('ownerId')
         .sort('-dateCreated')
         .exec((err, docs) => {
           if (err) {
