@@ -22,7 +22,7 @@
   app.set('superSecret', process.env.SECRET);
 
   // use morgan to log requests to the console
-  if (process.env.NODE_ENV === 'development') {
+  if (!isProduction) {
     app.use(morgan('dev'));
   }
 

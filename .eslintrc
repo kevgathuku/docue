@@ -1,5 +1,6 @@
 {
   "parser": "babel-eslint",
+  "extends": "eslint:recommended",
   "rules": {
     "indent": 0,
     "quotes": [
@@ -14,9 +15,10 @@
       2,
       "always"
     ],
+    "no-console": 0,
     "strict": [1, "function"],
     "react/display-name": 0,
-    "react/forbid-prop-types": 1,
+    "react/forbid-prop-types": [1, { "forbid": [<any>, <array>] }],
     "react/jsx-boolean-value": 1,
     "react/jsx-closing-bracket-location": 1,
     "react/jsx-curly-spacing": 1,
@@ -55,7 +57,6 @@
     "jasmine": true,
     "browser": true
   },
-  "extends": "eslint:recommended",
   "plugins": [
     "react"
   ],

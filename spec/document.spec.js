@@ -317,7 +317,7 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
-          expect(res.body.error).toBe('You are not allowed to access this document');
+          expect(res.body.error).toBe('You are not allowed to delete this document');
           done();
         });
     });
