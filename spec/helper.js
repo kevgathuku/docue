@@ -8,6 +8,8 @@
   let request = require('supertest');
   let app = require('../index');
 
+  let testPassword = 'youKnowNothing';
+
   let seedRoles = (next) => {
     // Users will be created with the first role
     let roles = [{
@@ -32,7 +34,7 @@
         last: 'Snow'
       },
       email: 'jsnow@winterfell.org',
-      password: 'youKnowNothing',
+      password: testPassword,
       role: role
     }, {
       username: 'nstark',
@@ -168,7 +170,7 @@
             .post('/api/users/login')
             .send({
               username: users[0].username,
-              password: users[0].password
+              password: testPassword
             })
             .end((err, res) => {
               // Call the callback with the generated token
