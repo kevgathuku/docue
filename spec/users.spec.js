@@ -381,6 +381,7 @@ describe('User Spec', () => {
   describe('User Actions', () => {
     let user = null;
     let userToken = null;
+    let userPassword = 'knfenfenfen';
 
     beforeEach((done) => {
       request(app)
@@ -390,7 +391,7 @@ describe('User Spec', () => {
           firstname: 'not',
           lastname: 'ceo',
           email: 'jerenotceo@andela.com',
-          password: 'knfenfenfen'
+          password: userPassword
         })
         .set('Accept', 'application/json')
         .end((err, res) => {
@@ -421,7 +422,7 @@ describe('User Spec', () => {
               .post('/api/users/login')
               .send({
                 username: user.username,
-                password: user.password
+                password: userPassword
               })
               .end((err, res) => {
                 callback(null, res.body.user.loggedIn);
