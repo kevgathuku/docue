@@ -85,25 +85,6 @@ describe('User Spec', () => {
           expect(results[1]).toBe(true);
           done();
         });
-
-      // request(app)
-      //   .post('/api/users')
-      //   .send({
-      //     username: 'jnSnow',
-      //     firstname: 'John',
-      //     lastname: 'Snow',
-      //     email: 'Jsnow@winterfell.org',
-      //     password: 'knffenfen',
-      //     role: Roles.schema.paths.title.default()
-      //   })
-      //   .set('Accept', 'application/json')
-      //   .end((err, res) => {
-      //     expect(err).toBeNull();
-      //     expect(res.statusCode).toBe(201);
-      //     let user = extractUserFromToken(res.body.token);
-      //     expect(user.loggedIn).toBe('true');
-      //     done();
-      //   });
     });
 
     it('should enforce a unique username field', (done) => {
@@ -400,6 +381,7 @@ describe('User Spec', () => {
   describe('User Actions', () => {
     let user = null;
     let userToken = null;
+    let userPassword = 'knfenfenfen';
 
     beforeEach((done) => {
       request(app)
@@ -409,7 +391,7 @@ describe('User Spec', () => {
           firstname: 'not',
           lastname: 'ceo',
           email: 'jerenotceo@andela.com',
-          password: 'knfenfenfen'
+          password: userPassword
         })
         .set('Accept', 'application/json')
         .end((err, res) => {
@@ -440,7 +422,7 @@ describe('User Spec', () => {
               .post('/api/users/login')
               .send({
                 username: user.username,
-                password: user.password
+                password: userPassword
               })
               .end((err, res) => {
                 callback(null, res.body.user.loggedIn);
