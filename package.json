@@ -8,8 +8,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon index.js",
-    "test": "jasmine",
-    "coverage": "nyc --require babel-core/register npm t && nyc report --reporter=text-lcov | coveralls",
+    "test": "NODE_ENV='test' jasmine",
+    "coverage": "NODE_ENV='test' nyc --require babel-core/register npm t && nyc report --reporter=text-lcov | coveralls",
     "deploy": "webpack -p --config webpack.production.config.js --progress --colors",
     "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/bower/bin/bower install && npm run deploy; fi"
   },
