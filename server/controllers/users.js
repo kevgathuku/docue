@@ -122,7 +122,7 @@
         {
           new: true
         })
-        .populate('ownerId')
+        .populate('role')
         .exec((err, user) => {
           if (!user) {
             return next(err);
