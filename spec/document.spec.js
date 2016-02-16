@@ -9,6 +9,8 @@ describe('Documents Spec', () => {
   let token = null;
   let defaultRole = Roles.schema.paths.title.default();
 
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+
   beforeEach((done) => {
     helper.beforeEach(token, generatedToken => {
       token = generatedToken;
