@@ -193,7 +193,7 @@
           }
           // Return docs with accessLevel lower or equal to user's access level
           res.json(docs.filter(function(doc) {
-            return doc.role.accessLevel <= user.role.accessLevel;
+            return doc.role.accessLevel <= user.role.accessLevel || doc.ownerId._id == user._id;
           }));
         });
     },
