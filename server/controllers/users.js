@@ -294,6 +294,7 @@
           } else {
             // Return user's loggedIn status from the DB
             Users.findById(decoded._id)
+              .populate('role')
               .exec((err, user) => {
                 if (err || !user) {
                   res.json({
