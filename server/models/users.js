@@ -46,7 +46,7 @@
   });
 
   UserSchema.pre('save', function(next) {
-    var user = this;
+    let user = this;
 
     // Only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) {
@@ -68,7 +68,7 @@
   // Check if entered password is the same as the stored password
   // Returns true if the passwords match, false otherwise
   UserSchema.methods.comparePassword = function(password) {
-    var user = this;
+    let user = this;
     return bcrypt.compareSync(password, user.password);
   };
 
