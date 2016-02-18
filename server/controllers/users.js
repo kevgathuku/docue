@@ -84,70 +84,73 @@
 
     get: (req, res, next) => {
       // Only an admin or owner can view their own profile
-      if (req.decoded._id !== req.params.id || req.decoded.role.title == 'admin') {
-        return res.status(403).json({
-          error: 'Unauthorized Access'
-        });
-      }
-      // Don't send back the password field
-      Users.findById(req.params.id, '_id name username email role loggedIn')
-        .populate('role')
-        .exec((err, user) => {
-          if (err) {
-            return next(err);
-          } else {
-            res.json(user);
-          }
-        });
+      if (req.decoded._id === req.params.id || req.decoded.role.title === 'admin') {
+        // Don't send back the password field
+        Users.findById(req.params.id, '_id name username email role loggedIn')
+          .populate('role')
+          .exec((err, user) => {
+            if (err) {
+              return next(err);
+            } else {
+              res.json(user);
+            }
+          });
+        } else {
+          return res.status(403).json({
+            error: 'Unauthorized Access'
+          });
+        }
     },
 
     update: (req, res, next) => {
       // A user can only update their own profile
-      if (req.decoded._id !== req.params.id) {
-        return res.status(403).json({
-          error: 'Unauthorized Access'
-        });
-      }
-      // Set the name fields in the format expected by the model
-      if (req.body.hasOwnProperty('firstname') || req.body.hasOwnProperty('lastname')) {
-        req.body.name = {
-          first: req.body.firstname,
-          last: req.body.lastname
-        };
-      }
-      Users.findByIdAndUpdate(req.params.id, {
-          $set: req.body
-        },
-        // Return the updated user object
-        {
-          new: true
-        })
-        .populate('role')
-        .exec((err, user) => {
-          if (!user) {
-            return next(err);
-          }
-          res.send(user);
-        });
+      // An admin can edit any user's profile i.e. roles
+      if (req.decoded._id === req.params.id || req.decoded.role.title === 'admin') {
+        // Set the name fields in the format expected by the model
+        if (req.body.hasOwnProperty('firstname') || req.body.hasOwnProperty('lastname')) {
+          req.body.name = {
+            first: req.body.firstname,
+            last: req.body.lastname
+          };
+        }
+        Users.findByIdAndUpdate(req.params.id, {
+            $set: req.body
+          },
+          // Return the updated user object
+          {
+            new: true
+          })
+          .populate('role')
+          .exec((err, user) => {
+            if (!user) {
+              return next(err);
+            }
+            res.send(user);
+          });
+      } else {
+          return res.status(403).json({
+            error: 'Unauthorized Access'
+          });
+        }
     },
 
     delete: (req, res, next) => {
       // A user can only delete their own profile
       // An admin can also delete a user
-      if (req.decoded._id !== req.params.id || req.decoded.role.title === 'admin') {
+      if (req.decoded._id === req.params.id || req.decoded.role.title === 'admin') {
+        Users.findOneAndRemove({
+          _id: req.params.id
+        }, function(err, user) {
+          if (err || !user) {
+            return next(err);
+          }
+          res.sendStatus(204);
+        });
+      } else {
         return res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
-
-      Users.findOneAndRemove({
-        _id: req.params.id
-      }, function(err, user) {
-        if (err || !user) {
-          return next(err);
-        }
-        res.sendStatus(204);
-      });
     },
 
     // Get all documents created by this user
@@ -171,7 +174,9 @@
           error: 'Unauthorized Access'
         });
       }
-      Users.find((err, users) => {
+      Users.find()
+      .populate('role')
+      .exec((err, users) => {
         if (err) {
           res.next(err);
         } else {
