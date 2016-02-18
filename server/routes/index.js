@@ -10,7 +10,7 @@
   router.use('/api', require('./documents'));
 
   // Delegate all unregistered routes to the frontend
-  router.get('*', function(req, res) {
+  router.get('*', (req, res) => {
     res.sendFile('index.html', {
       root: './public/'
     });
