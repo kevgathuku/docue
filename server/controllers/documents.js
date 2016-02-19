@@ -92,7 +92,7 @@
             return next(err);
           } else {
             // If the user is the doc owner, allow access
-            if (user._id === doc.ownerId) {
+            if (user._id == doc.ownerId) {
               next();
             } else if (doc.role === undefined) {
               return next(new Error('The document does not specify a role'));
