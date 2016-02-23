@@ -85,6 +85,7 @@
     "mocha": "^2.4.5",
     "phantomjs-prebuilt": "^2.1.4",
     "react-addons-test-utils": "^0.14.7",
+    "sinon": "^1.17.3",
     "source-map-loader": "^0.1.5",
     "webpack-dev-server": "1.11.0"
   },

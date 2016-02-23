@@ -1,5 +1,3 @@
-var webpack = require('webpack');
-
 module.exports = function(config) {
   config.set({
 
@@ -22,6 +20,9 @@ module.exports = function(config) {
     webpack: {
       devtool: 'inline-source-map',
       module: {
+        noParse: [
+            /node_modules\/sinon/
+        ],
         loaders: [{
             test: /\.jsx?$/, // A regexp to test the require path. works for js or jsx
             loader: 'babel', // The module to load. "babel" is short for "babel-loader"
@@ -45,6 +46,9 @@ module.exports = function(config) {
         ]
       },
       resolve: {
+        alias: {
+          sinon: 'sinon/pkg/sinon.js'
+        },
         root: __dirname,
         extensions: ['', '.js', '.jsx', '.json']
       },
