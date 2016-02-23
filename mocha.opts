@@ -1,4 +1,0 @@
---compilers js:babel-register
---require ignore-styles
-test/.setup.js
-@(app)/**/**/**/*-test.js

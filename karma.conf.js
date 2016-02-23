@@ -1,29 +1,28 @@
 var webpack = require('webpack');
 
-module.exports = function (config) {
+module.exports = function(config) {
   config.set({
 
-    browsers: [ 'PhantomJS' ],
+    browsers: ['PhantomJS'],
 
     singleRun: true,
 
-    frameworks: [ 'mocha' ],
+    frameworks: ['mocha'],
 
     files: [
       'tests.webpack.js'
     ],
 
     preprocessors: {
-      'tests.webpack.js': [ 'webpack', 'sourcemap' ]
+      'tests.webpack.js': ['webpack', 'sourcemap']
     },
 
-    reporters: [ 'dots' ],
+    reporters: ['dots'],
 
     webpack: {
       devtool: 'inline-source-map',
       module: {
-        loaders: [
-          {
+        loaders: [{
             test: /\.jsx?$/, // A regexp to test the require path. works for js or jsx
             loader: 'babel', // The module to load. "babel" is short for "babel-loader"
             exclude: /node_modules/,
