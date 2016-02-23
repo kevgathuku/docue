@@ -66,7 +66,7 @@
     "node": true,
     "browser": true,
     "jasmine": true,
-    "jest": true
+    "mocha": true
   },
   "ecmaFeatures": {
     "jsx": true

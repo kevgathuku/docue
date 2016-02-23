@@ -7,8 +7,6 @@ node_js:
 cache:
   directories:
   - node_modules
-script:
-- npm run coverage
 deploy:
   provider: heroku
   api_key:
