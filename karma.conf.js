@@ -76,6 +76,7 @@
       },
 
       coverageReporter: {
+        dir: 'coverage',
         reporters: [
           { type: 'html', subdir: 'html' },
           { type: 'lcovonly', subdir: 'lcov' }
