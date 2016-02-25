@@ -1,6 +1,8 @@
 (() => {
   'use strict';
 
+  var path = require('path');
+
   module.exports = function(config) {
 
     config.set({
@@ -19,7 +21,7 @@
         'tests.webpack.js': ['webpack', 'sourcemap']
       },
 
-      reporters: ['dots'],
+      reporters: ['mocha', 'coverage'],
 
       webpack: {
         devtool: 'inline-source-map',
@@ -32,7 +34,7 @@
               loader: 'babel', // The module to load. "babel" is short for "babel-loader"
               exclude: /node_modules/,
               query: {
-                presets: ['es2015', 'react', 'stage-0']
+                presets: ['react', 'es2015', 'stage-0']
               }
             }, {
               test: /\.json$/,
@@ -45,8 +47,13 @@
               test: /\.(png|jpg|jpeg)$/,
               exclude: /node_modules/,
               loader: 'url-loader?limit=8192' // limit of 8kb
+            },
+            {
+              test: /\.jsx?$/,
+              include: path.resolve('app'),
+              exclude: /__tests__/,
+              loader: 'isparta'
             }
-
           ]
         },
         resolve: {
@@ -66,6 +73,14 @@
 
       webpackServer: {
         noInfo: true
+      },
+
+      coverageReporter: {
+        dir: 'coverage',
+        reporters: [
+          { type: 'html', subdir: 'html' },
+          { type: 'lcovonly', subdir: 'lcov' }
+        ]
       }
 
     });
