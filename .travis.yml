@@ -15,3 +15,5 @@ deploy:
   on:
     repo: kevgathuku/docue
     branch: master
+after_success:
+- npm run codecov
