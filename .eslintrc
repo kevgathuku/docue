@@ -64,8 +64,12 @@
   "env": {
     "es6": true,
     "node": true,
+    "browser": true,
     "jasmine": true,
-    "browser": true
+    "mocha": true
+  },
+  "ecmaFeatures": {
+    "jsx": true
   },
   "plugins": [
     "react"
