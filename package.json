@@ -12,6 +12,7 @@
     "test:bend": "jasmine",
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
     "coverage": "NODE_ENV='test' nyc --require babel-core/register npm run test:bend && nyc report --reporter=text-lcov | coveralls",
+    "codecov": "cat coverage/lcov/lcov.info | codecov",
     "deploy": "webpack -p --config webpack.production.config.js --progress --colors",
     "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/bower/bin/bower install && npm run deploy; fi"
   },
@@ -64,6 +65,7 @@
     "babel-preset-airbnb": "^1.1.1",
     "chai": "^3.5.0",
     "chai-enzyme": "^0.4.1",
+    "codecov": "^1.0.1",
     "coveralls": "^2.11.6",
     "dotenv": "^2.0.0",
     "enzyme": "^2.0.0",
