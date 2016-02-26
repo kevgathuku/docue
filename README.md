@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/kevgathuku/docue.svg?branch=master)](https://travis-ci.org/kevgathuku/docue)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/docue/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/docue?branch=master)
 [![codecov.io](https://codecov.io/github/kevgathuku/docue/coverage.svg?branch=master)](https://codecov.io/github/kevgathuku/docue?branch=master)
 
+[View on Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1515788)   
 
 The system manages documents, users and roles.
 
@@ -14,9 +15,9 @@ Users are categorized by roles. Each user must have a role defined for them.
 
 - Clone the repo locally and navigate to the newly created folder
 
-    `$ git clone https://github.com/kevgathuku/react-docms`
+    `$ git clone https://github.com/kevgathuku/docue`
 
-    `$ cd react-docms`
+    `$ cd docue`
 
  - Install the app dependencies
 
