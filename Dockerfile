@@ -1,11 +1,11 @@
-FROM    node:5.7
+FROM node:5.7
 # Install app dependencies
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
-RUN npm install
+RUN npm install --production
 # Bundle app source
 COPY . /usr/src/app
-EXPOSE  8080
-ENV PORT 8080
+RUN npm run deploy
+EXPOSE  3000
 CMD ["npm", "start"]
