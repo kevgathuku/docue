@@ -7,6 +7,7 @@
   },
   "private": true,
   "scripts": {
+    "prestart": "node node_modules/migrate/bin/migrate",
     "start": "nodemon index.js",
     "test:fend": "./node_modules/.bin/karma start",
     "test:bend": "jasmine",
@@ -39,6 +40,7 @@
     "json-loader": "^0.5.4",
     "jsonwebtoken": "5.5.4",
     "keymirror": "^0.1.1",
+    "migrate": "^0.2.2",
     "moment": "^2.11.2",
     "mongoose": "^4.4.3",
     "morgan": "~1.7.0",
