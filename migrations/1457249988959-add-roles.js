@@ -4,26 +4,16 @@
 require('dotenv').load();
 
 const Roles = require('../server/models/roles');
-const titles = Roles.schema.paths.title.enumValues;
+const titles = Object.keys(Roles.ACCESS_LEVEL);
 
 exports.up = function(next) {
 
   let tasks = titles.map((title) => {
-    let query = {title: title};
-    let update = query;
-    switch (title) {
-      case 'viewer':
-        update['accessLevel'] = 0;
-        break;
-      case 'staff':
-      update['accessLevel'] = 1;
-        break;
-      case 'admin':
-      update['accessLevel'] = 2;
-        break;
-      default:
-    }
-    return Roles.findOneAndUpdate(query, update, {upsert: true});
+    let update = {
+        title: title,
+        accessLevel: Roles.ACCESS_LEVEL[title]
+    };
+    return Roles.findOneAndUpdate({title: title}, update, {upsert: true});
   });
 
   Promise.all(tasks)
