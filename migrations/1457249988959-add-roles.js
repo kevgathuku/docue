@@ -2,6 +2,7 @@
 
 // load .env
 require('dotenv').load();
+require('../server/config/db');
 
 const Roles = require('../server/models/roles');
 const titles = Roles.schema.paths.title.enumValues;
