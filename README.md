@@ -48,7 +48,7 @@ To run the tests, use the following steps:
 
  - Navigate to the project folder
 
-    `$ cd react-docms`
+    `$ cd docue`
 
  - Run the tests through the following command:
 
