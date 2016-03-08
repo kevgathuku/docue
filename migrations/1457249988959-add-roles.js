@@ -1,7 +1,9 @@
 'use strict';
 
-// load .env
-require('dotenv').load();
+// load .env only in dev mode
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').load();
+}
 
 const Roles = require('../server/models/roles');
 const titles = Object.keys(Roles.ACCESS_LEVEL);
