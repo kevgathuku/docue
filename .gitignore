@@ -46,3 +46,6 @@ public/lib/
 
 # Generated bundle
 public/build/
+
+# Migration
+migrations/.migrate
