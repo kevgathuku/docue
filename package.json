@@ -64,6 +64,10 @@
   "devDependencies": {
     "babel-cli": "^6.5.1",
     "babel-eslint": "^5.0.0",
+    "babel-plugin-syntax-flow": "^6.5.0",
+    "babel-plugin-transform-builtin-extend": "^1.1.0",
+    "babel-plugin-transform-flow-strip-types": "^6.7.0",
+    "babel-plugin-typecheck": "^3.8.0",
     "babel-polyfill": "^6.5.0",
     "babel-preset-airbnb": "^1.1.1",
     "chai": "^3.5.0",
