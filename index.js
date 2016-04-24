@@ -1,4 +1,7 @@
-/*eslint no-console: 0*/
+/**
+* eslint no-console: 0
+* @flow
+*/
 (() => {
   'use strict';
 
