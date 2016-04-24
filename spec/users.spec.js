@@ -5,7 +5,7 @@ describe('User Spec', () => {
   let helper = require('./helper');
   let request = require('supertest');
   let app = require('../index');
-  let extractUserFromToken = require('../server/controllers/utils');
+  let extractUserFromToken = require('../server/controllers/utils').extractUserFromToken;
   let token = null;
   let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
@@ -151,7 +151,8 @@ describe('User Spec', () => {
         });
     });
 
-    it('should raise an error if required attributes are missing', (done) => {
+    it('should raise an error if required attributes are missing', (
+      done) => {
       request(app)
         .post('/api/users')
         .send({
@@ -221,7 +222,8 @@ describe('User Spec', () => {
         });
     });
 
-    it('should not allow a user to fetch another user\'s profile', (done) => {
+    it('should not allow a user to fetch another user\'s profile', (
+      done) => {
       request(app)
         .get('/api/users/' + user._id)
         .set('Accept', 'application/json')
@@ -431,7 +433,8 @@ describe('User Spec', () => {
         ],
         // optional callback
         function(err, results) {
-          expect(results[0].message).toBe('Successfully logged out');
+          expect(results[0].message).toBe(
+            'Successfully logged out');
           // The loggedIn flag should be set to true
           expect(results[1]).toBe(true);
           done();
