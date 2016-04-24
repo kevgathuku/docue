@@ -8,7 +8,8 @@
   "private": true,
   "scripts": {
     "prestart": "babel ./server-src --out-dir=./server && ./node_modules/.bin/migrate",
-    "start": "concurrently \"babel --watch=./server-src --out-dir=./server\" \"nodemon index.js\" ",
+    "dev-server": "concurrently \"babel --watch=./server-src --out-dir=./server\" \"nodemon index.js\" ",
+    "start": "nodemon index.js ",
     "test:fend": "./node_modules/.bin/karma start",
     "test:bend": "jasmine",
     "pretest": "babel ./server-src --out-dir=./server",
