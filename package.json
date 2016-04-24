@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "prestart": "./node_modules/.bin/migrate",
-    "start": "nodemon index.js",
+    "start": "concurrently \"babel --watch=./server-src --out-dir=./server\" \"nodemon index.js\" ",
     "test:fend": "./node_modules/.bin/karma start",
     "test:bend": "jasmine",
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
@@ -73,6 +73,7 @@
     "chai": "^3.5.0",
     "chai-enzyme": "^0.4.1",
     "codecov": "^1.0.1",
+    "concurrently": "^2.0.0",
     "coveralls": "^2.11.6",
     "dotenv": "^2.0.0",
     "enzyme": "^2.0.0",
