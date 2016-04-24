@@ -1,4 +1,5 @@
-(() => {
+/* @flow */
+((): void => {
   'use strict';
 
   let jwt = require('jsonwebtoken'),
@@ -9,8 +10,8 @@
     Roles = require('../models/roles');
 
   module.exports = {
-    create: (req, res, next) => {
-      let required = ['username', 'firstname', 'lastname', 'email',
+    create: (req, res, next): void => {
+      let required: Array<string> = ['username', 'firstname', 'lastname', 'email',
         'password'
       ];
       // If all the required fields are not present, raise an error
@@ -31,7 +32,7 @@
         username: req.body.username
       }, {
         email: req.body.email
-      }]).exec((err, user) => {
+      }]).exec((err, user): void => {
         if (err) {
           return next(err);
         }
@@ -43,7 +44,7 @@
         } else {
           Roles.findOne({
             title: req.body.role
-          }, (err, role) => {
+          }, (err, role): void => {
             if (err) {
               return next(err);
             } else {
@@ -58,7 +59,7 @@
                 password: req.body.password,
                 role: role,
                 loggedIn: true
-              }, (error, newUser) => {
+              }, (error, newUser): void => {
                 if (error) {
                   return next(error);
                 } else {
@@ -86,7 +87,7 @@
       });
     },
 
-    get: (req, res, next) => {
+    get: (req, res, next): void => {
       // Only an admin or owner can view their own profile
       if (req.decoded._id === req.params.id || req.decoded.role.title ===
         'admin') {
@@ -94,7 +95,7 @@
         Users.findById(req.params.id,
             '_id name username email role loggedIn')
           .populate('role')
-          .exec((err, user) => {
+          .exec((err, user): void => {
             if (err) {
               return next(err);
             } else {
@@ -108,7 +109,7 @@
       }
     },
 
-    update: (req, res, next) => {
+    update: (req, res, next): void => {
       // A user can only update their own profile
       // An admin can edit any user's profile i.e. roles
       if (req.decoded._id === req.params.id || req.decoded.role.title ===
@@ -129,7 +130,7 @@
               new: true
             })
           .populate('role')
-          .exec((err, user) => {
+          .exec((err, user): void => {
             if (!user) {
               return next(err);
             }
@@ -142,14 +143,14 @@
       }
     },
 
-    delete: (req, res, next) => {
+    delete: (req, res, next): void => {
       // A user can only delete their own profile
       // An admin can also delete a user
       if (req.decoded._id === req.params.id || req.decoded.role.title ===
         'admin') {
         Users.findOneAndRemove({
           _id: req.params.id
-        }, function(err, user) {
+        }, function(err, user): void {
           if (err || !user) {
             return next(err);
           }
@@ -163,11 +164,11 @@
     },
 
     // Get all documents created by this user
-    getDocs: (req, res) => {
+    getDocs: (req, res): void => {
       Documents.find()
         .where({
           ownerId: req.params.id
-        }).exec((err, docs) => {
+        }).exec((err, docs): void => {
           if (err) {
             res.next(err);
           } else {
@@ -176,7 +177,7 @@
         });
     },
 
-    all: (req, res) => {
+    all: (req, res): void => {
       // This action is available to admin roles only
       if (req.decoded.role.title !== 'admin') {
         return res.status(403).json({
@@ -185,7 +186,7 @@
       }
       Users.find()
         .populate('role')
-        .exec((err, users) => {
+        .exec((err, users): void => {
           if (err) {
             res.next(err);
           } else {
@@ -194,7 +195,7 @@
         });
     },
 
-    login: (req, res, next) => {
+    login: (req, res, next): void => {
       // Find the user and set the loggedIn flag to true
       Users.findOneAndUpdate({
             username: req.body.username
@@ -207,7 +208,7 @@
             new: true
           })
         .populate('role')
-        .exec((err, user) => {
+        .exec((err, user): void => {
           if (err) {
             return next(err);
           } else if (!user) {
@@ -239,14 +240,14 @@
         });
     },
 
-    logout: (req, res, next) => {
+    logout: (req, res, next): void => {
       // Set the loggedIn flag for the user to false
       let token = req.body.token || req.headers['x-access-token'];
-      let user = extractUserFromToken(token);
+      let user: Object = extractUserFromToken(token);
       Users.findByIdAndUpdate(user._id, {
           loggedIn: false
         })
-        .exec((err, user) => {
+        .exec((err, user): void => {
           if (err || !user) {
             return next(err);
           } else {
@@ -258,21 +259,21 @@
     },
 
     // route middleware to verify a token
-    authenticate: (req, res, next) => {
+    authenticate: (req, res, next): void => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
         // Check if the user is logged in
-        let user = extractUserFromToken(token);
+        let user: Object = extractUserFromToken(token);
         if (!user.loggedIn) {
           return res.status(401).json({
             error: 'Unauthorized Access. Please login first'
           });
         }
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded): void => {
           if (err) {
             return res.status(401).json({
               error: 'Failed to authenticate token.'
@@ -292,14 +293,14 @@
       }
     },
 
-    getSession: (req, res) => {
+    getSession: (req, res): void => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded): void => {
           if (err) {
             // If the token cannot be verified, return false
             res.json({
@@ -309,7 +310,7 @@
             // Return user's loggedIn status from the DB
             Users.findById(decoded._id)
               .populate('role')
-              .exec((err, user) => {
+              .exec((err, user): void => {
                 if (err || !user) {
                   res.json({
                     loggedIn: 'false'
