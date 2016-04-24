@@ -3,6 +3,7 @@
   'use strict';
 
   let mongoose = require('mongoose');
+  require('dotenv').load();
   if (process.env.NODE_ENV === 'test') {
     mongoose.connect(process.env.MONGO_TEST_URL);
   } else {
