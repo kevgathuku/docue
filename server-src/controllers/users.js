@@ -2,14 +2,17 @@
   'use strict';
 
   let jwt = require('jsonwebtoken'),
-    extractUserFromToken = require('./utils'),
+    extractUserFromToken = require('./utils').extractUserFromToken,
+    Error = require('./utils').Error,
     Documents = require('../models/documents'),
     Users = require('../models/users'),
     Roles = require('../models/roles');
 
   module.exports = {
     create: (req, res, next) => {
-      let required = ['username', 'firstname', 'lastname', 'email', 'password'];
+      let required = ['username', 'firstname', 'lastname', 'email',
+        'password'
+      ];
       // If all the required fields are not present, raise an error
       // Returns true only if all the required fields are found in req.body
       if (!required.every(field => field in req.body)) {
@@ -66,7 +69,8 @@
                     loggedIn: newUser.loggedIn
                   };
                   // Sign the user object with the app secret
-                  let token = jwt.sign(tokenUser, req.app.get('superSecret'), {
+                  let token = jwt.sign(tokenUser, req.app.get(
+                    'superSecret'), {
                     expiresIn: 86400 // expires in 24 hours
                   });
                   // Return the newly created user with the token included
@@ -84,9 +88,11 @@
 
     get: (req, res, next) => {
       // Only an admin or owner can view their own profile
-      if (req.decoded._id === req.params.id || req.decoded.role.title === 'admin') {
+      if (req.decoded._id === req.params.id || req.decoded.role.title ===
+        'admin') {
         // Don't send back the password field
-        Users.findById(req.params.id, '_id name username email role loggedIn')
+        Users.findById(req.params.id,
+            '_id name username email role loggedIn')
           .populate('role')
           .exec((err, user) => {
             if (err) {
@@ -95,31 +101,33 @@
               res.json(user);
             }
           });
-        } else {
-          return res.status(403).json({
-            error: 'Unauthorized Access'
-          });
-        }
+      } else {
+        return res.status(403).json({
+          error: 'Unauthorized Access'
+        });
+      }
     },
 
     update: (req, res, next) => {
       // A user can only update their own profile
       // An admin can edit any user's profile i.e. roles
-      if (req.decoded._id === req.params.id || req.decoded.role.title === 'admin') {
+      if (req.decoded._id === req.params.id || req.decoded.role.title ===
+        'admin') {
         // Set the name fields in the format expected by the model
-        if (req.body.hasOwnProperty('firstname') || req.body.hasOwnProperty('lastname')) {
+        if (req.body.hasOwnProperty('firstname') || req.body.hasOwnProperty(
+            'lastname')) {
           req.body.name = {
             first: req.body.firstname,
             last: req.body.lastname
           };
         }
         Users.findByIdAndUpdate(req.params.id, {
-            $set: req.body
-          },
-          // Return the updated user object
-          {
-            new: true
-          })
+              $set: req.body
+            },
+            // Return the updated user object
+            {
+              new: true
+            })
           .populate('role')
           .exec((err, user) => {
             if (!user) {
@@ -128,16 +136,17 @@
             res.send(user);
           });
       } else {
-          return res.status(403).json({
-            error: 'Unauthorized Access'
-          });
-        }
+        return res.status(403).json({
+          error: 'Unauthorized Access'
+        });
+      }
     },
 
     delete: (req, res, next) => {
       // A user can only delete their own profile
       // An admin can also delete a user
-      if (req.decoded._id === req.params.id || req.decoded.role.title === 'admin') {
+      if (req.decoded._id === req.params.id || req.decoded.role.title ===
+        'admin') {
         Users.findOneAndRemove({
           _id: req.params.id
         }, function(err, user) {
@@ -175,14 +184,14 @@
         });
       }
       Users.find()
-      .populate('role')
-      .exec((err, users) => {
-        if (err) {
-          res.next(err);
-        } else {
-          res.json(users);
-        }
-      });
+        .populate('role')
+        .exec((err, users) => {
+          if (err) {
+            res.next(err);
+          } else {
+            res.json(users);
+          }
+        });
     },
 
     login: (req, res, next) => {

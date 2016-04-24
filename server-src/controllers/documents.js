@@ -1,8 +1,10 @@
+/* @flow */
 (() => {
   'use strict';
 
   let jwt = require('jsonwebtoken'),
-    extractUserFromToken = require('./utils'),
+    extractUserFromToken = require('./utils').extractUserFromToken,
+    Error = require('./utils').Error,
     Documents = require('../models/documents'),
     Roles = require('../models/roles'),
     Users = require('../models/users');

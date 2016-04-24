@@ -7,10 +7,11 @@
   },
   "private": true,
   "scripts": {
-    "prestart": "./node_modules/.bin/migrate",
+    "prestart": "babel ./server-src --out-dir=./server && ./node_modules/.bin/migrate",
     "start": "concurrently \"babel --watch=./server-src --out-dir=./server\" \"nodemon index.js\" ",
     "test:fend": "./node_modules/.bin/karma start",
     "test:bend": "jasmine",
+    "pretest": "babel ./server-src --out-dir=./server",
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
     "coverage": "NODE_ENV='test' nyc --require babel-core/register npm run test:bend && nyc report --reporter=text-lcov | coveralls",
     "codecov": "cat coverage/lcov/lcov.info | codecov",
