@@ -2,7 +2,8 @@
 ((): void => {
   'use strict';
 
-  let jwt = require('jsonwebtoken'),
+  let _ = require('underscore'),
+    jwt = require('jsonwebtoken'),
     extractUserFromToken = require('./utils').extractUserFromToken,
     Error = require('./utils').Error,
     Documents = require('../models/documents'),
@@ -28,64 +29,50 @@
         // Set the role field to the default value if not provided
         req.body.role = Roles.schema.paths.title.default();
       }
-      // Check if the user already exists
-      Users.findOne().or([{
-        username: req.body.username
-      }, {
-        email: req.body.email
-      }]).exec((err, user): void => {
-        if (err) {
-          next(err);
-        }
-        if (user) {
-          // The user already exists
-          let error = new Error('The User already exists');
-          error.status = 400;
-          next(error);
-        } else {
-          Roles.findOne({
-            title: req.body.role
-          }, (err, role): void => {
-            if (err) {
-              next(err);
-            } else {
-              // Create the user with the role specified
-              Users.create({
-                username: req.body.username,
-                name: {
-                  first: req.body.firstname,
-                  last: req.body.lastname
-                },
-                email: req.body.email,
-                password: req.body.password,
-                role: role,
-                loggedIn: true
-              }, (error, newUser): void => {
-                if (error) {
-                  next(error);
-                } else {
-                  // Successful signup
-                  let tokenUser = {
-                    _id: newUser._id,
-                    role: newUser.role,
-                    loggedIn: newUser.loggedIn
-                  };
-                  // Sign the user object with the app secret
-                  let token = jwt.sign(tokenUser, req.app.get(
-                    'superSecret'), {
-                    expiresIn: 86400 // expires in 24 hours
-                  });
-                  // Return the newly created user with the token included
-                  res.status(201).json({
-                    user: newUser,
-                    token: token
-                  });
-                }
-              });
-            }
+      // Find the role passed from the request body in the DB
+      Roles.findOne({
+          title: req.body.role
+        })
+        .exec()
+        .then((role) => {
+          // Create the user with the role specified
+          // Return the user create promise
+          return Users.create({
+            username: req.body.username,
+            name: {
+              first: req.body.firstname,
+              last: req.body.lastname
+            },
+            email: req.body.email,
+            password: req.body.password,
+            role: role,
+            loggedIn: true
           });
-        }
-      });
+        })
+        .then((user) => {
+          // Successful signup
+          let tokenUser = _.pick(user, '_id', 'role', 'loggedIn');
+          // Sign the user object with the app secret
+          let token = jwt.sign(tokenUser, req.app.get(
+            'superSecret'), {
+            expiresIn: 86400 // expires in 24 hours
+          });
+          // Return the newly created user with the token included
+          res.status(201).json({
+            user: user,
+            token: token
+          });
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            // The user already exists
+            let error = new Error('The User already exists');
+            error.status = 400;
+            next(error);
+          } else {
+            next(err);
+          }
+        });
     },
 
     get: (req, res, next): void => {
