@@ -11,7 +11,7 @@
 
   module.exports = {
     create: (req, res, next): void => {
-      let required: Array < string > = ['username', 'firstname',
+      let required: Array <string> = ['username', 'firstname',
         'lastname', 'email',
         'password'
       ];
