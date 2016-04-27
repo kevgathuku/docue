@@ -44,7 +44,7 @@ describe('User Spec', () => {
         });
     });
 
-    it('should log the user in after signup', (done) => {
+    it('should log in the user after signup', (done) => {
       let userID = null;
       let userToken = null;
       async.series([
@@ -287,7 +287,6 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(204);
-          //expect(res.body).toBeNull();
           done();
         });
     });

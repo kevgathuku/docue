@@ -1,7 +1,9 @@
-(() => {
+/* @flow */
+((): void => {
   'use strict';
 
-  let jwt = require('jsonwebtoken'),
+  let _ = require('underscore'),
+    jwt = require('jsonwebtoken'),
     extractUserFromToken = require('./utils').extractUserFromToken,
     Error = require('./utils').Error,
     Documents = require('../models/documents'),
@@ -9,8 +11,9 @@
     Roles = require('../models/roles');
 
   module.exports = {
-    create: (req, res, next) => {
-      let required = ['username', 'firstname', 'lastname', 'email',
+    create: (req, res, next): void => {
+      let required: Array <string> = ['username', 'firstname',
+        'lastname', 'email',
         'password'
       ];
       // If all the required fields are not present, raise an error
@@ -21,94 +24,80 @@
           'lastname, email, and password values'
         );
         err.status = 400;
-        return next(err);
+        next(err);
       } else if (!req.body.role) {
         // Set the role field to the default value if not provided
         req.body.role = Roles.schema.paths.title.default();
       }
-      // Check if the user already exists
-      Users.findOne().or([{
-        username: req.body.username
-      }, {
-        email: req.body.email
-      }]).exec((err, user) => {
-        if (err) {
-          return next(err);
-        }
-        if (user) {
-          // The user already exists
-          let error = new Error('The User already exists');
-          error.status = 400;
-          return next(error);
-        } else {
-          Roles.findOne({
-            title: req.body.role
-          }, (err, role) => {
-            if (err) {
-              return next(err);
-            } else {
-              // Create the user with the role specified
-              Users.create({
-                username: req.body.username,
-                name: {
-                  first: req.body.firstname,
-                  last: req.body.lastname
-                },
-                email: req.body.email,
-                password: req.body.password,
-                role: role,
-                loggedIn: true
-              }, (error, newUser) => {
-                if (error) {
-                  return next(error);
-                } else {
-                  // Successful signup
-                  let tokenUser = {
-                    _id: newUser._id,
-                    role: newUser.role,
-                    loggedIn: newUser.loggedIn
-                  };
-                  // Sign the user object with the app secret
-                  let token = jwt.sign(tokenUser, req.app.get(
-                    'superSecret'), {
-                    expiresIn: 86400 // expires in 24 hours
-                  });
-                  // Return the newly created user with the token included
-                  res.status(201).json({
-                    user: newUser,
-                    token: token
-                  });
-                }
-              });
-            }
+      // Find the role passed from the request body in the DB
+      Roles.findOne({
+          title: req.body.role
+        })
+        .exec()
+        .then((role) => {
+          // Create the user with the role specified
+          // Return the user create promise
+          return Users.create({
+            username: req.body.username,
+            name: {
+              first: req.body.firstname,
+              last: req.body.lastname
+            },
+            email: req.body.email,
+            password: req.body.password,
+            role: role,
+            loggedIn: true
           });
-        }
-      });
+        })
+        .then((user) => {
+          // Successful signup
+          let tokenUser = _.pick(user, '_id', 'role', 'loggedIn');
+          // Sign the user object with the app secret
+          let token = jwt.sign(tokenUser, req.app.get(
+            'superSecret'), {
+            expiresIn: 86400 // expires in 24 hours
+          });
+          // Return the newly created user with the token included
+          res.status(201).json({
+            user: user,
+            token: token
+          });
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            // The user already exists
+            let error = new Error('The User already exists');
+            error.status = 400;
+            next(error);
+          } else {
+            next(err);
+          }
+        });
     },
 
-    get: (req, res, next) => {
+    get: (req, res, next): void => {
       // Only an admin or owner can view their own profile
-      if (req.decoded._id === req.params.id || req.decoded.role.title ===
-        'admin') {
+      if (req.decoded._id === req.params.id ||
+        req.decoded.role.title === 'admin') {
         // Don't send back the password field
         Users.findById(req.params.id,
             '_id name username email role loggedIn')
           .populate('role')
-          .exec((err, user) => {
+          .exec((err, user): void => {
             if (err) {
-              return next(err);
+              next(err);
             } else {
               res.json(user);
             }
           });
       } else {
-        return res.status(403).json({
+        res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
     },
 
-    update: (req, res, next) => {
+    update: (req, res, next): void => {
       // A user can only update their own profile
       // An admin can edit any user's profile i.e. roles
       if (req.decoded._id === req.params.id || req.decoded.role.title ===
@@ -129,45 +118,45 @@
               new: true
             })
           .populate('role')
-          .exec((err, user) => {
+          .exec((err, user): void => {
             if (!user) {
-              return next(err);
+              next(err);
             }
             res.send(user);
           });
       } else {
-        return res.status(403).json({
+        res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
     },
 
-    delete: (req, res, next) => {
+    delete: (req, res, next): void => {
       // A user can only delete their own profile
       // An admin can also delete a user
       if (req.decoded._id === req.params.id || req.decoded.role.title ===
         'admin') {
         Users.findOneAndRemove({
           _id: req.params.id
-        }, function(err, user) {
+        }, function(err, user): void {
           if (err || !user) {
-            return next(err);
+            next(err);
           }
           res.sendStatus(204);
         });
       } else {
-        return res.status(403).json({
+        res.status(403).json({
           error: 'Unauthorized Access'
         });
       }
     },
 
     // Get all documents created by this user
-    getDocs: (req, res) => {
+    getDocs: (req, res): void => {
       Documents.find()
         .where({
           ownerId: req.params.id
-        }).exec((err, docs) => {
+        }).exec((err, docs): void => {
           if (err) {
             res.next(err);
           } else {
@@ -176,25 +165,26 @@
         });
     },
 
-    all: (req, res) => {
+    all: (req, res): void => {
       // This action is available to admin roles only
       if (req.decoded.role.title !== 'admin') {
-        return res.status(403).json({
+        res.status(403).json({
           error: 'Unauthorized Access'
         });
+      } else {
+        Users.find()
+          .populate('role')
+          .exec((err, users): void => {
+            if (err) {
+              res.next(err);
+            } else {
+              res.json(users);
+            }
+          });
       }
-      Users.find()
-        .populate('role')
-        .exec((err, users) => {
-          if (err) {
-            res.next(err);
-          } else {
-            res.json(users);
-          }
-        });
     },
 
-    login: (req, res, next) => {
+    login: (req, res, next): void => {
       // Find the user and set the loggedIn flag to true
       Users.findOneAndUpdate({
             username: req.body.username
@@ -207,11 +197,11 @@
             new: true
           })
         .populate('role')
-        .exec((err, user) => {
+        .exec((err, user): void => {
           if (err) {
-            return next(err);
+            next(err);
           } else if (!user) {
-            return res.status(404).json({
+            res.status(404).json({
               error: 'Authentication failed. User Not Found.'
             });
           } else if (!user.comparePassword(req.body.password)) {
@@ -239,16 +229,16 @@
         });
     },
 
-    logout: (req, res, next) => {
+    logout: (req, res, next): void => {
       // Set the loggedIn flag for the user to false
       let token = req.body.token || req.headers['x-access-token'];
-      let user = extractUserFromToken(token);
+      let user: Object = extractUserFromToken(token);
       Users.findByIdAndUpdate(user._id, {
           loggedIn: false
         })
-        .exec((err, user) => {
+        .exec((err, user): void => {
           if (err || !user) {
-            return next(err);
+            next(err);
           } else {
             res.json({
               message: 'Successfully logged out'
@@ -258,74 +248,76 @@
     },
 
     // route middleware to verify a token
-    authenticate: (req, res, next) => {
+    authenticate: (req, res, next): void => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
         // Check if the user is logged in
-        let user = extractUserFromToken(token);
+        let user: Object = extractUserFromToken(token);
         if (!user.loggedIn) {
-          return res.status(401).json({
+          res.status(401).json({
             error: 'Unauthorized Access. Please login first'
           });
         }
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
-          if (err) {
-            return res.status(401).json({
-              error: 'Failed to authenticate token.'
-            });
-          } else {
-            // if everything is good, save to request for use in other routes
-            decoded.password = null;
-            req.decoded = decoded;
-            next();
-          }
-        });
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded):
+          void => {
+            if (err) {
+              res.status(401).json({
+                error: 'Failed to authenticate token.'
+              });
+            } else {
+              // if everything is good, save to request for use in other routes
+              decoded.password = null;
+              req.decoded = decoded;
+              next();
+            }
+          });
       } else {
         // if there is no token return an error
-        return res.status(403).send({
+        res.status(403).send({
           error: 'No token provided.'
         });
       }
     },
 
-    getSession: (req, res) => {
+    getSession: (req, res): void => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
-          if (err) {
-            // If the token cannot be verified, return false
-            res.json({
-              loggedIn: 'false'
-            });
-          } else {
-            // Return user's loggedIn status from the DB
-            Users.findById(decoded._id)
-              .populate('role')
-              .exec((err, user) => {
-                if (err || !user) {
-                  res.json({
-                    loggedIn: 'false'
-                  });
-                } else {
-                  return res.json({
-                    user: user,
-                    loggedIn: user.loggedIn.toString()
-                  });
-                }
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded):
+          void => {
+            if (err) {
+              // If the token cannot be verified, return false
+              res.json({
+                loggedIn: 'false'
               });
-          }
-        });
+            } else {
+              // Return user's loggedIn status from the DB
+              Users.findById(decoded._id)
+                .populate('role')
+                .exec((err, user): void => {
+                  if (err || !user) {
+                    res.json({
+                      loggedIn: 'false'
+                    });
+                  } else {
+                    res.json({
+                      user: user,
+                      loggedIn: user.loggedIn.toString()
+                    });
+                  }
+                });
+            }
+          });
       } else {
         // if there is no token, return a logged out status
-        return res.json({
+        res.json({
           loggedIn: 'false'
         });
       }

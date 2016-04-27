@@ -8,6 +8,9 @@
   let mongoose = require('mongoose');
   require('dotenv').load();
 
+  // Use bluebird for Mongoose promises
+  mongoose.Promise = require('bluebird');
+
   if (process.env.DB_1_PORT_27017_TCP_ADDR) {
     // Check if running in docker and set the DB address
     var address = process.env.DB_1_PORT_27017_TCP_ADDR;
