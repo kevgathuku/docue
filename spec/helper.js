@@ -70,60 +70,56 @@
       role: user.role
     }];
 
-    async.series([
-        // Hardcode the dates in order to test the order the docs are returned
-        callback => {
-          Documents.create(documents[0], (err, doc) => {
-            // Create the first doc with today's date
-            callback(err, doc);
-          });
-        },
-        callback => {
-          Documents.create(documents[1], (err, doc) => {
-            // Add one day to the second doc's timestamp
-            let date = new Date(doc.dateCreated);
-            date.setDate(date.getDate() + 1);
-            doc.dateCreated = date;
-            doc.save(() => {
-              callback(err, doc);
-            });
-          });
-        },
-        callback => {
-          Documents.create(documents[2], (err, doc) => {
-            // Add 2 days to the third doc's timestamp
-            let date = new Date(doc.dateCreated);
-            date.setDate(date.getDate() + 2);
-            doc.dateCreated = date;
-            doc.save(() => {
-              callback(err, doc);
-            });
-          });
-        }
-      ],
-      // Callback called after all functions are done
-      () => {
-        // Call next after all documents are created
+    Documents.create(documents[0])
+      .then(() => {
+        // First document was created successfully
+        // Create the second document
+        return Documents.create(documents[1]);
+      })
+      .then((doc1) => {
+        // Add one day to the second doc's timestamp
+        let date = new Date(doc1.dateCreated);
+        date.setDate(date.getDate() + 1);
+        doc1.dateCreated = date;
+        return doc1.save();
+      })
+      .then(() => {
+        // Second document updated successfully
+        // Create the final document
+        return Documents.create(documents[2]);
+      })
+      .then((doc2) => {
+        // Add 2 days to the third doc's timestamp
+        let date = new Date(doc2.dateCreated);
+        date.setDate(date.getDate() + 2);
+        doc2.dateCreated = date;
+        return doc2.save();
+      })
+      .then(() => {
+        console.log('Seed documents created successfully');
         next();
+      })
+      .catch((err) => {
+        console.log('Error Creating Seed Documents', err);
       });
   };
 
   // Utility function for emptying the database
   let clearDb = (next) => {
     async.series([
-        callback => {
+        (callback) => {
           // Remove all Documents
           Documents.remove({}, (err, result) => {
             callback(err, result);
           });
         },
-        callback => {
+        (callback) => {
           // Remove all Roles
           Roles.remove({}, (err, result) => {
             callback(err, result);
           });
         },
-        callback => {
+        (callback) => {
           // Remove all Users
           Users.remove({}, (err, result) => {
             callback(err, result);
