@@ -49,6 +49,3 @@ public/build/
 
 # Migration
 migrations/.migrate
-
-# Server directory generated after Flow Transpilation
-server/
