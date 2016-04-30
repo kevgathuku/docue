@@ -222,8 +222,7 @@ describe('User Spec', () => {
         });
     });
 
-    it('should not allow a user to fetch another user\'s profile', (
-      done) => {
+    it('should not allow a user to fetch another user\'s profile', (done) => {
       request(app)
         .get('/api/users/' + user._id)
         .set('Accept', 'application/json')
@@ -269,6 +268,26 @@ describe('User Spec', () => {
         });
     });
 
+    it('should throw an error if a user does not exist', (done) => {
+      request(app)
+        .put('/api/users/i-do-not-exist')
+        .send({
+          username: 'theImp',
+          firstname: 'Half',
+          lastname: 'Man',
+          email: 'masterofcoin@westeros.org'
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          // Should be treated as trying to access another user's profile
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('Unauthorized Access');
+          done();
+        });
+    });
+
   });
 
   describe('User delete', () => {
@@ -287,6 +306,18 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(204);
+          done();
+        });
+    });
+
+    it('should raise an error when given an invalid user', (done) => {
+      request(app)
+        .delete('/api/users/cant-touch-this')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('Unauthorized Access');
           done();
         });
     });
