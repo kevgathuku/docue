@@ -64,7 +64,7 @@
     return Users.create(users);
   };
 
-  let seedDocuments = (user, loginToken) => {
+  let seedDocuments = (user) => {
     let documents = [{
       title: 'Doc1',
       content: '1Doc',
@@ -108,7 +108,8 @@
         return doc2.save();
       })
       .then(() => {
-        return loginToken(user);
+        // return a Promise that resolves with the provided user
+        return Promise.resolve(user);
       });
   };
 
@@ -139,7 +140,11 @@
       })
       .then((users) => {
         // Seed the documents with the first user from the previous step
-        return seedDocuments(users[0], getLoginTokenAsync);
+        return seedDocuments(users[0]);
+      })
+      .then((user) => {
+        // Return a promise that resolves with the eventual login token
+        return getLoginTokenAsync(user);
       });
   };
 
