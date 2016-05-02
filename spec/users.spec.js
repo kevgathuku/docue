@@ -11,10 +11,16 @@ describe('User Spec', () => {
   let Roles = require('../server/models/roles');
 
   beforeEach((done) => {
-    helper.beforeEach(token, (generatedToken) => {
-      token = generatedToken;
-      done();
-    });
+    // Promise that returns a generatedToken
+    helper.beforeEach()
+      .then((generatedToken) => {
+        token = generatedToken;
+        done();
+      })
+      .catch((err) => {
+        console.log('Error running the beforeEach function', err);
+        done();
+      });
   });
 
   describe('User Creation', () => {
