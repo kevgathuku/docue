@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  let async = require('async');
+  let Promise = require('bluebird');
   let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
   let Users = require('../server/models/users');
@@ -10,7 +10,23 @@
 
   let testPassword = 'youKnowNothing';
 
-  let seedRoles = (next) => {
+  let getLoginToken = (user, callback) => {
+    // Get a login token
+    request(app)
+      .post('/api/users/login')
+      .send({
+        username: user.username,
+        password: testPassword
+      })
+      .end((err, res) => {
+        // Call the callback with the generated token
+        callback(err, res.body.token);
+      });
+  };
+
+  let getLoginTokenAsync = Promise.promisify(getLoginToken);
+
+  let seedRoles = () => {
     // Users will be created with the first role
     let roles = [{
       title: 'viewer',
@@ -19,13 +35,11 @@
       title: 'staff',
       accessLevel: 1
     }];
-
-    Roles.create(roles, (err, roles) => {
-      next(err, roles);
-    });
+    // return a promise
+    return Roles.create(roles);
   };
 
-  let seedUsers = (role, next) => {
+  let seedUsers = (role) => {
     // Documents will be created with the first user, role = viewer
     let users = [{
       username: 'jsnow',
@@ -47,12 +61,10 @@
       role: role
     }];
 
-    Users.create(users, (err, createdUsers) => {
-      next(err, createdUsers);
-    });
+    return Users.create(users);
   };
 
-  let seedDocuments = (user, next) => {
+  let seedDocuments = (user, loginToken) => {
     let documents = [{
       title: 'Doc1',
       content: '1Doc',
@@ -70,7 +82,7 @@
       role: user.role
     }];
 
-    Documents.create(documents[0])
+    return Documents.create(documents[0])
       .then(() => {
         // First document was created successfully
         // Create the second document
@@ -96,91 +108,41 @@
         return doc2.save();
       })
       .then(() => {
-        console.log('Seed documents created successfully');
-        next();
-      })
-      .catch((err) => {
-        console.log('Error Creating Seed Documents', err);
+        return loginToken(user);
       });
   };
 
   // Utility function for emptying the database
-  let clearDb = (next) => {
-    async.series([
-        (callback) => {
-          // Remove all Documents
-          Documents.remove({}, (err, result) => {
-            callback(err, result);
-          });
-        },
-        (callback) => {
-          // Remove all Roles
-          Roles.remove({}, (err, result) => {
-            callback(err, result);
-          });
-        },
-        (callback) => {
-          // Remove all Users
-          Users.remove({}, (err, result) => {
-            callback(err, result);
-          });
-        }
-      ],
-      // Callback called after all functions are done
-      (err, results) => {
-        // Call next after all collections are emptied
-        next(err, results);
+  let clearDb = () => {
+    // Remove all docs
+    return Documents.remove({})
+      .then(() => {
+        // Remove all roles
+        return Roles.remove({});
+      })
+      .then(() => {
+        // Remove all users
+        return Users.remove({});
       });
   };
 
-  // Receives a null token and a callback function
-  // Calls the callback function with the generated token
-  let beforeEach = (token, done) => {
+  // Returns a promise of a generated token
+  let beforeEach = () => {
     // Empty the DB then fill in the Seed data
-    async.waterfall([
-      // Run the clearDb function and call the callback
-      function(callback) {
-        clearDb((err, results) => {
-          callback(err, results);
-        });
-      },
-      // Seed the roles and call the callback with the seeded roles
-      function(results, callback) {
-        // results is the return value of the clearDb function
-        // The call back is called with (err, roles) arguments
-        seedRoles((err, roles) => {
-          callback(err, roles);
-        });
-      },
-      // Seed the users and call the callback with the seeded users
-      function(roles, callback) {
-        seedUsers(roles[0], (err, users) => {
-          callback(err, users);
-        });
-      },
-      // Seed the documents and call the callback with the seeded docs
-      function(users, callback) {
-        seedDocuments(users[0], () => {
-          // Get a login token
-          request(app)
-            .post('/api/users/login')
-            .send({
-              username: users[0].username,
-              password: testPassword
-            })
-            .end((err, res) => {
-              // Call the callback with the generated token
-              callback(err, res.body.token);
-            });
-        });
-      }
-    ], function(err, generatedToken) {
-      done(generatedToken);
-    });
+    return clearDb()
+      .then(() => {
+        return seedRoles();
+      })
+      .then((roles) => {
+        // Seed the users with the first role from the previous step
+        return seedUsers(roles[0]);
+      })
+      .then((users) => {
+        // Seed the documents with the first user from the previous step
+        return seedDocuments(users[0], getLoginTokenAsync);
+      });
   };
 
-  module.exports = {
-    beforeEach: beforeEach
-  };
+  module.exports.beforeEach = beforeEach;
 
 })();
