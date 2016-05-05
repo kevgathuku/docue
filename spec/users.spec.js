@@ -1,20 +1,27 @@
 describe('User Spec', () => {
   'use strict';
 
-  let async = require('async');
   let helper = require('./helper');
   let request = require('supertest');
+  let requestAsync = require('supertest-as-promised');
+  let Promise = require('bluebird');
   let app = require('../index');
-  let extractUserFromToken = require('../server/controllers/utils');
+  let extractUserFromToken = require('../server/controllers/utils').extractUserFromToken;
   let token = null;
   let Documents = require('../server/models/documents');
   let Roles = require('../server/models/roles');
 
   beforeEach((done) => {
-    helper.beforeEach(token, (generatedToken) => {
-      token = generatedToken;
-      done();
-    });
+    // Promise that returns a generatedToken
+    helper.beforeEach()
+      .then((generatedToken) => {
+        token = generatedToken;
+        done();
+      })
+      .catch((err) => {
+        console.log('Error running the beforeEach function', err);
+        done();
+      });
   });
 
   describe('User Creation', () => {
@@ -44,45 +51,39 @@ describe('User Spec', () => {
         });
     });
 
-    it('should log the user in after signup', (done) => {
+    it('should log in the user after signup', (done) => {
       let userID = null;
       let userToken = null;
-      async.series([
-          function(callback) {
-            // Create the user
-            request(app)
-              .post('/api/users')
-              .send({
-                username: 'jnSnow',
-                firstname: 'John',
-                lastname: 'Snow',
-                email: 'Jjsnow@winterfell.org',
-                password: 'knffenfen',
-                role: Roles.schema.paths.title.default()
-              })
-              .set('Accept', 'application/json')
-              .end((err, res) => {
-                expect(err).toBeNull();
-                expect(res.statusCode).toBe(201);
-                userID = res.body.user._id;
-                userToken = res.body.token;
-                callback(err, userToken);
-              });
-          },
-          function(callback) {
-            request(app)
-              .get('/api/users/' + userID)
-              .set('x-access-token', userToken)
-              .end((err, res) => {
-                expect(res.statusCode).toBe(200);
-                callback(null, res.body.loggedIn);
-              });
-          }
-        ],
-        // optional callback
-        function(err, results) {
-          // results holds the values from the callbacks
-          expect(results[1]).toBe(true);
+      // Create the user
+      requestAsync(app)
+        .post('/api/users')
+        .set('Accept', 'application/json')
+        .send({
+          username: 'jnSnow',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'Jjsnow@winterfell.org',
+          password: 'knffenfen',
+          role: Roles.schema.paths.title.default()
+        })
+        .then((res) => {
+          expect(res.statusCode).toBe(201);
+          userID = res.body.user._id;
+          userToken = res.body.token;
+          return Promise.resolve(userToken);
+        })
+        .then((userToken) => {
+          return requestAsync(app)
+            .get('/api/users/' + userID)
+            .set('x-access-token', userToken);
+        })
+        .then((res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.loggedIn).toBe(true);
+          done();
+        })
+        .catch((err) => {
+          console.log('Error logging in user after signup', err);
           done();
         });
     });
@@ -151,7 +152,8 @@ describe('User Spec', () => {
         });
     });
 
-    it('should raise an error if required attributes are missing', (done) => {
+    it('should raise an error if required attributes are missing', (
+      done) => {
       request(app)
         .post('/api/users')
         .send({
@@ -179,31 +181,28 @@ describe('User Spec', () => {
     let staffToken = null;
 
     beforeEach((done) => {
-      async.waterfall([
-        // Create a new user with the staff role
-        (callback) => {
-          // The first arg is the newly created staff
-          request(app)
-            .post('/api/users')
-            .send({
-              username: 'staffUser',
-              firstname: 'John',
-              lastname: 'Snow',
-              email: 'snow@staff.org',
-              password: 'staff',
-              role: 'staff'
-            })
-            // Call the callback with the newly created user
-            .end((err, res) => {
-              callback(err, res.body.token);
-            });
-        }
-      ], (err, generatedToken) => {
-        // Decode the user object from the token
-        user = extractUserFromToken(token);
-        staffToken = generatedToken;
-        done();
-      });
+      // Create a new user with the staff role
+      requestAsync(app)
+        .post('/api/users')
+        .send({
+          username: 'staffUser',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'snow@staff.org',
+          password: 'staff',
+          role: 'staff'
+        })
+        .then((res) => {
+          // Save the staff token
+          staffToken = res.body.token;
+          // Decode the user object from the token
+          user = extractUserFromToken(token);
+          done();
+        })
+        .catch((err) => {
+          console.log('Error', err);
+          done();
+        });
     });
 
     it('should fetch the user\'s own profile successfully', (done) => {
@@ -221,7 +220,8 @@ describe('User Spec', () => {
         });
     });
 
-    it('should not allow a user to fetch another user\'s profile', (done) => {
+    it('should not allow a user to fetch another user\'s profile', (
+      done) => {
       request(app)
         .get('/api/users/' + user._id)
         .set('Accept', 'application/json')
@@ -267,6 +267,26 @@ describe('User Spec', () => {
         });
     });
 
+    it('should throw an error if a user does not exist', (done) => {
+      request(app)
+        .put('/api/users/i-do-not-exist')
+        .send({
+          username: 'theImp',
+          firstname: 'Half',
+          lastname: 'Man',
+          email: 'masterofcoin@westeros.org'
+        })
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          // Should be treated as trying to access another user's profile
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('Unauthorized Access');
+          done();
+        });
+    });
+
   });
 
   describe('User delete', () => {
@@ -285,7 +305,18 @@ describe('User Spec', () => {
         .end((err, res) => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(204);
-          //expect(res.body).toBeNull();
+          done();
+        });
+    });
+
+    it('should raise an error when given an invalid user', (done) => {
+      request(app)
+        .delete('/api/users/cant-touch-this')
+        .set('x-access-token', token)
+        .end((err, res) => {
+          expect(err).toBeNull();
+          expect(res.statusCode).toBe(403);
+          expect(res.body.error).toBe('Unauthorized Access');
           done();
         });
     });
@@ -317,19 +348,12 @@ describe('User Spec', () => {
     let adminToken = null;
 
     beforeEach((done) => {
-      async.waterfall([
-        // Create the admin role in the DB
-        (callback) => {
-          Roles.create({
-            title: 'admin'
-          }, (err, adminRole) => {
-            callback(err, adminRole);
-          });
-        },
-        // Create a new user with the admin role
-        (admin, callback) => {
-          // The first arg is the newly created adminRole
-          request(app)
+      // Create the admin role in the DB
+      Roles.create({
+          title: 'admin'
+        })
+        .then((adminRole) => {
+          return requestAsync(app)
             .post('/api/users')
             .send({
               username: 'adminUser',
@@ -337,17 +361,17 @@ describe('User Spec', () => {
               lastname: 'Snow',
               email: 'snow@admin.org',
               password: 'admin',
-              role: 'admin'
-            })
-            // Call the callback with the user's token
-            .end((err, res) => {
-              callback(err, res.body.token);
+              role: adminRole.title // 'admin'
             });
-        }
-      ], (err, generatedToken) => {
-        adminToken = generatedToken;
-        done();
-      });
+        })
+        .then((res) => {
+          adminToken = res.body.token;
+          done();
+        })
+        .catch((err) => {
+          console.log('Error', err);
+          done();
+        });
     });
 
     it('should return all users when called by admin user', (done) => {
@@ -406,34 +430,30 @@ describe('User Spec', () => {
     });
 
     it('should login and logout user successfully', (done) => {
-      async.series([
-          function(callback) {
-            // logout the user
-            request(app)
-              .post('/api/users/logout')
-              .set('x-access-token', userToken)
-              .end((err, res) => {
-                expect(res.statusCode).toBe(200);
-                callback(null, res.body);
-              });
-          },
-          function(callback) {
-            request(app)
-              .post('/api/users/login')
-              .send({
-                username: user.username,
-                password: userPassword
-              })
-              .end((err, res) => {
-                callback(null, res.body.user.loggedIn);
-              });
-          }
-        ],
-        // optional callback
-        function(err, results) {
-          expect(results[0].message).toBe('Successfully logged out');
+      // logout the user
+      requestAsync(app)
+        .post('/api/users/logout')
+        .set('x-access-token', userToken)
+        .then((res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.message).toBe('Successfully logged out');
+          return Promise.resolve(res.body);
+        })
+        .then(() => {
+          return requestAsync(app)
+            .post('/api/users/login')
+            .send({
+              username: user.username,
+              password: userPassword
+            });
+        })
+        .then((res) => {
           // The loggedIn flag should be set to true
-          expect(results[1]).toBe(true);
+          expect(res.body.user.loggedIn).toBe(true);
+          done();
+        })
+        .catch((err) => {
+          console.log('Error', err);
           done();
         });
     });
@@ -473,34 +493,29 @@ describe('User Spec', () => {
     });
 
     it('should return false if the user is logged out', (done) => {
-      async.series([
-          function(callback) {
-            // logout the user
-            request(app)
-              .post('/api/users/logout')
-              .set('x-access-token', token)
-              .end((err, res) => {
-                expect(res.statusCode).toBe(200);
-                callback(null, res.body.message);
-              });
-          },
-          function(callback) {
-            request(app)
-              .get('/api/users/session')
-              .set('x-access-token', token)
-              .end((err, res) => {
-                expect(res.statusCode).toBe(200);
-                expect(res.body.loggedIn).toBe('false');
-                callback(null, res.body.loggedIn);
-              });
-          }
-        ],
-        // optional callback
-        function(err, results) {
-          // results holds the values from the callbacks
-          expect(results[1]).toBe('false');
+      // logout the user
+      requestAsync(app)
+        .post('/api/users/logout')
+        .set('x-access-token', token)
+        .then((res) => {
+          expect(res.statusCode).toBe(200);
+          return Promise.resolve(res.body.message);
+        })
+        .then(() => {
+          return requestAsync(app)
+            .get('/api/users/session')
+            .set('x-access-token', token);
+        })
+        .then((res) => {
+          expect(res.statusCode).toBe(200);
+          expect(res.body.loggedIn).toBe('false');
+          done();
+        })
+        .catch((err) => {
+          console.log('Error', err);
           done();
         });
+
     });
 
   });

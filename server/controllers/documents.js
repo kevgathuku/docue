@@ -1,14 +1,16 @@
+/* @flow */
 (() => {
   'use strict';
 
   let jwt = require('jsonwebtoken'),
-    extractUserFromToken = require('./utils'),
+    extractUserFromToken = require('./utils').extractUserFromToken,
+    Error = require('./utils').Error,
     Documents = require('../models/documents'),
     Roles = require('../models/roles'),
     Users = require('../models/users');
 
   module.exports = {
-    create: (req, res, next) => {
+    create: (req, res, next): void => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
       let role;
@@ -18,7 +20,7 @@
           'The document title is required'
         );
         err.status = 400;
-        return next(err);
+        next(err);
       } else {
         // Find if the document already exists
         Documents.findOne({
@@ -30,7 +32,7 @@
               'Document already exists'
             );
             docErr.status = 400;
-            return next(docErr);
+            next(docErr);
           } else {
             // Decode the user info from the token
             let decodedUser = jwt.decode(token, {
@@ -40,7 +42,7 @@
               if (!user) {
                 let err = new Error('User does not exist');
                 err.status = 400;
-                return next(err);
+                next(err);
               } else {
                 // Get the role from the request body
                 // Or assign the default role
@@ -56,7 +58,7 @@
                   })
                   .exec((err, fetchedRole) => {
                     if (err || !fetchedRole) {
-                      return next(err);
+                      next(err);
                     } else {
                       // If the document does not exist, create it
                       Documents.create({
@@ -66,9 +68,9 @@
                         role: fetchedRole
                       }, (error, newDocument) => {
                         if (!error) {
-                          return res.status(201).json(newDocument);
+                          res.status(201).json(newDocument);
                         } else {
-                          return next(error);
+                          next(error);
                         }
                       });
                     }
@@ -80,7 +82,7 @@
       }
     },
 
-    docsAuthenticate: (req, res, next) => {
+    docsAuthenticate: (req, res, next): void => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -89,19 +91,19 @@
         .populate('role')
         .exec((err, doc) => {
           if (err) {
-            return next(err);
+            next(err);
           } else {
             // If the user is the doc owner, allow access
             if (user._id == doc.ownerId) {
               next();
             } else if (doc.role === undefined) {
-              return next(new Error('The document does not specify a role'));
+              next(new Error('The document does not specify a role'));
             } else if (user.role.accessLevel >= doc.role.accessLevel) {
               // If the user's accessLevel is equal or higher to the one
               // specified by the doc, allow access
               next();
             } else {
-              return res.status(403).json({
+              res.status(403).json({
                 error: 'You are not allowed to access this document'
               });
             }
@@ -109,7 +111,7 @@
         });
     },
 
-    ownerAuthenticate: (req, res, next) => {
+    ownerAuthenticate: (req, res, next): void => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -118,7 +120,7 @@
         .populate('role')
         .exec((err, doc) => {
           if (err || !doc) {
-            return next(err);
+            next(err);
           } else {
             // If the user is the doc owner, allow access
             if (user._id == doc.ownerId) {
@@ -127,7 +129,7 @@
               // If the user is an admin, allow access
               next();
             } else {
-              return res.status(403).json({
+              res.status(403).json({
                 error: 'You are not allowed to delete this document'
               });
             }
@@ -135,7 +137,7 @@
         });
     },
 
-    update: (req, res, next) => {
+    update: (req, res, next): void => {
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
         },
@@ -146,37 +148,39 @@
         .populate('ownerId')
         .exec((err, document) => {
           if (!document) {
-            return next(err);
-          }
-          res.send(document);
-        });
-    },
-
-    get: (req, res, next) => {
-      Documents.findById(req.params.id)
-        .populate('roles')
-        .populate('ownerId')
-        .exec((err, document) => {
-          if (err || !document) {
-            return next(err);
+            next(err);
           } else {
             res.send(document);
           }
         });
     },
 
-    delete: (req, res, next) => {
+    get: (req, res, next): void => {
+      Documents.findById(req.params.id)
+        .populate('roles')
+        .populate('ownerId')
+        .exec((err, document) => {
+          if (err || !document) {
+            next(err);
+          } else {
+            res.send(document);
+          }
+        });
+    },
+
+    delete: (req, res, next): void => {
       Documents.findOneAndRemove({
         _id: req.params.id
       }, function(err, doc) {
         if (err || !doc) {
-          return next(err);
+          next(err);
+        } else {
+          res.sendStatus(204);
         }
-        res.sendStatus(204);
       });
     },
 
-    all: (req, res, next) => {
+    all: (req, res, next): void => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -189,16 +193,17 @@
         .sort('-dateCreated')
         .exec((err, docs) => {
           if (err) {
-            return next(err);
+            next(err);
+          } else {
+            // Return docs with accessLevel lower or equal to user's access level
+            res.json(docs.filter(function(doc) {
+              return doc.role.accessLevel <= user.role.accessLevel || doc.ownerId._id == user._id;
+            }));
           }
-          // Return docs with accessLevel lower or equal to user's access level
-          res.json(docs.filter(function(doc) {
-            return doc.role.accessLevel <= user.role.accessLevel || doc.ownerId._id == user._id;
-          }));
         });
     },
 
-    allByRole: (req, res, next) => {
+    allByRole: (req, res, next): void => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -215,16 +220,17 @@
           .sort('-dateCreated')
           .exec((err, docs) => {
             if (err) {
-              return next(err);
+              next(err);
+            } else {
+              res.json(docs.filter(function(doc) {
+                return doc.role.accessLevel <= user.role.accessLevel;
+              }));
             }
-            res.json(docs.filter(function(doc) {
-              return doc.role.accessLevel <= user.role.accessLevel;
-            }));
           });
       });
     },
 
-    allByDate: (req, res, next) => {
+    allByDate: (req, res, next): void => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -253,11 +259,12 @@
         .limit(limit)
         .exec((err, docs) => {
           if (err) {
-            return next(err);
+            next(err);
+          } else {
+            res.json(docs.filter(function(doc) {
+              return doc.role.accessLevel <= user.role.accessLevel;
+            }));
           }
-          res.json(docs.filter(function(doc) {
-            return doc.role.accessLevel <= user.role.accessLevel;
-          }));
         });
     }
 

@@ -7,10 +7,16 @@ describe('Roles Spec', () => {
   let token = null;
 
   beforeEach((done) => {
-    helper.beforeEach(token, (generatedToken) => {
-      token = generatedToken;
-      done();
-    });
+    // Promise that returns a generatedToken
+    helper.beforeEach()
+      .then((generatedToken) => {
+        token = generatedToken;
+        done();
+      })
+      .catch((err) => {
+        console.log('Error running the beforeEach function', err);
+        done();
+      });
   });
 
   describe('Role Creation', () => {

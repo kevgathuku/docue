@@ -1,8 +1,9 @@
 describe('Documents Spec', () => {
   'use strict';
 
-  let async = require('async');
   let request = require('supertest');
+  let requestAsync = require('supertest-as-promised');
+  let Promise = require('bluebird');
   let helper = require('./helper');
   let app = require('../index');
   let Roles = require('../server/models/roles');
@@ -12,10 +13,16 @@ describe('Documents Spec', () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
   beforeEach((done) => {
-    helper.beforeEach(token, generatedToken => {
-      token = generatedToken;
-      done();
-    });
+    // Promise that returns a generatedToken
+    helper.beforeEach()
+      .then((generatedToken) => {
+        token = generatedToken;
+        done();
+      })
+      .catch((err) => {
+        console.log('Error running the beforeEach function', err);
+        done();
+      });
   });
 
   describe('Document Creation', () => {
@@ -235,45 +242,39 @@ describe('Documents Spec', () => {
     let documentID = null;
 
     beforeEach((done) => {
-      async.waterfall([
-        // Create a new user with the staff role
-        (callback) => {
-          request(app)
-            .post('/api/users')
-            .send({
-              username: 'staffUser',
-              firstname: 'John',
-              lastname: 'Snow',
-              email: 'snow@staff.org',
-              password: 'staff',
-              role: 'staff'
-            })
-            // Call the callback with the newly created user
-            .end((err, res) => {
-              staffToken = res.body.token;
-              callback(err, staffToken);
-            });
-        },
-        // Create a new document accessible to staff only
-        (newToken, callback) => {
-          request(app)
+      // Create a new user with the staff role
+      requestAsync(app)
+        .post('/api/users')
+        .send({
+          username: 'staffUser',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'snow@staff.org',
+          password: 'staff',
+          role: 'staff'
+        })
+        .then((res) => {
+          staffToken = res.body.token;
+          return Promise.resolve(staffToken);
+        })
+        .then((staffToken) => {
+          return requestAsync(app)
             .post('/api/documents')
-            .set('x-access-token', newToken)
+            .set('x-access-token', staffToken)
             .send({
               title: 'Staff Doc',
               description: 'Confidential',
               role: 'staff'
-            })
-            // Call the callback with the newly created doc
-            .end((err, res) => {
-              callback(err, res.body);
             });
-        }
-      ], (err, staffDocument) => {
-        // Save the document ID in the documentID variable
-        documentID = staffDocument._id;
-        done();
-      });
+        })
+        .then((res) => {
+          documentID = res.body._id;
+          done();
+        })
+        .catch((err) => {
+          console.log('Error', err);
+          done();
+        });
     });
 
     it('should allow access to authorized users', (done) => {
@@ -294,7 +295,8 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
-          expect(res.body.error).toBe('You are not allowed to access this document');
+          expect(res.body.error).toBe(
+            'You are not allowed to access this document');
           done();
         });
     });
@@ -308,7 +310,8 @@ describe('Documents Spec', () => {
         })
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
-          expect(res.body.error).toBe('You are not allowed to access this document');
+          expect(res.body.error).toBe(
+            'You are not allowed to access this document');
           done();
         });
     });
@@ -319,12 +322,14 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
-          expect(res.body.error).toBe('You are not allowed to delete this document');
+          expect(res.body.error).toBe(
+            'You are not allowed to delete this document');
           done();
         });
     });
 
-    it('should only return documents a user is allowed to access', (done) => {
+    it('should only return documents a user is allowed to access', (
+      done) => {
       request(app)
         .get('/api/documents/')
         .set('x-access-token', token)
@@ -387,7 +392,8 @@ describe('Documents Spec', () => {
     let today = new Date();
     // Build the date format to be sent from the current date
     // Formt should be YYYY-MM-DD
-    let testDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    let testDate =
+      `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
     it('should return documents created on the date provided', (done) => {
       request(app)
         .get('/api/documents/created/' + testDate)
@@ -407,7 +413,8 @@ describe('Documents Spec', () => {
         .set('Accept', 'application/json')
         .end((err, res) => {
           expect(res.statusCode).toBe(400);
-          expect(res.body.error).toBe('Date must be in the format YYYY-MM-DD');
+          expect(res.body.error).toBe(
+            'Date must be in the format YYYY-MM-DD');
           done();
         });
     });
