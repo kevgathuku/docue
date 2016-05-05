@@ -1,8 +1,9 @@
 describe('Documents Spec', () => {
   'use strict';
 
-  let async = require('async');
   let request = require('supertest');
+  let requestAsync = require('supertest-as-promised');
+  let Promise = require('bluebird');
   let helper = require('./helper');
   let app = require('../index');
   let Roles = require('../server/models/roles');
@@ -241,45 +242,39 @@ describe('Documents Spec', () => {
     let documentID = null;
 
     beforeEach((done) => {
-      async.waterfall([
-        // Create a new user with the staff role
-        (callback) => {
-          request(app)
-            .post('/api/users')
-            .send({
-              username: 'staffUser',
-              firstname: 'John',
-              lastname: 'Snow',
-              email: 'snow@staff.org',
-              password: 'staff',
-              role: 'staff'
-            })
-            // Call the callback with the newly created user
-            .end((err, res) => {
-              staffToken = res.body.token;
-              callback(err, staffToken);
-            });
-        },
-        // Create a new document accessible to staff only
-        (newToken, callback) => {
-          request(app)
+      // Create a new user with the staff role
+      requestAsync(app)
+        .post('/api/users')
+        .send({
+          username: 'staffUser',
+          firstname: 'John',
+          lastname: 'Snow',
+          email: 'snow@staff.org',
+          password: 'staff',
+          role: 'staff'
+        })
+        .then((res) => {
+          staffToken = res.body.token;
+          return Promise.resolve(staffToken);
+        })
+        .then((staffToken) => {
+          return requestAsync(app)
             .post('/api/documents')
-            .set('x-access-token', newToken)
+            .set('x-access-token', staffToken)
             .send({
               title: 'Staff Doc',
               description: 'Confidential',
               role: 'staff'
-            })
-            // Call the callback with the newly created doc
-            .end((err, res) => {
-              callback(err, res.body);
             });
-        }
-      ], (err, staffDocument) => {
-        // Save the document ID in the documentID variable
-        documentID = staffDocument._id;
-        done();
-      });
+        })
+        .then((res) => {
+          documentID = res.body._id;
+          done();
+        })
+        .catch((err) => {
+          console.log('Error', err);
+          done();
+        });
     });
 
     it('should allow access to authorized users', (done) => {
