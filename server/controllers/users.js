@@ -83,12 +83,12 @@
         Users.findById(req.params.id,
             '_id name username email role loggedIn')
           .populate('role')
-          .exec((err, user): void => {
-            if (err) {
-              next(err);
-            } else {
-              res.json(user);
-            }
+          .exec()
+          .then((user) => {
+            res.json(user);
+          })
+          .catch((err) => {
+            next(err);
           });
       } else {
         res.status(403).json({
@@ -100,11 +100,10 @@
     update: (req, res, next): void => {
       // A user can only update their own profile
       // An admin can edit any user's profile i.e. roles
-      if (req.decoded._id === req.params.id || req.decoded.role.title ===
-        'admin') {
+      if (req.decoded._id === req.params.id ||
+        req.decoded.role.title === 'admin') {
         // Set the name fields in the format expected by the model
-        if (req.body.hasOwnProperty('firstname') || req.body.hasOwnProperty(
-            'lastname')) {
+        if (_.has(req.body, 'firstname') || _.has(req.body, 'lastname')) {
           req.body.name = {
             first: req.body.firstname,
             last: req.body.lastname
@@ -118,11 +117,12 @@
               new: true
             })
           .populate('role')
-          .exec((err, user): void => {
-            if (!user) {
-              next(err);
-            }
+          .exec()
+          .then((user) => {
             res.send(user);
+          })
+          .catch((err) => {
+            next(err);
           });
       } else {
         res.status(403).json({
@@ -134,15 +134,17 @@
     delete: (req, res, next): void => {
       // A user can only delete their own profile
       // An admin can also delete a user
-      if (req.decoded._id === req.params.id || req.decoded.role.title ===
-        'admin') {
+      if (req.decoded._id === req.params.id ||
+        req.decoded.role.title === 'admin') {
         Users.findOneAndRemove({
           _id: req.params.id
-        }, function(err, user): void {
-          if (err || !user) {
-            next(err);
-          }
+        })
+        .exec()
+        .then(() => {
           res.sendStatus(204);
+        })
+        .catch((err) => {
+          next(err);
         });
       } else {
         res.status(403).json({
@@ -156,12 +158,13 @@
       Documents.find()
         .where({
           ownerId: req.params.id
-        }).exec((err, docs): void => {
-          if (err) {
-            res.next(err);
-          } else {
-            res.json(docs);
-          }
+        })
+        .exec()
+        .then((docs): void => {
+          res.json(docs);
+        })
+        .catch((err) => {
+          res.next(err);
         });
     },
 
@@ -174,12 +177,12 @@
       } else {
         Users.find()
           .populate('role')
-          .exec((err, users): void => {
-            if (err) {
-              res.next(err);
-            } else {
-              res.json(users);
-            }
+          .exec()
+          .then((users): void => {
+            res.json(users);
+          })
+          .catch((err) => {
+            res.next(err);
           });
       }
     },
@@ -197,18 +200,18 @@
             new: true
           })
         .populate('role')
-        .exec((err, user): void => {
-          if (err) {
-            next(err);
-          } else if (!user) {
-            res.status(404).json({
-              error: 'Authentication failed. User Not Found.'
-            });
+        .exec()
+        .then((user): void => {
+          let err;
+          if (!user) {
+            err = new Error('Authentication failed. User Not Found.');
+            err.status = 404;
+            throw err;
           } else if (!user.comparePassword(req.body.password)) {
             // If the password provided is wrong.
-            res.status(401).json({
-              error: 'Authentication failed. Wrong password.'
-            });
+            err = new Error('Authentication failed. Wrong password.');
+            err.status = 401;
+            throw err;
           } else {
             user.password = null;
             let tokenUser = {
@@ -226,6 +229,9 @@
               token: token
             });
           }
+        })
+        .catch((err) => {
+          next(err);
         });
     },
 
@@ -236,14 +242,14 @@
       Users.findByIdAndUpdate(user._id, {
           loggedIn: false
         })
-        .exec((err, user): void => {
-          if (err || !user) {
-            next(err);
-          } else {
-            res.json({
-              message: 'Successfully logged out'
-            });
-          }
+        .exec()
+        .then(() => {
+          res.json({
+            message: 'Successfully logged out'
+          });
+        })
+        .catch((err) => {
+          next(err);
         });
     },
 
@@ -262,8 +268,7 @@
           });
         }
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded):
-          void => {
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded): void => {
             if (err) {
               res.status(401).json({
                 error: 'Failed to authenticate token.'
