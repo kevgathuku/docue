@@ -6,7 +6,10 @@
   'use strict';
 
   let mongoose = require('mongoose');
-  require('dotenv').load();
+  // load .env only in dev mode
+  if (process.env.NODE_ENV === 'development') {
+    require('dotenv').load();
+  }
 
   // Use bluebird for Mongoose promises
   mongoose.Promise = require('bluebird');
