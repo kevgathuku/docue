@@ -1,5 +1,4 @@
-/* @flow */
-((): void => {
+(() => {
   'use strict';
 
   let _ = require('underscore'),
@@ -11,8 +10,8 @@
     Roles = require('../models/roles');
 
   module.exports = {
-    create: (req, res, next): void => {
-      let required: Array <string> = ['username', 'firstname',
+    create: (req, res, next) => {
+      let required = ['username', 'firstname',
         'lastname', 'email',
         'password'
       ];
@@ -75,7 +74,7 @@
         });
     },
 
-    get: (req, res, next): void => {
+    get: (req, res, next) => {
       // Only an admin or owner can view their own profile
       if (req.decoded._id === req.params.id ||
         req.decoded.role.title === 'admin') {
@@ -97,7 +96,7 @@
       }
     },
 
-    update: (req, res, next): void => {
+    update: (req, res, next) => {
       // A user can only update their own profile
       // An admin can edit any user's profile i.e. roles
       if (req.decoded._id === req.params.id ||
@@ -131,7 +130,7 @@
       }
     },
 
-    delete: (req, res, next): void => {
+    delete: (req, res, next) => {
       // A user can only delete their own profile
       // An admin can also delete a user
       if (req.decoded._id === req.params.id ||
@@ -154,13 +153,13 @@
     },
 
     // Get all documents created by this user
-    getDocs: (req, res): void => {
+    getDocs: (req, res) => {
       Documents.find()
         .where({
           ownerId: req.params.id
         })
         .exec()
-        .then((docs): void => {
+        .then((docs) => {
           res.json(docs);
         })
         .catch((err) => {
@@ -168,7 +167,7 @@
         });
     },
 
-    all: (req, res): void => {
+    all: (req, res) => {
       // This action is available to admin roles only
       if (req.decoded.role.title !== 'admin') {
         res.status(403).json({
@@ -178,7 +177,7 @@
         Users.find()
           .populate('role')
           .exec()
-          .then((users): void => {
+          .then((users) => {
             res.json(users);
           })
           .catch((err) => {
@@ -187,7 +186,7 @@
       }
     },
 
-    login: (req, res, next): void => {
+    login: (req, res, next) => {
       // Find the user and set the loggedIn flag to true
       Users.findOneAndUpdate({
             username: req.body.username
@@ -201,7 +200,7 @@
           })
         .populate('role')
         .exec()
-        .then((user): void => {
+        .then((user) => {
           let err;
           if (!user) {
             err = new Error('Authentication failed. User Not Found.');
@@ -235,10 +234,10 @@
         });
     },
 
-    logout: (req, res, next): void => {
+    logout: (req, res, next) => {
       // Set the loggedIn flag for the user to false
       let token = req.body.token || req.headers['x-access-token'];
-      let user: Object = extractUserFromToken(token);
+      let user = extractUserFromToken(token);
       Users.findByIdAndUpdate(user._id, {
           loggedIn: false
         })
@@ -254,21 +253,21 @@
     },
 
     // route middleware to verify a token
-    authenticate: (req, res, next): void => {
+    authenticate: (req, res, next) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
         // Check if the user is logged in
-        let user: Object = extractUserFromToken(token);
+        let user = extractUserFromToken(token);
         if (!user.loggedIn) {
           res.status(401).json({
             error: 'Unauthorized Access. Please login first'
           });
         }
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded): void => {
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
             if (err) {
               res.status(401).json({
                 error: 'Failed to authenticate token.'
@@ -288,15 +287,14 @@
       }
     },
 
-    getSession: (req, res): void => {
+    getSession: (req, res) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
 
       // decode token
       if (token) {
         // verifies secret and checks expiry time
-        jwt.verify(token, req.app.get('superSecret'), (err, decoded):
-          void => {
+        jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
             if (err) {
               // If the token cannot be verified, return false
               res.json({
@@ -306,7 +304,7 @@
               // Return user's loggedIn status from the DB
               Users.findById(decoded._id)
                 .populate('role')
-                .exec((err, user): void => {
+                .exec((err, user) => {
                   if (err || !user) {
                     res.json({
                       loggedIn: 'false'
