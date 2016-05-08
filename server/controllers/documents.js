@@ -1,4 +1,3 @@
-/* @flow */
 (() => {
   'use strict';
 
@@ -10,7 +9,7 @@
     Users = require('../models/users');
 
   module.exports = {
-    create: (req, res, next): void => {
+    create: (req, res, next) => {
       // check header or post parameters for token
       let token = req.body.token || req.headers['x-access-token'];
       let role;
@@ -82,7 +81,7 @@
       }
     },
 
-    docsAuthenticate: (req, res, next): void => {
+    docsAuthenticate: (req, res, next) => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -111,7 +110,7 @@
         });
     },
 
-    ownerAuthenticate: (req, res, next): void => {
+    ownerAuthenticate: (req, res, next) => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -137,7 +136,7 @@
         });
     },
 
-    update: (req, res, next): void => {
+    update: (req, res, next) => {
       Documents.findByIdAndUpdate(req.params.id, {
           $set: req.body
         },
@@ -155,7 +154,7 @@
         });
     },
 
-    get: (req, res, next): void => {
+    get: (req, res, next) => {
       Documents.findById(req.params.id)
         .populate('roles')
         .populate('ownerId')
@@ -168,7 +167,7 @@
         });
     },
 
-    delete: (req, res, next): void => {
+    delete: (req, res, next) => {
       Documents.findOneAndRemove({
         _id: req.params.id
       }, function(err, doc) {
@@ -180,7 +179,7 @@
       });
     },
 
-    all: (req, res, next): void => {
+    all: (req, res, next) => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -203,7 +202,7 @@
         });
     },
 
-    allByRole: (req, res, next): void => {
+    allByRole: (req, res, next) => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
@@ -230,7 +229,7 @@
       });
     },
 
-    allByDate: (req, res, next): void => {
+    allByDate: (req, res, next) => {
       // Extract the user info from the token
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);

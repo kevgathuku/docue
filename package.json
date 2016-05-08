@@ -15,7 +15,7 @@
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
     "coverage": "nyc --require babel-core/register npm run test:bend && nyc report --reporter=text-lcov | coveralls",
     "codecov": "cat coverage/lcov/lcov.info | codecov",
-    "deploy": "NODE_ENV='production' webpack -p --config webpack.production.config.js --progress --colors",
+    "deploy": "webpack -p --config webpack.production.config.js --progress --colors",
     "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/bower/bin/bower install && npm run deploy; fi"
   },
   "dependencies": {

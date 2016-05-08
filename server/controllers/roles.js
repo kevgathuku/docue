@@ -4,7 +4,7 @@
   let Role = require('../models/roles');
 
   module.exports = {
-    create: (req, res, next): ?Object => {
+    create: (req, res, next) => {
       let validRoles = Role.schema.paths.title.enumValues;
 
       // Explicitly return so that the rest of the code is not executed
@@ -57,7 +57,7 @@
         });
     },
 
-    all: (req, res): void => {
+    all: (req, res) => {
       Role.find()
         .exec() // `.exec()` gives you a fully-fledged promise
         .then((roles) => {

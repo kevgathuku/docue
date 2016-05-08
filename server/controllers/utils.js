@@ -1,13 +1,9 @@
-/* @flow */
 'use strict';
 
 let jwt = require('jsonwebtoken');
 
 class ExtendedError extends Error {
-  message: string;
-  status: number;
-
-  constructor(message: string) {
+  constructor(message) {
     super(message);
     this.message = message;
     this.stack = (new Error()).stack;
@@ -17,7 +13,7 @@ class ExtendedError extends Error {
 
 // Takes a JWT token object and extracts the user info from the token
 module.exports = {
-  extractUserFromToken: (token: string): Object => {
+  extractUserFromToken: (token) => {
     let decodedUser = jwt.decode(token, {
       complete: true
     });
