@@ -1,9 +1,8 @@
 # Document Management System
 
-[![Build Status](https://travis-ci.org/kevgathuku/docue.svg?branch=master)](https://travis-ci.org/kevgathuku/docue)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/docue/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/docue?branch=master)
-[![codecov.io](https://codecov.io/github/kevgathuku/docue/coverage.svg?branch=master)](https://codecov.io/github/kevgathuku/docue?branch=master)
+[![Build Status](https://travis-ci.org/kevgathuku/docue.svg?branch=master)](https://travis-ci.org/kevgathuku/docue)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/docue/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/docue?branch=master) [![codecov.io](https://codecov.io/github/kevgathuku/docue/coverage.svg?branch=master)](https://codecov.io/github/kevgathuku/docue?branch=master)
 
-[View on Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1515788)   
+[View on Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1515788)
 
 The system manages documents, users and roles.
 
@@ -15,17 +14,24 @@ Users are categorized by roles. Each user must have a role defined for them.
 
 - Clone the repo locally and navigate to the newly created folder
 
-    `$ git clone https://github.com/kevgathuku/docue`
+    ```bash
+    git clone https://github.com/kevgathuku/docue
+    
+    cd docue
+    ```
 
-    `$ cd docue`
 
  - Install the app dependencies
 
-    `$ npm install`
+    ```bash
+    npm install
+    ```
 
- - Rename the `.env.example` file to `.env`
+ - Copy the `.env.example` file to `.env`
 
-     `$ mv .env.example .env`
+     ```bash
+     cp .env.example .env
+     ```
 
  - Replace the values in the `.env` file with the appropriate values
          - `PORT` - The port where you want the application to be run
@@ -36,9 +42,31 @@ Users are categorized by roles. Each user must have a role defined for them.
 
  - Start the project by running
 
-    `$ npm start`
+    ```bash
+    npm start
+    ```
 
   It can be accessed on `http://localhost:3000`
+
+## Running in Docker
+
+Docker is an awesome tool that helps you run your apps and all their dependencies in a containerized environment. This way you don't have to think about setting up your local environment. It's awesome. Learn more about [Docker](https://www.docker.com/what-docker)
+
+You need Docker and Docker Machine to proceed. You can follow the installation instructions below:
+
+ - [Install Docker](https://docs.docker.com/engine/installation/)
+ - [Install Docker Machine](https://docs.docker.com/machine/install-machine/)
+
+NB: Before the following, please ensure you have cloned the repo locally, you have navigated to the `docue` folder and have set the environment variables in the `.env` file as described above
+
+Build and run the docker version by running the following command:
+
+```bash
+docker-compose up
+
+```
+
+If this runs successfully, the app can be accessed on `http://localhost:49160`
 
 ## Running tests
 
