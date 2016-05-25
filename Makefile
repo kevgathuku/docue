@@ -1,5 +1,5 @@
 build:
-	docker-compose build -p docue
+	docker-compose build
 run:
 	docker-compose up
 stop:

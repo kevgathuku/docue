@@ -1,4 +1,4 @@
-FROM node:5.7
+FROM node:6
 # Install app dependencies
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
