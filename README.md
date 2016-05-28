@@ -16,8 +16,7 @@ Users are categorized by roles. Each user must have a role defined for them.
 
     ```bash
     git clone https://github.com/kevgathuku/docue
-    
-    cd docue
+  cd docue
     ```
 
 
@@ -52,10 +51,11 @@ Users are categorized by roles. Each user must have a role defined for them.
 
 Docker is an awesome tool that helps you run your apps and all their dependencies in a containerized environment. This way you don't have to think about setting up your local environment. It's awesome. Learn more about [Docker](https://www.docker.com/what-docker)
 
-You need Docker and Docker Machine to proceed. You can follow the installation instructions below:
+You need Docker, Docker Machine and Docker Compose to proceed. You can follow the installation instructions below:
 
  - [Install Docker](https://docs.docker.com/engine/installation/)
  - [Install Docker Machine](https://docs.docker.com/machine/install-machine/)
+ - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 NB: Before the following, please ensure you have cloned the repo locally, you have navigated to the `docue` folder and have set the environment variables in the `.env` file as described above
 
