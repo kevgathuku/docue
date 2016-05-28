@@ -3,9 +3,7 @@ FROM node:6
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
-RUN npm install --production
+RUN npm install
 # Bundle app source
 COPY . /usr/src/app
-RUN npm run deploy
 EXPOSE  3000
-CMD ["npm", "start"]
