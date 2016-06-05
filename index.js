@@ -6,6 +6,7 @@
   'use strict';
 
   let express = require('express'),
+    compression = require('compression'),
     bodyParser = require('body-parser'),
     favicon = require('serve-favicon'),
     httpProxy = require('http-proxy'),
@@ -28,6 +29,9 @@
   if (!isProduction) {
     app.use(morgan('dev'));
   }
+
+  // compress all requests
+  app.use(compression());
 
   app.use(favicon(path.join(__dirname, 'app', 'images', 'favicon.png')));
 
