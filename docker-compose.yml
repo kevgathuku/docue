@@ -1,14 +1,16 @@
-db:
-  image: mongo
-  ports:
-    - "27017:27017"
-  command: "--smallfiles --logpath=/dev/null"
-web:
-  build: .
-  command: npm start
-  volumes:
-    - .:/usr/src/app/
-  ports:
-    - "49160:3000"
-  links:
-    - db
+version: '2'
+services:
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+    command: "--smallfiles --logpath=/dev/null"
+  web:
+    build: .
+    command: npm start
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - "49160:3000"
+    depends_on:
+      - db
