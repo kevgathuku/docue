@@ -86,7 +86,7 @@
     "expect": "^1.14.0",
     "expect-jsx": "^2.3.0",
     "flow-bin": "^0.26.0",
-    "ignore-styles": "^2.0.0",
+    "ignore-styles": "^3.0.0",
     "isparta-loader": "^2.0.0",
     "jsdom": "^9.2.1",
     "karma": "^0.13.21",
