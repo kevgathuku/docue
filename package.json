@@ -46,7 +46,7 @@
     "immutable": "^3.8.1",
     "jasmine": "^2.4.1",
     "json-loader": "^0.5.4",
-    "jsonwebtoken": "7.0.0",
+    "jsonwebtoken": "7.0.1",
     "keymirror": "^0.1.1",
     "migrate": "^0.2.2",
     "moment": "^2.11.2",
