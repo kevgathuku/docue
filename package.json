@@ -2,8 +2,8 @@
   "name": "react-docms",
   "version": "0.1.1",
   "engines": {
-    "node": "5.4.1",
-    "npm": "3.5.3"
+    "node": "6.2.1",
+    "npm": "3.9.3"
   },
   "private": true,
   "scripts": {
