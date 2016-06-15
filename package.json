@@ -84,7 +84,7 @@
     "eslint-loader": "^1.3.0",
     "eslint-plugin-react": "^5.0.1",
     "expect": "^1.14.0",
-    "expect-jsx": "^2.3.0",
+    "expect-jsx": "^2.6.0",
     "flow-bin": "^0.27.0",
     "ignore-styles": "^4.0.0",
     "isparta-loader": "^2.0.0",
