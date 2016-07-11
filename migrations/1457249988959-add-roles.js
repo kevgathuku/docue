@@ -1,7 +1,9 @@
 'use strict';
 
+var env = process.env.NODE_ENV || 'development';
+
 // load .env only in dev mode
-if (process.env.NODE_ENV === 'development') {
+if (env === 'development') {
   require('dotenv').load();
 }
 
