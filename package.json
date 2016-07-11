@@ -10,7 +10,7 @@
     "prestart": "./node_modules/.bin/migrate",
     "dev-server": "babel-node index.js",
     "start": "nodemon index.js",
-    "test:mocha": "mocha -w test/helpers/browser.js test/*-test.js",
+    "test:mocha": "mocha ./test/helpers/browser.js app/**/*-test.js",
     "test:fend": "./node_modules/.bin/karma start",
     "test:bend": "NODE_ENV='test' babel-node spec/run.js",
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
@@ -107,6 +107,7 @@
     "sinon": "^1.17.3",
     "sinon-spy-react": "^2.0.0",
     "supertest-as-promised": "^3.1.0",
+    "testdom": "^2.0.0",
     "webpack-dev-server": "1.14.1"
   },
   "nyc": {
