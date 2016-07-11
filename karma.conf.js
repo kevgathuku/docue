@@ -27,33 +27,33 @@
         devtool: 'inline-source-map',
         module: {
           noParse: [
-              /node_modules\/sinon/
+            /node_modules\/sinon/
           ],
           loaders: [{
-              test: /\.jsx?$/, // A regexp to test the require path. works for js or jsx
-              loader: 'babel', // The module to load. "babel" is short for "babel-loader"
-              exclude: /node_modules/,
-              query: {
-                presets: ['react', 'es2015', 'stage-0']
-              }
-            }, {
-              test: /\.json$/,
-              loader: 'json'
-            }, {
-              test: /\.css$/,
-              exclude: /node_modules/,
-              loaders: ['style-loader', 'css-loader']
-            }, {
-              test: /\.(png|jpg|jpeg)$/,
-              exclude: /node_modules/,
-              loader: 'url-loader?limit=8192' // limit of 8kb
-            },
-            {
-              test: /\.jsx?$/,
-              include: path.resolve('app'),
-              exclude: /__tests__/,
-              loader: 'isparta'
+            test: /\.jsx?$/, // A regexp to test the require path. works for js or jsx
+            loader: 'babel', // The module to load. "babel" is short for "babel-loader"
+            exclude: /node_modules/,
+            query: {
+              presets: ['react', 'es2015', 'stage-0']
             }
+          }, {
+            test: /\.json$/,
+            loader: 'json'
+          }, {
+            test: /\.css$/,
+            exclude: /node_modules/,
+            loaders: ['style-loader', 'css-loader']
+          }, {
+            test: /\.(png|jpg|jpeg)$/,
+            exclude: /node_modules/,
+            loader: 'url-loader?limit=8192' // limit of 8kb
+          },
+          {
+            test: /\.jsx?$/,
+            include: path.resolve('app'),
+            exclude: /__tests__/,
+            loader: 'isparta'
+          }
           ]
         },
         resolve: {

@@ -14,8 +14,8 @@ exports.up = function(next) {
 
   let tasks = titles.map((title) => {
     let update = {
-        title: title,
-        accessLevel: Roles.ACCESS_LEVEL[title]
+      title: title,
+      accessLevel: Roles.ACCESS_LEVEL[title]
     };
     return Roles.findOneAndUpdate({title: title}, update, {upsert: true});
   });
