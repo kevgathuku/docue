@@ -10,11 +10,11 @@
     "prestart": "./node_modules/.bin/migrate",
     "dev-server": "babel-node index.js",
     "start": "nodemon index.js",
-    "test:fend": "./node_modules/.bin/karma start",
+    "test:fend": "nyc --reporter=text mocha ./test/helpers/browser.js app/**/*-test.js",
     "test:bend": "NODE_ENV='test' babel-node spec/run.js",
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
     "coverage": "nyc --require babel-core/register npm run test:bend && nyc report --reporter=text-lcov | coveralls",
-    "codecov": "cat coverage/lcov/lcov.info | codecov",
+    "codecov": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "deploy": "rimraf ./public/build && NODE_ENV=production webpack -p --config webpack.production.config.js --progress --profile --colors",
     "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/bower/bin/bower install && npm run deploy; fi"
   },
@@ -43,7 +43,6 @@
     "file-loader": "^0.8.5",
     "flux": "^2.1.1",
     "http-proxy": "^1.13.1",
-    "immutable": "^3.8.1",
     "jasmine": "^2.4.1",
     "json-loader": "^0.5.4",
     "jsonwebtoken": "7.0.1",
@@ -65,7 +64,6 @@
     "source-map-loader": "^0.1.5",
     "style-loader": "^0.13.0",
     "superagent": "^2.0.0",
-    "supertest": "^1.2.0",
     "underscore": "^1.8.3",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14"
@@ -77,7 +75,6 @@
     "chai": "^3.5.0",
     "chai-enzyme": "^0.5.0",
     "codecov": "^1.0.1",
-    "concurrently": "^2.0.0",
     "coveralls": "^2.11.6",
     "dotenv": "^2.0.0",
     "enzyme": "^2.0.0",
@@ -88,28 +85,27 @@
     "expect-jsx": "^2.6.0",
     "flow-bin": "^0.27.0",
     "ignore-styles": "^4.0.0",
-    "isparta-loader": "^2.0.0",
     "jsdom": "^9.2.1",
-    "karma": "^0.13.21",
-    "karma-babel-preprocessor": "^6.0.1",
-    "karma-cli": "1.0.0",
-    "karma-coverage": "^1.0.0",
-    "karma-mocha": "^1.0.1",
-    "karma-mocha-reporter": "^2.0.2",
-    "karma-phantomjs-launcher": "^1.0.0",
-    "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^1.7.0",
-    "mocha": "^2.4.5",
-    "phantomjs-prebuilt": "^2.1.4",
-    "react-addons-test-utils": "^15.0.1",
+    "localStorage": "^1.0.3",
+    "mocha": "^2.5.3",
+    "react-addons-test-utils": "^15.1.0",
+    "sessionstorage": "0.0.1",
     "sinon": "^1.17.3",
     "sinon-spy-react": "^2.0.0",
+    "supertest": "^1.2.0",
     "supertest-as-promised": "^3.1.0",
+    "testdom": "^2.0.0",
     "webpack-dev-server": "1.14.1"
   },
   "nyc": {
     "exclude": [
-      "**/*.spec.js"
+      "**/*.spec.js",
+      "**/__tests__/**",
+      "test/**/*.js",
+      "spec/**/*.js"
+    ],
+    "extension": [
+      ".jsx"
     ]
   }
 }
