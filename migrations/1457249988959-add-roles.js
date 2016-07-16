@@ -1,7 +1,9 @@
 'use strict';
 
+var env = process.env.NODE_ENV || 'development';
+
 // load .env only in dev mode
-if (process.env.NODE_ENV === 'development') {
+if (env === 'development') {
   require('dotenv').load();
 }
 
@@ -12,8 +14,8 @@ exports.up = function(next) {
 
   let tasks = titles.map((title) => {
     let update = {
-        title: title,
-        accessLevel: Roles.ACCESS_LEVEL[title]
+      title: title,
+      accessLevel: Roles.ACCESS_LEVEL[title]
     };
     return Roles.findOneAndUpdate({title: title}, update, {upsert: true});
   });

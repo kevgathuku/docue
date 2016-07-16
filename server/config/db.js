@@ -13,6 +13,7 @@
   // Use bluebird for Mongoose promises
   mongoose.Promise = require('bluebird');
 
+  // Enable Promises for the native MongoDB Driver
   var options = {
     promiseLibrary: require('bluebird')
   };
