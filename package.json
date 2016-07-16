@@ -10,7 +10,7 @@
     "prestart": "./node_modules/.bin/migrate",
     "dev-server": "babel-node index.js",
     "start": "nodemon index.js",
-    "test:fend": "nyc --reporter=text mocha ./test/helpers/browser.js app/**/*-test.js",
+    "test:fend": "NODE_ENV='test' nyc --reporter=text mocha ./test/helpers/browser.js app/**/*-test.js",
     "test:bend": "NODE_ENV='test' babel-node spec/run.js",
     "test": "NODE_ENV='test' npm run coverage && npm run test:fend",
     "coverage": "nyc --require babel-core/register npm run test:bend && nyc report --reporter=text-lcov | coveralls",
