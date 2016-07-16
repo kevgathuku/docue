@@ -15,6 +15,7 @@ lib-cov
 coverage
 .nyc_output
 .coveralls.yml
+coverage.lcov
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
