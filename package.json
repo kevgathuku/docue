@@ -59,7 +59,7 @@
     "react-addons-update": "^15.0.1",
     "react-dom": "^15.0.1",
     "react-router": "^2.0.0",
-    "react-select": "^1.0.0-beta9",
+    "react-select": "^1.0.0-beta13",
     "serve-favicon": "^2.3.0",
     "source-map-loader": "^0.1.5",
     "style-loader": "^0.13.0",
