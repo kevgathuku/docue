@@ -11,7 +11,7 @@
   module.exports = {
     create: (req, res, next) => {
       // check header or post parameters for token
-      let token = req.body.token || req.headers['x-access-token'];
+      let token = req.headers['x-access-token'] || req.body.token;
       let role;
 
       if (!req.body.title || req.body.title.trim === '') {

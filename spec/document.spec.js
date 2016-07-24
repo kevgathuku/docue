@@ -10,7 +10,7 @@ describe('Documents Spec', () => {
   let token = null;
   let defaultRole = Roles.schema.paths.title.default();
 
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
   beforeEach((done) => {
     // Promise that returns a generatedToken
@@ -33,7 +33,6 @@ describe('Documents Spec', () => {
           title: 'Doc 1',
           content: 'JS Curriculum'
         })
-        .set('Accept', 'application/json')
         .set('x-access-token', token)
         .end((err, res) => {
           expect(err).toBeNull();
