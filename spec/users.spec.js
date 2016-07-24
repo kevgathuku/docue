@@ -41,10 +41,8 @@ describe('User Spec', () => {
           expect(err).toBeNull();
           expect(res.statusCode).toBe(201);
           expect(res.body.user.username).toBe('johnSnow');
-          expect(res.body.user.name.first).toBe(
-            'John');
-          expect(res.body.user.name.last).toBe(
-            'Snow');
+          expect(res.body.user.name.first).toBe('John');
+          expect(res.body.user.name.last).toBe('Snow');
           expect(res.body.token).not.toBeNull();
           expect(res.body.user.id).not.toBeNull();
           done();
