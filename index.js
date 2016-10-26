@@ -45,6 +45,13 @@
   // We point to our static assets
   app.use(express.static(publicPath));
 
+  // Enable CORS
+  app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
+
   // We only want to run the workflow when not in production
   if (!isProduction) {
     // We require the bundler inside the if block because
