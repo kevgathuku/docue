@@ -9,13 +9,6 @@
   router.use('/api', require('./users'));
   router.use('/api', require('./documents'));
 
-  // Delegate all unregistered routes to the frontend
-  router.get('*', (req, res) => {
-    res.sendFile('index.html', {
-      root: './public/'
-    });
-  });
-
   module.exports = router;
 
 })();

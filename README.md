@@ -1,6 +1,6 @@
 # Document Management System
 
-[![Build Status](https://travis-ci.org/kevgathuku/docue.svg?branch=master)](https://travis-ci.org/kevgathuku/docue)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/docue/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/docue?branch=master) [![codecov.io](https://codecov.io/github/kevgathuku/docue/coverage.svg?branch=master)](https://codecov.io/github/kevgathuku/docue?branch=master)
+[![Build Status](https://travis-ci.org/kevgathuku/docue.svg?branch=master)](https://travis-ci.org/kevgathuku/docue)   [![Coverage Status](https://coveralls.io/repos/github/kevgathuku/docue/badge.svg?branch=master)](https://coveralls.io/github/kevgathuku/docue?branch=master)
 
 [View on Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1515788)
 

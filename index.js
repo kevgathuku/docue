@@ -1,6 +1,5 @@
 /**
 * eslint no-console: 0
-* @flow
 */
 (() => {
   'use strict';
@@ -8,13 +7,8 @@
   let express = require('express'),
     compression = require('compression'),
     bodyParser = require('body-parser'),
-    favicon = require('serve-favicon'),
-    httpProxy = require('http-proxy'),
     morgan = require('morgan'),
-    path = require('path'),
     app = express(),
-    publicPath = path.resolve(__dirname, 'public'),
-    proxy = httpProxy.createProxyServer(),
     isProduction = process.env.NODE_ENV === 'production';
 
   // Load the env variables only in DEV mode
@@ -33,8 +27,6 @@
   // compress all requests
   app.use(compression());
 
-  app.use(favicon(path.join(__dirname, 'app', 'images', 'favicon.png')));
-
   // configure app to use bodyParser()
   // this will let us get the data from a POST
   app.use(bodyParser.urlencoded({
@@ -42,37 +34,11 @@
   }));
   app.use(bodyParser.json());
 
-  // We point to our static assets
-  app.use(express.static(publicPath));
-
   // Enable CORS
   app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
-  });
-
-  // We only want to run the workflow when not in production
-  if (!isProduction) {
-    // We require the bundler inside the if block because
-    // it is only needed in a development environment
-    let bundle = require('./bundle.js');
-    bundle();
-
-    // Any requests to localhost:3000/build is proxied
-    // to webpack-dev-server
-    app.all('/build/*', (req, res) => {
-      proxy.web(req, res, {
-        target: 'http://localhost:8080/'
-      });
-    });
-  }
-
-  // It is important to catch any errors from the proxy or the
-  // server will crash. An example of this is connecting to the
-  // server when webpack is bundling
-  proxy.on('error', () => {
-    console.log('Could not connect to proxy, please try again...');
   });
 
   let port = process.env.PORT || 3000; // set our port
