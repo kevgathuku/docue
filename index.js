@@ -41,7 +41,7 @@
     next();
   });
 
-  let port = process.env.PORT || 3000; // set our port
+  let port = process.env.PORT || 8000; // set our port
 
   app.use(require('./server/routes'));
 
