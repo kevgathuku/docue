@@ -3,7 +3,7 @@ sudo: false
 services:
 - mongodb
 node_js:
-- stable
+- "6"
 cache:
   directories:
   - node_modules
