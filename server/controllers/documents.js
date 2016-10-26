@@ -53,8 +53,8 @@
 
                 // Find the corresponding role in the DB
                 Roles.findOne({
-                    title: role
-                  })
+                  title: role
+                })
                   .exec((err, fetchedRole) => {
                     if (err || !fetchedRole) {
                       next(err);
@@ -74,8 +74,8 @@
                       });
                     }
                   });
-            }
-          });
+              }
+            });
           }
         });
       }
@@ -138,8 +138,8 @@
 
     update: (req, res, next) => {
       Documents.findByIdAndUpdate(req.params.id, {
-          $set: req.body
-        },
+        $set: req.body
+      },
         // Return the newly updated doc rather than the original
         {
           new: true
@@ -212,8 +212,8 @@
         title: req.params.role
       }).exec((err, role) => {
         Documents.find({
-            'role': role
-          })
+          'role': role
+        })
           .populate('role')
           .limit(limit)
           .sort('-dateCreated')

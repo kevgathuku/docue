@@ -30,8 +30,8 @@
       }
       // Find the role passed from the request body in the DB
       Roles.findOne({
-          title: req.body.role
-        })
+        title: req.body.role
+      })
         .exec()
         .then((role) => {
           // Create the user with the role specified
@@ -54,8 +54,8 @@
           // Sign the user object with the app secret
           let token = jwt.sign(tokenUser, req.app.get(
             'superSecret'), {
-            expiresIn: 86400 // expires in 24 hours
-          });
+              expiresIn: 86400 // expires in 24 hours
+            });
           // Return the newly created user with the token included
           res.status(201).json({
             user: user,
@@ -109,12 +109,12 @@
           };
         }
         Users.findByIdAndUpdate(req.params.id, {
-              $set: req.body
-            },
+          $set: req.body
+        },
             // Return the updated user object
-            {
-              new: true
-            })
+          {
+            new: true
+          })
           .populate('role')
           .exec()
           .then((user) => {
@@ -189,15 +189,15 @@
     login: (req, res, next) => {
       // Find the user and set the loggedIn flag to true
       Users.findOneAndUpdate({
-            username: req.body.username
-          }, {
-            $set: {
-              loggedIn: true
-            }
-          }, // Return the updated user object
-          {
-            new: true
-          })
+        username: req.body.username
+      }, {
+        $set: {
+          loggedIn: true
+        }
+      }, // Return the updated user object
+        {
+          new: true
+        })
         .populate('role')
         .exec()
         .then((user) => {
@@ -239,8 +239,8 @@
       let token = req.body.token || req.headers['x-access-token'];
       let user = extractUserFromToken(token);
       Users.findByIdAndUpdate(user._id, {
-          loggedIn: false
-        })
+        loggedIn: false
+      })
         .exec()
         .then(() => {
           res.json({
@@ -268,17 +268,17 @@
         }
         // verifies secret and checks expiry time
         jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
-            if (err) {
-              res.status(401).json({
-                error: 'Failed to authenticate token.'
-              });
-            } else {
+          if (err) {
+            res.status(401).json({
+              error: 'Failed to authenticate token.'
+            });
+          } else {
               // if everything is good, save to request for use in other routes
-              decoded.password = null;
-              req.decoded = decoded;
-              next();
-            }
-          });
+            decoded.password = null;
+            req.decoded = decoded;
+            next();
+          }
+        });
       } else {
         // if there is no token return an error
         res.status(403).send({
@@ -295,14 +295,14 @@
       if (token) {
         // verifies secret and checks expiry time
         jwt.verify(token, req.app.get('superSecret'), (err, decoded) => {
-            if (err) {
+          if (err) {
               // If the token cannot be verified, return false
-              res.json({
-                loggedIn: 'false'
-              });
-            } else {
+            res.json({
+              loggedIn: 'false'
+            });
+          } else {
               // Return user's loggedIn status from the DB
-              Users.findById(decoded._id)
+            Users.findById(decoded._id)
                 .populate('role')
                 .exec((err, user) => {
                   if (err || !user) {
@@ -316,8 +316,8 @@
                     });
                   }
                 });
-            }
-          });
+          }
+        });
       } else {
         // if there is no token, return a logged out status
         res.json({

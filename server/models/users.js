@@ -61,7 +61,7 @@
         // Replace the cleartext password with the hashed one
         user.password = hash;
         next();
-        }
+      }
     });
   });
 

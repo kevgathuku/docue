@@ -348,8 +348,8 @@ describe('User Spec', () => {
     beforeEach((done) => {
       // Create the admin role in the DB
       Roles.create({
-          title: 'admin'
-        })
+        title: 'admin'
+      })
         .then((adminRole) => {
           return requestAsync(app)
             .post('/api/users')

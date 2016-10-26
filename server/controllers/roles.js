@@ -26,16 +26,16 @@
       };
       // Assign the access levels
       switch (newRole.title) {
-        case 'viewer':
-          newRole.accessLevel = 0;
-          break;
-        case 'staff':
-          newRole.accessLevel = 1;
-          break;
-        case 'admin':
-          newRole.accessLevel = 2;
-          break;
-        default:
+      case 'viewer':
+        newRole.accessLevel = 0;
+        break;
+      case 'staff':
+        newRole.accessLevel = 1;
+        break;
+      case 'admin':
+        newRole.accessLevel = 2;
+        break;
+      default:
       }
 
       // Try to create the new role and raise an error if it already exists

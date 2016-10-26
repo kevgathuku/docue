@@ -15,9 +15,9 @@
     .put(Documents.docsAuthenticate, Users.authenticate, Documents.update)
     .delete(Documents.ownerAuthenticate, Users.authenticate, Documents.delete);
 
-    router.get('/documents/created/:date', Documents.allByDate);
+  router.get('/documents/created/:date', Documents.allByDate);
 
-    router.get('/documents/roles/:role', Documents.allByRole);
+  router.get('/documents/roles/:role', Documents.allByRole);
 
   module.exports = router;
 })();
