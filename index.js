@@ -36,7 +36,9 @@
   app.use(bodyParser.json());
 
   // Enable CORS
-  app.use(cors());
+  app.use(cors({
+    allowedHeaders: ['Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-access-token']
+  }));
 
   let port = process.env.PORT || 8000; // set our port
 
