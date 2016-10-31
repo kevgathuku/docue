@@ -28,23 +28,23 @@
     "debug": "~2.2.0",
     "express": "~4.14.0",
     "jasmine": "^2.4.1",
-    "jsonwebtoken": "7.1.6",
+    "jsonwebtoken": "7.1.9",
     "migrate": "^0.2.2",
     "moment": "^2.11.2",
     "mongoose": "^4.5.6",
     "morgan": "~1.7.0",
     "nodemon": "^1.8.1",
-    "nyc": "^7.0.0",
+    "nyc": "^8.3.2",
     "superagent": "^2.0.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "babel-eslint": "^6.0.4",
+    "babel-eslint": "^7.1.0",
     "babel-polyfill": "^6.5.0",
     "coveralls": "^2.11.6",
     "dotenv": "^2.0.0",
     "eslint": "^3.1.1",
-    "supertest": "^1.2.0",
-    "supertest-as-promised": "^3.1.0"
+    "supertest": "^2.0.1",
+    "supertest-as-promised": "^4.0.1"
   }
 }
