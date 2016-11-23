@@ -31,7 +31,7 @@
     "jsonwebtoken": "7.1.9",
     "migrate": "^0.2.2",
     "moment": "^2.11.2",
-    "mongoose": "4.6.8",
+    "mongoose": "4.7.0",
     "morgan": "~1.7.0",
     "nodemon": "^1.8.1",
     "nyc": "^8.3.2",
