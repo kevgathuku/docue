@@ -1,9 +1,8 @@
 {
-  "name": "react-docms",
+  "name": "docue",
   "version": "0.1.1",
   "engines": {
-    "node": "6.2.1",
-    "npm": "3.9.3"
+    "node": "6.x"
   },
   "private": true,
   "scripts": {
@@ -31,7 +30,7 @@
     "jsonwebtoken": "7.2.1",
     "migrate": "^0.2.2",
     "moment": "^2.11.2",
-    "mongoose": "4.7.0",
+    "mongoose": "4.7.9",
     "morgan": "~1.7.0",
     "nodemon": "^1.8.1",
     "nyc": "^10.0.0",
