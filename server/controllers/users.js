@@ -51,7 +51,6 @@ module.exports = {
         let token = jwt.sign(tokenUser, req.app.get('superSecret'), {
           expiresIn: 86400 // expires in 24 hours
         });
-        console.log(_.omit(user, 'password'));
         // Return the newly created user with the token included
         res.status(201).json({
           user: _.omit(user, 'password'),

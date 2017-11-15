@@ -3,7 +3,7 @@
  */
 'use strict';
 
-let mongoose = require('mongoose');
+const mongoose = require('mongoose');
 // load .env only in dev mode
 if (process.env.NODE_ENV === 'development') {
   require('dotenv').load();
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'test') {
   );
 }
 
-let db = mongoose.connection;
+const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'Connection Error : '));
 db.once('open', () => {

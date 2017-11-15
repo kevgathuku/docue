@@ -1,8 +1,8 @@
 'use strict';
 
-let mongoose = require('../config/db');
+const mongoose = require('../config/db');
 
-let DocumentSchema = mongoose.Schema(
+const DocumentSchema = mongoose.Schema(
   {
     title: {
       type: String,

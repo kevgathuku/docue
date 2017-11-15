@@ -1,6 +1,6 @@
 'use strict';
 
-let jwt = require('jsonwebtoken'),
+const jwt = require('jsonwebtoken'),
   extractUserFromToken = require('./utils').extractUserFromToken,
   Error = require('./utils').Error,
   Documents = require('../models/documents'),
@@ -10,11 +10,11 @@ let jwt = require('jsonwebtoken'),
 module.exports = {
   create: (req, res, next) => {
     // check header or post parameters for token
-    let token = req.headers['x-access-token'] || req.body.token;
+    const token = req.headers['x-access-token'] || req.body.token;
     let role;
 
     if (!req.body.title || req.body.title.trim === '') {
-      let err = new Error('The document title is required');
+      const err = new Error('The document title is required');
       err.status = 400;
       next(err);
     } else {
@@ -31,7 +31,7 @@ module.exports = {
             next(docErr);
           } else {
             // Decode the user info from the token
-            let decodedUser = jwt.decode(token, {
+            const decodedUser = jwt.decode(token, {
               complete: true
             });
             Users.findById(decodedUser.payload._id, (err, user) => {
@@ -83,8 +83,8 @@ module.exports = {
 
   docsAuthenticate: (req, res, next) => {
     // Extract the user info from the token
-    let token = req.body.token || req.headers['x-access-token'];
-    let user = extractUserFromToken(token);
+    const token = req.body.token || req.headers['x-access-token'];
+    const user = extractUserFromToken(token);
     // Validate whether a user can access a specific document
     Documents.findById(req.params.id)
       .populate('role')
@@ -112,8 +112,8 @@ module.exports = {
 
   ownerAuthenticate: (req, res, next) => {
     // Extract the user info from the token
-    let token = req.body.token || req.headers['x-access-token'];
-    let user = extractUserFromToken(token);
+    const token = req.body.token || req.headers['x-access-token'];
+    const user = extractUserFromToken(token);
     // Validate whether a user can delete a specific document
     Documents.findById(req.params.id)
       .populate('role')
@@ -187,10 +187,10 @@ module.exports = {
 
   all: (req, res, next) => {
     // Extract the user info from the token
-    let token = req.body.token || req.headers['x-access-token'];
-    let user = extractUserFromToken(token);
+    const token = req.body.token || req.headers['x-access-token'];
+    const user = extractUserFromToken(token);
     // Set a default limit of 10 if one is not set
-    let limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 10;
     Documents.find({})
       .limit(limit)
       .populate('role')
@@ -215,10 +215,10 @@ module.exports = {
 
   allByRole: (req, res, next) => {
     // Extract the user info from the token
-    let token = req.body.token || req.headers['x-access-token'];
-    let user = extractUserFromToken(token);
+    const token = req.body.token || req.headers['x-access-token'];
+    const user = extractUserFromToken(token);
 
-    let limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 10;
     Roles.findOne({
       title: req.params.role
     }).exec((err, role) => {
@@ -244,25 +244,25 @@ module.exports = {
 
   allByDate: (req, res, next) => {
     // Extract the user info from the token
-    let token = req.body.token || req.headers['x-access-token'];
-    let user = extractUserFromToken(token);
+    const token = req.body.token || req.headers['x-access-token'];
+    const user = extractUserFromToken(token);
 
-    let limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 10;
     // Ensure the date format is in the format expected
-    let dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
+    const dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
     // If the regex does not match, throw an error
     if (!dateRegex.test(req.params.date)) {
-      let dateError = new Error('Date must be in the format YYYY-MM-DD');
+      const dateError = new Error('Date must be in the format YYYY-MM-DD');
       dateError.status = 400;
       return next(dateError);
     }
     // Get the date provided as a Date object
-    let date = new Date(req.params.date);
+    const date = new Date(req.params.date);
     // Save the date in a temp variable since the date object is mutable
-    let tmp = new Date(req.params.date);
+    const tmp = new Date(req.params.date);
     // Save the next day in a nextDate variable
     // Modifies the tmp variable instead of the date variable
-    let nextDate = new Date(tmp.setDate(tmp.getDate() + 1));
+    const nextDate = new Date(tmp.setDate(tmp.getDate() + 1));
     Documents.find()
       // Date is greater than the date provided and less than one day ahead
       // i.e. documents created today

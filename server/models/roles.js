@@ -1,6 +1,6 @@
 'use strict';
 
-let mongoose = require('../config/db');
+const mongoose = require('../config/db');
 
 const ACCESS_LEVEL = {
   viewer: 0,
@@ -11,7 +11,7 @@ const ACCESS_LEVEL = {
 const DEFAULT_ROLE = 'viewer';
 const DEFAULT_ACCESS_LEVEL = ACCESS_LEVEL[DEFAULT_ROLE];
 
-let RoleSchema = mongoose.Schema({
+const RoleSchema = mongoose.Schema({
   title: {
     type: String,
     unique: true,

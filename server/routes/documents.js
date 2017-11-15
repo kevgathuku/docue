@@ -1,6 +1,6 @@
 'use strict';
 
-let express = require('express'),
+const express = require('express'),
   Documents = require('../controllers/documents'),
   Users = require('../controllers/users'),
   router = express.Router();

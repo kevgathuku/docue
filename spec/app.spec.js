@@ -1,8 +1,8 @@
 describe('Application Spec', () => {
   'use strict';
 
-  let request = require('supertest');
-  let app = require('../index');
+  const request = require('supertest');
+  const app = require('../index');
 
   it('should raise 404 error if page is not found', (done) => {
     request(app)

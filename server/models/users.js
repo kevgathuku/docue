@@ -1,9 +1,9 @@
 'use strict';
 
-let mongoose = require('../config/db');
-let bcrypt = require('bcrypt-nodejs');
+const mongoose = require('../config/db');
+const bcrypt = require('bcrypt-nodejs');
 
-let UserSchema = mongoose.Schema({
+const UserSchema = mongoose.Schema({
   username: {
     type: String,
     unique: true,
@@ -45,7 +45,7 @@ let UserSchema = mongoose.Schema({
 });
 
 UserSchema.pre('save', function(next) {
-  let user = this;
+  const user = this;
 
   // Only hash the password if it has been modified (or is new)
   if (!user.isModified('password')) {
@@ -67,7 +67,7 @@ UserSchema.pre('save', function(next) {
 // Check if entered password is the same as the stored password
 // Returns true if the passwords match, false otherwise
 UserSchema.methods.comparePassword = function(password) {
-  let user = this;
+  const user = this;
   return bcrypt.compareSync(password, user.password);
 };
 
