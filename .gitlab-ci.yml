@@ -1,7 +1,7 @@
 image: "node:carbon"
 
 services:
-  - mongodb:latest
+  - mongo:latest
 
 cache:
   paths:
