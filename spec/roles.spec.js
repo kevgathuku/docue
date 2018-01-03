@@ -1,9 +1,9 @@
 describe('Roles Spec', () => {
   'use strict';
 
-  let request = require('supertest');
-  let helper = require('./helper');
-  let app = require('../index');
+  const request = require('supertest');
+  const helper = require('./helper');
+  const app = require('../index');
   let token = null;
 
   beforeEach((done) => {
@@ -91,7 +91,7 @@ describe('Roles Spec', () => {
     });
 
     it('should not create an invalid role', (done) => {
-      let invalidTitle = 'invalid title';
+      const invalidTitle = 'invalid title';
       request(app)
         .post('/api/roles')
         .send({
@@ -129,7 +129,7 @@ describe('Roles Spec', () => {
         .get('/api/roles')
         .set('x-access-token', token)
         .end((err, res) => {
-          let allRoles = res.body.map(role => role.title);
+          const allRoles = res.body.map(role => role.title);
           expect(err).toBeNull();
           expect(allRoles[0]).toBe('viewer');
           expect(allRoles[1]).toBe('staff');

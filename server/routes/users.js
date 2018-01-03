@@ -1,25 +1,27 @@
-(() => {
-  'use strict';
-  let Users = require('../controllers/users');
+'use strict';
 
-  let express = require('express'), router = express.Router();
+const Users = require('../controllers/users');
 
-  router.route('/users/').post(Users.create).get(Users.authenticate, Users.all);
+const express = require('express'),
+  router = express.Router();
 
-  // Route to get whether a user is logged in or Not
-  router.get('/users/session', Users.getSession);
-  router.get('/users/stats', Users.authenticate, Users.stats);
+router
+  .route('/users/')
+  .post(Users.create)
+  .get(Users.authenticate, Users.all);
 
-  router
-    .route('/users/:id')
-    .get(Users.authenticate, Users.get)
-    .put(Users.authenticate, Users.update)
-    .delete(Users.authenticate, Users.delete);
+// Route to get whether a user is logged in or Not
+router.get('/users/session', Users.getSession);
 
-  router.route('/users/:id/documents').get(Users.authenticate, Users.getDocs);
+router
+  .route('/users/:id')
+  .get(Users.authenticate, Users.get)
+  .put(Users.authenticate, Users.update)
+  .delete(Users.authenticate, Users.delete);
 
-  router.post('/users/login', Users.login);
-  router.post('/users/logout', Users.logout);
+router.route('/users/:id/documents').get(Users.authenticate, Users.getDocs);
 
-  module.exports = router;
-})();
+router.post('/users/login', Users.login);
+router.post('/users/logout', Users.logout);
+
+module.exports = router;

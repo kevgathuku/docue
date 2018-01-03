@@ -1,9 +1,9 @@
-(() => {
-  'use strict';
+'use strict';
 
-  let mongoose = require('../config/db');
+const mongoose = require('../config/db');
 
-  let DocumentSchema = mongoose.Schema({
+const DocumentSchema = mongoose.Schema(
+  {
     title: {
       type: String,
       unique: true,
@@ -20,12 +20,13 @@
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Role'
     }
-  }, {
+  },
+  {
     timestamps: {
       createdAt: 'dateCreated',
       updatedAt: 'lastModified'
     }
-  });
+  }
+);
 
-  module.exports = mongoose.model('Document', DocumentSchema);
-})();
+module.exports = mongoose.model('Document', DocumentSchema);

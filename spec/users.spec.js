@@ -1,15 +1,15 @@
 describe('User Spec', () => {
   'use strict';
 
-  let helper = require('./helper');
-  let request = require('supertest');
-  let requestAsync = require('supertest-as-promised');
-  let Promise = require('bluebird');
-  let app = require('../index');
-  let extractUserFromToken = require('../server/controllers/utils').extractUserFromToken;
+  const helper = require('./helper');
+  const request = require('supertest');
+  const requestAsync = require('supertest-as-promised');
+  const Promise = require('bluebird');
+  const app = require('../index');
+  const extractUserFromToken = require('../server/controllers/utils').extractUserFromToken;
+  const Documents = require('../server/models/documents');
+  const Roles = require('../server/models/roles');
   let token = null;
-  let Documents = require('../server/models/documents');
-  let Roles = require('../server/models/roles');
 
   beforeEach((done) => {
     // Promise that returns a generatedToken
@@ -326,7 +326,7 @@ describe('User Spec', () => {
       Documents.find({})
         .limit(1)
         .exec((err, doc) => {
-          let userId = doc[0].ownerId;
+          const userId = doc[0].ownerId;
           request(app)
             .get('/api/users/' + userId + '/documents')
             .expect('Content-Type', /json/)
@@ -403,7 +403,7 @@ describe('User Spec', () => {
   describe('User Actions', () => {
     let user = null;
     let userToken = null;
-    let userPassword = 'knfenfenfen';
+    const userPassword = 'knfenfenfen';
 
     beforeEach((done) => {
       request(app)

@@ -1,32 +1,33 @@
 describe('Documents Spec', () => {
   'use strict';
 
-  let request = require('supertest');
-  let requestAsync = require('supertest-as-promised');
-  let Promise = require('bluebird');
-  let helper = require('./helper');
-  let app = require('../index');
-  let Roles = require('../server/models/roles');
+  const request = require('supertest');
+  const requestAsync = require('supertest-as-promised');
+  const Promise = require('bluebird');
+  const helper = require('./helper');
+  const app = require('../index');
+  const Roles = require('../server/models/roles');
+  const defaultRole = Roles.schema.paths.title.default();
   let token = null;
-  let defaultRole = Roles.schema.paths.title.default();
 
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
-  beforeEach((done) => {
+  beforeEach(done => {
     // Promise that returns a generatedToken
-    helper.beforeEach()
-      .then((generatedToken) => {
+    helper
+      .beforeEach()
+      .then(generatedToken => {
         token = generatedToken;
         done();
       })
-      .catch((err) => {
+      .catch(err => {
         console.log('Error running the beforeEach function', err);
         done();
       });
   });
 
   describe('Document Creation', () => {
-    it('should create a document successfully', (done) => {
+    it('should create a document successfully', done => {
       request(app)
         .post('/api/documents')
         .send({
@@ -48,7 +49,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should not create document if user is unauthenticated', (done) => {
+    it('should not create document if user is unauthenticated', done => {
       // Send a request without a token
       request(app)
         .post('/api/documents')
@@ -64,7 +65,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should not create new document if title is missing', (done) => {
+    it('should not create new document if title is missing', done => {
       // Send a request with an empty title
       request(app)
         .post('/api/documents')
@@ -75,13 +76,12 @@ describe('Documents Spec', () => {
         .set('x-access-token', token)
         .end((err, res) => {
           expect(res.statusCode).toBe(400);
-          expect(res.body.error).toBe(
-            'The document title is required');
+          expect(res.body.error).toBe('The document title is required');
           done();
         });
     });
 
-    it('should not create a duplicate document', (done) => {
+    it('should not create a duplicate document', done => {
       request(app)
         .post('/api/documents')
         .send({
@@ -98,7 +98,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should assign a default role if one is not defined', (done) => {
+    it('should assign a default role if one is not defined', done => {
       request(app)
         .post('/api/documents')
         .send({
@@ -115,7 +115,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should assign defined roles correctly', (done) => {
+    it('should assign defined roles correctly', done => {
       request(app)
         .post('/api/documents')
         .send({
@@ -135,7 +135,7 @@ describe('Documents Spec', () => {
   });
 
   describe('Document Fetching', () => {
-    it('should return all documents', (done) => {
+    it('should return all documents', done => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
@@ -148,8 +148,8 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should return documents limited by a specified number', (done) => {
-      let limit = 2;
+    it('should return documents limited by a specified number', done => {
+      const limit = 2;
       request(app)
         .get('/api/documents?limit=' + limit)
         .set('x-access-token', token)
@@ -162,7 +162,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should return documents in latest first order', (done) => {
+    it('should return documents in latest first order', done => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
@@ -178,7 +178,7 @@ describe('Documents Spec', () => {
   describe('Documents Update', () => {
     let documentID = null;
 
-    beforeEach((done) => {
+    beforeEach(done => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
@@ -190,7 +190,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should correctly update a document', (done) => {
+    it('should correctly update a document', done => {
       request(app)
         .put('/api/documents/' + documentID)
         .set('x-access-token', token)
@@ -211,7 +211,7 @@ describe('Documents Spec', () => {
   describe('Single Document Fetch', () => {
     let documentID = null;
 
-    beforeEach((done) => {
+    beforeEach(done => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
@@ -222,7 +222,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should correctly fetch a single document', (done) => {
+    it('should correctly fetch a single document', done => {
       request(app)
         .get('/api/documents/' + documentID)
         .set('x-access-token', token)
@@ -240,7 +240,7 @@ describe('Documents Spec', () => {
     let staffToken = null;
     let documentID = null;
 
-    beforeEach((done) => {
+    beforeEach(done => {
       // Create a new user with the staff role
       requestAsync(app)
         .post('/api/users')
@@ -252,11 +252,11 @@ describe('Documents Spec', () => {
           password: 'staff',
           role: 'staff'
         })
-        .then((res) => {
+        .then(res => {
           staffToken = res.body.token;
           return Promise.resolve(staffToken);
         })
-        .then((staffToken) => {
+        .then(staffToken => {
           return requestAsync(app)
             .post('/api/documents')
             .set('x-access-token', staffToken)
@@ -266,17 +266,17 @@ describe('Documents Spec', () => {
               role: 'staff'
             });
         })
-        .then((res) => {
+        .then(res => {
           documentID = res.body._id;
           done();
         })
-        .catch((err) => {
+        .catch(err => {
           console.log('Error', err);
           done();
         });
     });
 
-    it('should allow access to authorized users', (done) => {
+    it('should allow access to authorized users', done => {
       request(app)
         .get('/api/documents/' + documentID)
         .set('x-access-token', staffToken)
@@ -288,19 +288,20 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should not allow unauthorized viewing of a document', (done) => {
+    it('should not allow unauthorized viewing of a document', done => {
       request(app)
         .get('/api/documents/' + documentID)
         .set('x-access-token', token)
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
           expect(res.body.error).toBe(
-            'You are not allowed to access this document');
+            'You are not allowed to access this document'
+          );
           done();
         });
     });
 
-    it('should not allow unauthorized editing of documents', (done) => {
+    it('should not allow unauthorized editing of documents', done => {
       request(app)
         .put('/api/documents/' + documentID)
         .set('x-access-token', token)
@@ -310,25 +311,26 @@ describe('Documents Spec', () => {
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
           expect(res.body.error).toBe(
-            'You are not allowed to access this document');
+            'You are not allowed to access this document'
+          );
           done();
         });
     });
 
-    it('should not allow unauthorized deletion of documents', (done) => {
+    it('should not allow unauthorized deletion of documents', done => {
       request(app)
         .delete('/api/documents/' + documentID)
         .set('x-access-token', token)
         .end((err, res) => {
           expect(res.statusCode).toBe(403);
           expect(res.body.error).toBe(
-            'You are not allowed to delete this document');
+            'You are not allowed to delete this document'
+          );
           done();
         });
     });
 
-    it('should only return documents a user is allowed to access', (
-      done) => {
+    it('should only return documents a user is allowed to access', done => {
       request(app)
         .get('/api/documents/')
         .set('x-access-token', token)
@@ -339,13 +341,12 @@ describe('Documents Spec', () => {
           done();
         });
     });
-
   });
 
   describe('Document delete', () => {
     let documentID = null;
 
-    beforeEach((done) => {
+    beforeEach(done => {
       request(app)
         .get('/api/documents')
         .set('x-access-token', token)
@@ -356,7 +357,7 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should correctly delete a document', (done) => {
+    it('should correctly delete a document', done => {
       request(app)
         .delete('/api/documents/' + documentID)
         .set('x-access-token', token)
@@ -373,7 +374,7 @@ describe('Documents Spec', () => {
     // The viewer role (default) is the test role
     let testRole = defaultRole;
 
-    it('should return documents accessible by the given role', (done) => {
+    it('should return documents accessible by the given role', done => {
       // Get the documents accessible by the test role
       request(app)
         .get('/api/documents/roles/' + testRole)
@@ -391,9 +392,9 @@ describe('Documents Spec', () => {
     let today = new Date();
     // Build the date format to be sent from the current date
     // Formt should be YYYY-MM-DD
-    let testDate =
-      `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-    it('should return documents created on the date provided', (done) => {
+    let testDate = `${today.getFullYear()}-${today.getMonth() +
+      1}-${today.getDate()}`;
+    it('should return documents created on the date provided', done => {
       request(app)
         .get('/api/documents/created/' + testDate)
         .set('x-access-token', token)
@@ -405,15 +406,14 @@ describe('Documents Spec', () => {
         });
     });
 
-    it('should return an error if the format is not valid', (done) => {
+    it('should return an error if the format is not valid', done => {
       request(app)
         .get('/api/documents/created/' + '20er-343-343e3d')
         .set('x-access-token', token)
         .set('Accept', 'application/json')
         .end((err, res) => {
           expect(res.statusCode).toBe(400);
-          expect(res.body.error).toBe(
-            'Date must be in the format YYYY-MM-DD');
+          expect(res.body.error).toBe('Date must be in the format YYYY-MM-DD');
           done();
         });
     });

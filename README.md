@@ -45,7 +45,7 @@ Users are categorized by roles. Each user must have a role defined for them.
     npm start
     ```
 
-  It can be accessed on `http://localhost:3000`
+  It can be accessed on `http://localhost:8000`
 
 ## Running tests
 
