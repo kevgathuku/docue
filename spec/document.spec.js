@@ -2,7 +2,6 @@ describe('Documents Spec', () => {
   'use strict';
 
   const request = require('supertest');
-  const requestAsync = require('supertest-as-promised');
   const Promise = require('bluebird');
   const helper = require('./helper');
   const app = require('../index');
@@ -242,7 +241,7 @@ describe('Documents Spec', () => {
 
     beforeEach(done => {
       // Create a new user with the staff role
-      requestAsync(app)
+      request(app)
         .post('/api/users')
         .send({
           username: 'staffUser',
@@ -257,7 +256,7 @@ describe('Documents Spec', () => {
           return Promise.resolve(staffToken);
         })
         .then(staffToken => {
-          return requestAsync(app)
+          return request(app)
             .post('/api/documents')
             .set('x-access-token', staffToken)
             .send({

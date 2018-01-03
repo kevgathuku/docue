@@ -3,7 +3,6 @@ describe('User Spec', () => {
 
   const helper = require('./helper');
   const request = require('supertest');
-  const requestAsync = require('supertest-as-promised');
   const Promise = require('bluebird');
   const app = require('../index');
   const extractUserFromToken = require('../server/controllers/utils').extractUserFromToken;
@@ -53,7 +52,7 @@ describe('User Spec', () => {
       let userID = null;
       let userToken = null;
       // Create the user
-      requestAsync(app)
+      request(app)
         .post('/api/users')
         .set('Accept', 'application/json')
         .send({
@@ -71,7 +70,7 @@ describe('User Spec', () => {
           return Promise.resolve(userToken);
         })
         .then((userToken) => {
-          return requestAsync(app)
+          return request(app)
             .get('/api/users/' + userID)
             .set('x-access-token', userToken);
         })
@@ -180,7 +179,7 @@ describe('User Spec', () => {
 
     beforeEach((done) => {
       // Create a new user with the staff role
-      requestAsync(app)
+      request(app)
         .post('/api/users')
         .send({
           username: 'staffUser',
@@ -351,7 +350,7 @@ describe('User Spec', () => {
         title: 'admin'
       })
         .then((adminRole) => {
-          return requestAsync(app)
+          return request(app)
             .post('/api/users')
             .send({
               username: 'adminUser',
@@ -429,7 +428,7 @@ describe('User Spec', () => {
 
     it('should login and logout user successfully', (done) => {
       // logout the user
-      requestAsync(app)
+      request(app)
         .post('/api/users/logout')
         .set('x-access-token', userToken)
         .then((res) => {
@@ -438,7 +437,7 @@ describe('User Spec', () => {
           return Promise.resolve(res.body);
         })
         .then(() => {
-          return requestAsync(app)
+          return request(app)
             .post('/api/users/login')
             .send({
               username: user.username,
@@ -492,7 +491,7 @@ describe('User Spec', () => {
 
     it('should return false if the user is logged out', (done) => {
       // logout the user
-      requestAsync(app)
+      request(app)
         .post('/api/users/logout')
         .set('x-access-token', token)
         .then((res) => {
@@ -500,7 +499,7 @@ describe('User Spec', () => {
           return Promise.resolve(res.body.message);
         })
         .then(() => {
-          return requestAsync(app)
+          return request(app)
             .get('/api/users/session')
             .set('x-access-token', token);
         })
