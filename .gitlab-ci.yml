@@ -1,0 +1,33 @@
+image: "node:carbon"
+
+services:
+  - mongodb:latest
+
+cache:
+  paths:
+  - node_modules/
+
+test:
+  script:
+  - npm install
+  - npm test
+
+staging:
+  type: deploy
+  script:
+  - apt-get update -qy
+  - apt-get install -y ruby-dev
+  - gem install dpl
+  - dpl --provider=heroku --app=gitlab-ci-nodejs-test-staging --api-key=$HEROKU_STAGING_API_KEY
+  only:
+  - master
+
+production:
+  type: deploy
+  script:
+  - apt-get update -qy
+  - apt-get install -y ruby-dev
+  - gem install dpl
+  - dpl --provider=heroku --app=gitlab-ci-nodejs-test-prod --api-key=$HEROKU_PRODUCTION_API_KEY
+  only:
+  - tags
