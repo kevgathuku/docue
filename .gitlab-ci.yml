@@ -7,6 +7,10 @@ cache:
   paths:
   - node_modules/
 
+variables:
+  MONGO_TEST_URL: "mongodb://mongo/test_database"
+  NODE_ENV: "test"
+
 test:
   script:
   - npm install
