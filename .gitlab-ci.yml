@@ -10,6 +10,7 @@ cache:
 variables:
   MONGO_TEST_URL: "mongodb://mongo/test_database"
   NODE_ENV: "test"
+  SECRET: "secret"
 
 test:
   script:
