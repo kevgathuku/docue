@@ -9,7 +9,8 @@
     "prestart": "./node_modules/.bin/migrate",
     "start": "nodemon index.js",
     "test": "NODE_ENV='test' npm run coverage",
-    "coverage": "nyc node spec/run.js && nyc report --reporter=text-lcov | coveralls",
+    "coverage":
+      "nyc node spec/run.js && nyc report --reporter=text-lcov | coveralls",
     "codecov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
   "dependencies": {
@@ -34,7 +35,7 @@
     "eslint": "^3.1.1",
     "jasmine": "^2.4.1",
     "mockgoose": "^7.3.3",
-    "nyc": "^10.0.0",
+    "nyc": "^11.3.0",
     "supertest": "^2.0.1",
     "supertest-as-promised": "^4.0.1"
   }
