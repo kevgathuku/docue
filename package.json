@@ -29,6 +29,7 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "ava": "^1.4.1",
     "coveralls": "^2.11.6",
     "dotenv": "^2.0.0",
     "eslint": "^3.1.1",
@@ -36,6 +37,6 @@
     "jest": "^24.8.0",
     "mockgoose": "^7.3.3",
     "nyc": "^11.3.0",
-    "supertest": "^2.0.1"
+    "supertest": "^4.0.2"
   }
 }
