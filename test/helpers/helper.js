@@ -3,37 +3,32 @@ const Documents = require('../../server/models/documents');
 const Roles = require('../../server/models/roles');
 const Users = require('../../server/models/users');
 const request = require('supertest');
-const app = require('../../index');
+const { createTestApp } = require('../../index');
 
 const testPassword = 'youKnowNothing';
 
-const getLoginToken = (user, callback) => {
+const getLoginTokenAsync = async (user) => {
   // Get a login token
-  request(app)
+  const loginRequest =  await request(createTestApp())
     .post('/api/users/login')
     .send({
       username: user.username,
-      password: testPassword
+      password: testPassword,
     })
-    .end((err, res) => {
-      // Call the callback with the generated token
-      callback(err, res.body.token);
-    });
+    return loginRequest.body.token;
 };
-
-const getLoginTokenAsync = Promise.promisify(getLoginToken);
 
 const seedRoles = () => {
   // Users will be created with the first role
   const roles = [
     {
       title: 'viewer',
-      accessLevel: 0
+      accessLevel: 0,
     },
     {
       title: 'staff',
-      accessLevel: 1
-    }
+      accessLevel: 1,
+    },
   ];
   // return a promise
   return Roles.create(roles);
@@ -46,22 +41,22 @@ const seedUsers = role => {
       username: 'jsnow',
       name: {
         first: 'John',
-        last: 'Snow'
+        last: 'Snow',
       },
       email: 'jsnow@winterfell.org',
       password: testPassword,
-      role: role
+      role: role,
     },
     {
       username: 'nstark',
       name: {
         first: 'Ned',
-        last: 'Stark'
+        last: 'Stark',
       },
       email: 'nstark@winterfell.org',
       password: 'winterIsComing',
-      role: role
-    }
+      role: role,
+    },
   ];
 
   return Users.create(users);
@@ -73,20 +68,20 @@ const seedDocuments = user => {
       title: 'Doc1',
       content: '1Doc',
       ownerId: user._id,
-      role: user.role
+      role: user.role,
     },
     {
       title: 'Doc2',
       content: '2Doc',
       ownerId: user._id,
-      role: user.role
+      role: user.role,
     },
     {
       title: 'Doc3',
       content: '3Doc',
       ownerId: user._id,
-      role: user.role
-    }
+      role: user.role,
+    },
   ];
 
   return Documents.create(documents[0])

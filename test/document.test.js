@@ -1,70 +1,53 @@
 import test from 'ava';
+import request from 'supertest';
 
-const request = require('supertest');
-const Promise = require('bluebird');
 const helper = require('./helpers/helper');
-const app = require('../index');
+import { createTestApp } from '../index';
 const Roles = require('../server/models/roles');
 const defaultRole = Roles.schema.paths.title.default();
-let token = null;
 
-test.beforeEach.cb(t => {
+test.beforeEach('Document: beforeEach', async t => {
   // This runs before each test
-  helper
-    .beforeEach()
-    .then(generatedToken => {
-      token = generatedToken;
-      // done();
-      t.end();
-    })
-    .catch(err => {
-      console.error('Error running the beforeEach function', err);
-      // done();
-      t.end();
-    });
+  const generatedToken = await helper.beforeEach();
+  t.context.token = generatedToken;
 });
 
-test.cb('should create a document successfully', t => {
-  request(app)
+test('should create a document successfully', async t => {
+  const res = await request(createTestApp())
+    .post('/api/documents')
+    .set('x-access-token', t.context.token)
+    .send({
+      title: 'Doc 1',
+      content: 'JS Curriculum',
+    });
+
+  t.is(res.statusCode, 201);
+
+  // expect(res.body.title).toBe('Doc 1');
+  t.is(res.body.title, 'Doc 1');
+  t.is(res.body.content, 'JS Curriculum');
+
+  // The timestamps should be created
+  t.truthy(res.body.dateCreated);
+  t.truthy(res.body.lastModified);
+
+  // The User Id should be added
+  t.truthy(res.body.ownerId);
+});
+
+test('should not create document if user is unauthenticated', async t => {
+  // Send a request without a token
+  const res = await request(createTestApp())
     .post('/api/documents')
     .send({
       title: 'Doc 1',
       content: 'JS Curriculum',
     })
-    .set('x-access-token', token)
-    .end((err, res) => {
-      t.is(err, null);
-      t.is(res.statusCode, 201);
+    .set('Accept', 'application/json')
 
-      // expect(res.body.title).toBe('Doc 1');
-      t.is(res.body.title, 'Doc 1');
-      t.is(res.body.content, 'JS Curriculum');
-
-      // The timestamps should be created
-      t.truthy(res.body.dateCreated);
-      t.truthy(res.body.lastModified);
-
-      // The User Id should be added
-      t.truthy(res.body.ownerId);
-      t.end();
-    });
+    t.is(res.statusCode, 403);
+    t.is(res.body.error, 'No token provided.');
 });
-
-// it('should not create document if user is unauthenticated', done => {
-//   // Send a request without a token
-//   request(app)
-//     .post('/api/documents')
-//     .send({
-//       title: 'Doc 1',
-//       content: 'JS Curriculum'
-//     })
-//     .set('Accept', 'application/json')
-//     .end((err, res) => {
-//       expect(res.statusCode).toBe(403);
-//       expect(res.body.error).toBe('No token provided.');
-//       done();
-//     });
-// });
 
 // it('should not create new document if title is missing', done => {
 //   // Send a request with an empty title
