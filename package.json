@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "bluebird": "^3.3.5",
+    "bluebird": "^3.5.5",
     "body-parser": "^1.15.0",
     "compression": "^1.6.2",
     "cors": "^2.8.1",
@@ -23,28 +23,34 @@
     "jsonwebtoken": "7.2.1",
     "migrate": "^0.2.2",
     "moment": "^2.11.2",
-    "mongoose": "4.7.9",
+    "mongoose": "^4.7.9",
     "morgan": "~1.7.0",
     "nodemon": "^1.8.1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
     "ava": "^1.4.1",
+    "babel-eslint": "^10.0.1",
     "coveralls": "^2.11.6",
     "dotenv": "^2.0.0",
-    "eslint": "^3.1.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-ava": "^6.0.0",
     "jasmine": "^2.4.1",
     "jest": "^24.8.0",
     "mockgoose": "^7.3.3",
+    "mongodb-memory-server": "^5.1.2",
     "nyc": "^11.3.0",
     "supertest": "^4.0.2"
   },
   "ava": {
     "files": [
-			"test/**/*"
+      "test/**/*"
     ],
     "helpers": [
-			"test/helpers/**/*"
-		]
+      "test/helpers/**/*"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "plugin:ava/recommended"
   }
 }

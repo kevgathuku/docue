@@ -1,9 +1,5 @@
-/**
- * eslint no-console: 0
- */
 const mongoose = require('mongoose');
 const isProduction = process.env.NODE_ENV === 'production';
-const isTest = process.env.NODE_ENV === 'test';
 
 // load .env when not in production mode
 if (!isProduction) {
@@ -14,7 +10,7 @@ if (!isProduction) {
 mongoose.Promise = require('bluebird');
 
 // Enable Promises for the native MongoDB Driver
-var options = {
+const options = {
   promiseLibrary: require('bluebird')
 };
 

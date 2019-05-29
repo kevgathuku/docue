@@ -21,7 +21,7 @@ module.exports = {
       // Find if the document already exists
       Documents.findOne(
         {
-          title: req.body.title
+          title: req.body.title,
         },
         (err, document) => {
           if (document) {
@@ -32,7 +32,7 @@ module.exports = {
           } else {
             // Decode the user info from the token
             const decodedUser = jwt.decode(token, {
-              complete: true
+              complete: true,
             });
             Users.findById(decodedUser.payload._id, (err, user) => {
               if (!user) {
@@ -50,7 +50,7 @@ module.exports = {
 
                 // Find the corresponding role in the DB
                 Roles.findOne({
-                  title: role
+                  title: role,
                 }).exec((err, fetchedRole) => {
                   if (err || !fetchedRole) {
                     next(err);
@@ -61,7 +61,7 @@ module.exports = {
                         title: req.body.title,
                         content: req.body.content,
                         ownerId: decodedUser.payload._id,
-                        role: fetchedRole
+                        role: fetchedRole,
                       },
                       (error, newDocument) => {
                         if (!error) {
@@ -103,7 +103,7 @@ module.exports = {
             next();
           } else {
             res.status(403).json({
-              error: 'You are not allowed to access this document'
+              error: 'You are not allowed to access this document',
             });
           }
         }
@@ -129,7 +129,7 @@ module.exports = {
             next();
           } else {
             res.status(403).json({
-              error: 'You are not allowed to delete this document'
+              error: 'You are not allowed to delete this document',
             });
           }
         }
@@ -140,11 +140,11 @@ module.exports = {
     Documents.findByIdAndUpdate(
       req.params.id,
       {
-        $set: req.body
+        $set: req.body,
       },
       // Return the newly updated doc rather than the original
       {
-        new: true
+        new: true,
       }
     )
       .populate('ownerId')
@@ -173,7 +173,7 @@ module.exports = {
   delete: (req, res, next) => {
     Documents.findOneAndRemove(
       {
-        _id: req.params.id
+        _id: req.params.id,
       },
       function(err, doc) {
         if (err || !doc) {
@@ -220,10 +220,10 @@ module.exports = {
 
     const limit = parseInt(req.query.limit) || 10;
     Roles.findOne({
-      title: req.params.role
+      title: req.params.role,
     }).exec((err, role) => {
       Documents.find({
-        role: role
+        role: role,
       })
         .populate('role')
         .limit(limit)
@@ -249,7 +249,7 @@ module.exports = {
 
     const limit = parseInt(req.query.limit) || 10;
     // Ensure the date format is in the format expected
-    const dateRegex = /\d{4}\-\d{1,2}\-\d{1,2}$/;
+    const dateRegex = /\d{4}-\d{1,2}-\d{1,2}$/;
     // If the regex does not match, throw an error
     if (!dateRegex.test(req.params.date)) {
       const dateError = new Error('Date must be in the format YYYY-MM-DD');
@@ -282,5 +282,5 @@ module.exports = {
           );
         }
       });
-  }
+  },
 };

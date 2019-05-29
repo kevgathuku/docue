@@ -1,9 +1,3 @@
-/**
-* eslint no-console: 0
-*/
-
-
-
 let express = require('express'),
   compression = require('compression'),
   cors = require('cors'),

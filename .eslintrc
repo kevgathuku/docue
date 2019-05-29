@@ -2,22 +2,6 @@
   "parser": "babel-eslint",
   "extends": "eslint:recommended",
   "rules": {
-    "indent": [
-      "warn",
-      2
-    ],
-    "quotes": [
-      2,
-      "single"
-    ],
-    "linebreak-style": [
-      2,
-      "unix"
-    ],
-    "semi": [
-      2,
-      "always"
-    ],
     "no-console": 0,
     "no-case-declarations": 0,
     "no-class-assign": 0,
@@ -31,9 +15,11 @@
     "no-unused-labels": 0,
     "constructor-super": 0
   },
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "env": {
     "es6": true,
-    "node": true,
-    "jasmine": true
+    "node": true
   }
 }
