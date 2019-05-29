@@ -27,7 +27,7 @@ app.use(compression());
 // this will let us get the data from a POST
 app.use(
   bodyParser.urlencoded({
-    extended: true
+    extended: true,
   })
 );
 app.use(bodyParser.json());
@@ -37,8 +37,8 @@ app.use(
   cors({
     allowedHeaders: [
       'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept, x-access-token'
-    ]
+      'Origin, X-Requested-With, Content-Type, Accept, x-access-token',
+    ],
   })
 );
 
@@ -51,7 +51,7 @@ app.use((err, req, res, next) => {
     return next(err);
   }
   res.status(err.status || 500).json({
-    error: err.message
+    error: err.message,
   });
 });
 
@@ -59,7 +59,7 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   let err = new Error('Not Found');
   res.status(404).json({
-    error: err.message
+    error: err.message,
   });
 });
 
@@ -70,4 +70,45 @@ if (!isTest) {
 }
 
 // Export the app object
-module.exports = app;
+function createTestApp() {
+  const testApp = express();
+  testApp.use(
+    bodyParser.urlencoded({
+      extended: true,
+    })
+  );
+  testApp.use(bodyParser.json());
+  testApp.set('superSecret', process.env.SECRET);
+  testApp.use(morgan('dev'));
+
+  // Enable CORS
+  testApp.use(
+    cors({
+      allowedHeaders: [
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, x-access-token',
+      ],
+    })
+  );
+  testApp.use(require('./server/routes'));
+
+  testApp.use((err, req, res, next) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+    res.status(err.status || 500).json({
+      error: err.message,
+    });
+  });
+
+  // catch 404 errors
+  testApp.use((req, res) => {
+    let err = new Error('Not Found');
+    res.status(404).json({
+      error: err.message,
+    });
+  });
+  return testApp;
+}
+
+module.exports.createTestApp = createTestApp;
