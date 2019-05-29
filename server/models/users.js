@@ -1,5 +1,3 @@
-'use strict';
-
 const mongoose = require('../config/db');
 const bcrypt = require('bcrypt-nodejs');
 

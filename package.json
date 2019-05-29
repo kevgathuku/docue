@@ -2,7 +2,7 @@
   "name": "docue",
   "version": "0.1.1",
   "engines": {
-    "node": "8.x"
+    "node": "10.x"
   },
   "private": true,
   "scripts": {

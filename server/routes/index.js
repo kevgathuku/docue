@@ -1,4 +1,3 @@
-'use strict';
 const express = require('express'),
   Promise = require('bluebird'),
   router = express.Router(),
@@ -24,7 +23,7 @@ const stats = (req, res) => {
       Roles.count().exec()
     ])
       .then(function(counts) {
-        var [docsCount, usersCount, rolesCount] = counts;
+        const [docsCount, usersCount, rolesCount] = counts;
         res.json({
           documents: docsCount,
           roles: rolesCount,
