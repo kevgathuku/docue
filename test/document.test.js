@@ -12,7 +12,7 @@ test.beforeEach('Document: beforeEach', async t => {
   t.context.token = generatedToken;
 });
 
-test('should create a document successfully', async t => {
+test.serial('should create a document successfully', async t => {
   const res = await request(createTestApp())
     .post('/api/documents')
     .set('x-access-token', t.context.token)
@@ -35,84 +35,77 @@ test('should create a document successfully', async t => {
   t.truthy(res.body.ownerId);
 });
 
-test('should not create document if user is unauthenticated', async t => {
-  // Send a request without a token
+test.serial(
+  'should not create document if user is unauthenticated',
+  async t => {
+    // Send a request without a token
+    const res = await request(createTestApp())
+      .post('/api/documents')
+      .send({
+        title: 'Doc 1',
+        content: 'JS Curriculum',
+      })
+      .set('Accept', 'application/json');
+
+    t.is(res.statusCode, 403);
+    t.is(res.body.error, 'No token provided.');
+  }
+);
+
+test.serial('should not create new document if title is missing', async t => {
+  // Send a request with an empty title
+  const res = await request(createTestApp())
+    .post('/api/documents')
+    .set('x-access-token', t.context.token)
+    .send({
+      title: '',
+      content: 'JS Curriculum',
+    });
+
+  t.is(res.statusCode, 400);
+  t.is(res.body.error, 'The document title is required');
+});
+
+test.serial('should not create a duplicate document', async t => {
+  const res = await request(createTestApp())
+    .post('/api/documents')
+    .set('x-access-token', t.context.token)
+    .send({
+      title: 'Doc1',
+      content: 'Duplicate document test',
+    });
+
+  t.is(res.statusCode, 400);
+  t.is(res.body.title, undefined);
+  t.is(res.body.error, 'Document already exists');
+});
+
+test.serial('should assign a default role if one is not defined', async t => {
+  const res = await request(createTestApp())
+    .post('/api/documents')
+    .send({
+      title: 'Doc 1',
+      content: 'JS Curriculum'
+    })
+    .set('Accept', 'application/json')
+    .set('x-access-token', t.context.token)
+
+    t.is(res.statusCode, 201);
+    // It should assign the default role
+    t.is(res.body.role.title, defaultRole);
+});
+
+test.serial('should assign defined roles correctly', async t => {
   const res = await request(createTestApp())
     .post('/api/documents')
     .send({
       title: 'Doc 1',
       content: 'JS Curriculum',
+      role: 'staff'
     })
     .set('Accept', 'application/json')
+    .set('x-access-token', t.context.token)
 
-    t.is(res.statusCode, 403);
-    t.is(res.body.error, 'No token provided.');
+    t.is(res.statusCode, 201);
+    t.is(res.body.role.title, 'staff');
 });
-
-// it('should not create new document if title is missing', done => {
-//   // Send a request with an empty title
-//   request(app)
-//     .post('/api/documents')
-//     .send({
-//       title: '',
-//       content: 'JS Curriculum'
-//     })
-//     .set('x-access-token', token)
-//     .end((err, res) => {
-//       expect(res.statusCode).toBe(400);
-//       expect(res.body.error).toBe('The document title is required');
-//       done();
-//     });
-// });
-
-// it('should not create a duplicate document', done => {
-//   request(app)
-//     .post('/api/documents')
-//     .send({
-//       title: 'Doc1',
-//       content: 'Duplicate document test'
-//     })
-//     .set('x-access-token', token)
-//     .expect(201)
-//     .end((err, res) => {
-//       expect(res.statusCode).toBe(400);
-//       expect(res.body.title).toBeUndefined();
-//       expect(res.body.error).toBe('Document already exists');
-//       done();
-//     });
-// });
-
-// it('should assign a default role if one is not defined', done => {
-//   request(app)
-//     .post('/api/documents')
-//     .send({
-//       title: 'Doc 1',
-//       content: 'JS Curriculum'
-//     })
-//     .set('Accept', 'application/json')
-//     .set('x-access-token', token)
-//     .end((err, res) => {
-//       expect(res.statusCode).toBe(201);
-//       // It should assign the default role
-//       expect(res.body.role.title).toBe(defaultRole);
-//       done();
-//     });
-// });
-
-// it('should assign defined roles correctly', done => {
-//   request(app)
-//     .post('/api/documents')
-//     .send({
-//       title: 'Doc 1',
-//       content: 'JS Curriculum',
-//       role: 'staff'
-//     })
-//     .set('Accept', 'application/json')
-//     .set('x-access-token', token)
-//     .end((err, res) => {
-//       expect(err).toBeNull();
-//       expect(res.statusCode).toBe(201);
-//       expect(res.body.role.title).toBe('staff');
-//       done();
-//     });
-// });
