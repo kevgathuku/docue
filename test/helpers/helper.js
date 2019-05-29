@@ -116,17 +116,12 @@ const seedDocuments = user => {
 };
 
 // Utility function for emptying the database
-const clearDb = () => {
-  // Remove all docs
-  return Documents.remove({})
-    .then(() => {
-      // Remove all roles
-      return Roles.remove({});
-    })
-    .then(() => {
-      // Remove all users
-      return Users.remove({});
-    });
+const clearDb = async () => {
+  console.log("clearDb")
+  // Remove all data from the DB
+  await Documents.remove({});
+  await Users.remove({});
+  await Roles.remove({});
 };
 
 // Returns a promise of a generated token
