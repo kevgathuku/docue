@@ -2,7 +2,7 @@
 * eslint no-console: 0
 */
 
-'use strict';
+
 
 let express = require('express'),
   compression = require('compression'),
@@ -10,7 +10,8 @@ let express = require('express'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
   app = express(),
-  isProduction = process.env.NODE_ENV === 'production';
+  isProduction = process.env.NODE_ENV === 'production',
+  isTest = process.env.NODE_ENV === 'test';
 
 // Load the env variables only in DEV mode
 if (!isProduction) {
@@ -69,8 +70,10 @@ app.use((req, res) => {
 });
 
 // START THE SERVER
-app.listen(port);
-console.log('Listening on port', port);
+if (!isTest) {
+  app.listen(port);
+  console.log('Listening on port', port);
+}
 
 // Export the app object
 module.exports = app;
