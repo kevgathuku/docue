@@ -18,7 +18,7 @@ var options = {
 };
 
 if (process.env.NODE_ENV === 'test') {
-  mongoose.connect(process.env.MONGO_TEST_URL, options);
+  mongoose.connect(process.env.MONGO_TEST_URL || process.env.MONGODB_URL, options);
 } else {
   // MONGOLAB_URI is the MongoDB url config in Heroku
   mongoose.connect(
