@@ -1,11 +1,12 @@
 /**
  * eslint no-console: 0
  */
-'use strict';
-
 const mongoose = require('mongoose');
-// load .env only in dev mode
-if (process.env.NODE_ENV === 'development') {
+const isProduction = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test';
+
+// load .env when not in production mode
+if (!isProduction) {
   require('dotenv').load();
 }
 
